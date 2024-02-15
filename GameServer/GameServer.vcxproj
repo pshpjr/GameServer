@@ -223,7 +223,11 @@
       <SDLCheck>true</SDLCheck>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
-    <ClCompile Include="Group\LoginGroup.cpp" />
+    <ClCompile Include="Group\EasyMonsterGroup.cpp" />
+    <ClCompile Include="Group\GroupCommon.cpp" />
+    <ClCompile Include="Group\HardMonsterGroup.cpp" />
+    <ClCompile Include="Group\PVPGroup.cpp" />
+    <ClCompile Include="Group\VillageGroup.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapPerfomaceTest\DirectQuadTree.cpp" />
     <ClCompile Include="MapPerfomaceTest\IGameObjectContainer.cpp" />
@@ -237,7 +241,11 @@
     <ClInclude Include="..\..\packetParser\NameString.h" />
     <ClInclude Include="flat_unordered_set.h" />
     <ClInclude Include="GameMap.h" />
-    <ClInclude Include="Group\LoginGroup.h" />
+    <ClInclude Include="Group\EasyMonsterGroup.h" />
+    <ClInclude Include="Group\GroupCommon.h" />
+    <ClInclude Include="Group\HardMonsterGroup.h" />
+    <ClInclude Include="Group\PVPGroup.h" />
+    <ClInclude Include="Group\VillageGroup.h" />
     <ClInclude Include="MapPerfomaceTest\DirectQuadTree.h" />
     <ClInclude Include="MapPerfomaceTest\IGameObjectContainer.h" />
     <ClInclude Include="MapPerfomaceTest\NormalQuadTree.h" />

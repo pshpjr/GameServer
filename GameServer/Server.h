@@ -27,8 +27,6 @@ namespace psh
         void OnMove(SessionID sessionId,CRecvBuffer& buffer);
     private:
         AccountNo g_AccountNo = 0;
-        SessionMap<shared_ptr<Player>> _players;
-        unique_ptr<GameMap> _gameMap;
     };
 
 }
