@@ -4,7 +4,7 @@ ip: "0.0.0.0"
 port:11333
 backlog:20
 runningThreads:4
-workerThreads:40
+workerThreads:4
 staticKey:50
 }
 

@@ -1,13 +1,13 @@
-#include "stdafx.h"
+
 #include "Server.h"
+
 
 int main() 
 {
 
-	auto server = make_unique<Server>();
-	server->Start();
-	server->Wait();
 
 
-	return 0;
+    auto server= make_unique<psh::Server>();
+    server->Start();
+    server->Wait();
 }
