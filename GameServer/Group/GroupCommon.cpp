@@ -46,3 +46,7 @@ void psh::GroupCommon::OnUpdate()
     _nextDBSend += 1s;
     _fps = 0;
 }
+
+psh::GroupCommon::~GroupCommon()
+{
+}

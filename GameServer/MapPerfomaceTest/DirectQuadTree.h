@@ -26,7 +26,7 @@ public:
 			if(Insert(target, index, depth)) {
 				return true;
 			}
-			// Move up to the parent node
+			// isMove up to the parent node
 			index /= 2;
 		}
 		return false;
@@ -70,7 +70,7 @@ public:
 			if(Insert(target, new_index, depth)) {
 				return true;
 			}
-			// Move up to the parent node
+			// isMove up to the parent node
 			new_index /= 2;
 		}
 		return false;

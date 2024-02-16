@@ -19,11 +19,10 @@ namespace psh
 
 		//Player();
 		void Attack();
-		void Move();
 		void Die();
-	
+		void Move(FVector delta);
 	private:
-		psh::FVector _location;
+
 
 	public:
 		void Location(psh::FVector newLocation)
@@ -41,22 +40,42 @@ namespace psh
 			return _direction;
 		}
 
-		[[nodiscard]] psh::FVector Vector() const
+		void Destination(psh::FVector destination)
 		{
-			return _vector;
+			_destination = destination;
+		}
+		[[nodiscard]] psh::FVector Destination() const
+		{
+			return _destination;
 		}
 
 		[[nodiscard]] AccountNo AccountNumber() const
 		{
 			return _accountNo;
 		}
+		[[nodiscard]] bool isMove() const
+		{
+			return _move;
+		}
 
+		void MoveStart()
+		{
+			_move = true;
+		}
+		
+		void MoveStop()
+		{
+			_move = false;
+		}
 	private:
+		psh::FVector _location;
 		psh::FVector _direction;
-		psh::FVector _vector;
+		psh::FVector _destination;
 		
 		SessionID _sessionId;
 		AccountNo _accountNo;
+
+		bool _move = false;
 		
 	public:
 		[[nodiscard]] SessionID SessionId() const
