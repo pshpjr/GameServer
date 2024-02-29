@@ -2,36 +2,44 @@
 #include "Server.h"
 #include "GameMap.h"
 #include "LockGuard.h"
-#include "Player.h"
+#include "Base/Player.h"
 #include "PacketGenerated.h"
+#include "Group/EasyMonsterGroup.h"
 #include "Group/VillageGroup.h"
+
 
 namespace psh 
 {
-	Server::Server() : _groups(ServerType::End,GroupID::InvalidGroupID())
+	Server::Server() : _groups(static_cast<vector<GroupID>::size_type>(ServerType::End),GroupID::InvalidGroupID())
 	{
-		_groups[ServerType::Village] = CreateGroup<VillageGroup>(this);
+		_groups[static_cast<vector<GroupID>::size_type>(ServerType::Village)] = CreateGroup<VillageGroup>(this);
+		_groups[static_cast<vector<GroupID>::size_type>(ServerType::Easy)] = CreateGroup<EasyMonsterGroup>(this);
 	}
 
-	void Server::OnConnect(SessionID sessionId, const SockAddr_in& info)
+	void Server::OnConnect(const SessionID sessionId, const SockAddr_in& info)
 	{
-		printf(format("Connect {:d} \n",sessionId.id).c_str());
+		_connects.insert(sessionId);	
+		//printf(format("Connect {:d} \n",sessionId.id).c_str());
 	}
 
-	void Server::OnDisconnect(SessionID sessionId)
+	//TODO: 멀티스레드 처리
+	void Server::OnDisconnect(const SessionID sessionId)
 	{
-		printf(format("Disconnect {:d} \n",sessionId.id).c_str());
-		auto it = g_players.find(sessionId);
-		if(it == g_players.end())
-			DebugBreak();
+		//printf(format("Disconnect {:d} \n",sessionId.id).c_str());
 		
-		auto target = it->second;
-		g_players.erase(it);
+		{
+			WRITE_LOCK
+			const auto it = g_players.find(sessionId);
+			 if(it == g_players.end())
+				return;
+			auto target = it->second;
+			g_players.erase(it);
+		}
+
+
 	}
-
-
-
-	void Server::OnRecvPacket(SessionID sessionId, CRecvBuffer& buffer)
+	
+	void Server::OnRecvPacket(const SessionID sessionId, CRecvBuffer& buffer)
 	{
 		psh::ePacketType type;
 		buffer >> type;
@@ -56,10 +64,17 @@ namespace psh
 
 	void Server::OnMonitorRun()
 	{
-		IOCP::OnMonitorRun();
+
+		//PrintMonitorString();
+
+		if(GetAsyncKeyState('D'))
+		{
+			Stop();
+		}
+
 	}
 
-	shared_ptr<Player> Server::getPlayerPtr(SessionID id)
+	shared_ptr<Player> Server::getPlayerPtr(const SessionID id)
 	{
 		//없으면 알아서 터짐.
 
@@ -90,35 +105,37 @@ namespace psh
 	{
 		printf(format("Login to GameServer {:d} \n",sessionId.id).c_str());
 		using namespace psh;
-		AccountNo playerID;
+		AccountNo AccountNo;
 		SessionKey key;
 
-		AccountNo ClientId = g_AccountNo++;
+
 		{
-			GetGame_ReqLogin(buffer, playerID, key);
+			GetGame_ReqLogin(buffer, AccountNo, key);
 
 			auto loginResult = SendBuffer::Alloc();
 
-			MakeGame_ResLogin(loginResult,ClientId, true);
+			MakeGame_ResLogin(loginResult, AccountNo, true);
 			SendPacket(sessionId, loginResult);
 			printf(format("Send Game Login Success {:d} \n",sessionId.id).c_str());
 		}
 
-
 		
 		//임시 스폰 테스트용 
-		FVector location = { (float)(rand() % 100 + 1000), (float)(rand() % 100 + 1000),0 };
-		FVector direction = { 1, 1,0 };
-		FVector vector{0,0,0,};
-		
-		auto [it, result] = g_players.emplace(sessionId,make_shared<Player>(location,direction,vector,sessionId,ClientId));
-		printf(format("CraetePlayer {:d} \n",ClientId).c_str());
-		if(result == false)
+		FVector location = { (float)(rand() % 6300 + 50), (float)(rand() % 6300 + 50)};
+		FVector direction = { 1, 1 };
+		FVector vector{0,0,};
+		ObjectID clientId = g_clientID++;
+		//TODO: 플레이어 위치는 각 그룹에서 정해야 함. 
 		{
-			//플레이어 생성에 실패한 관련 에러 처리. 
+			WRITE_LOCK
+			auto [it, result] = g_players.emplace(sessionId,make_shared<Player>(clientId,location,direction,rand()%4,sessionId,AccountNo));
+			printf(format("CreatePlayer {:d} \n", AccountNo).c_str());
+			if(result == false)
+			{
+				//플레이어 생성에 실패한 관련 에러 처리. 
+			}
 		}
-
-		_groupManager->MoveSession(sessionId,_groups[ServerType::Village]);
+		_groupManager->MoveSession(sessionId,_groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Village)]);
 	}
 
 

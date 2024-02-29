@@ -32,26 +32,22 @@ public:
 		return false;
 	}
 
-	DirectQuadTree(int mapSize, int minSector) : IGameObjectContainer(mapSize), _nodes(mapSize/minSector * mapSize/minSector,Node())
+	DirectQuadTree(const int mapSize, const int minSector) : IGameObjectContainer(mapSize), _nodes(mapSize/minSector * mapSize/minSector,Node())
 	{
 		
 	}
+	
 
-	static bool InBoundary(int index, psh::FVector location)
-	{
-		
-	}
-
-	static int GetFirstBitFromMSB(int data)
+	static int GetFirstBitFromMSB(const int data)
 	{
 		unsigned long result;
 		_BitScanReverse(&result,data);
 		return result;
 	}
 	
-	bool Move(psh::Player* target, psh::FVector new_location) {
+	bool Move(psh::Player* target, const psh::FVector new_location) {
 		// Calculate old and new index
-		int old_index = CalcIndex(target->Location());
+		const int old_index = CalcIndex(target->Location());
 		int new_index = CalcIndex(new_location);
         
 		// If index does not change, no move operation is needed
@@ -82,37 +78,37 @@ public:
 	}
 
 private:
-	bool Insert(psh::Player* target, int index, int depth) {
+	bool Insert(psh::Player* target, const int index, const int depth) {
 		auto& node = _nodes[index];
 		if(depth == MAX_DEPTH || node.players.size() < NODE_CAPACITY) {
 			node.players.push_back(target);
 			return true;
-		} else {
-			// If the node is not subdivided yet, subdivide it now
-			Subdivide(index);
-			// Determine the correct child index and recurrence
-			int child_index = CalcIndex(target->Location(), depth + 1);
-			return Insert(target, child_index, depth + 1);
 		}
+		// If the node is not subdivided yet, subdivide it now
+		Subdivide(index);
+		// Determine the correct child index and recurrence
+		const int child_index = CalcIndex(target->Location(), depth + 1);
+		return Insert(target, child_index, depth + 1);
 	}
 
-	void Subdivide(int index) {
+	void Subdivide(const int index) {
 		// Create four children nodes
 		for(int i=0; i<4; i++) _nodes.push_back(Node());
         
 		// Distribute players to children nodes
 		auto& node = _nodes[index];
 		for(auto player : node.players) {
-			int child_index = CalcIndex(player->Location(), MAX_DEPTH);
+			const int child_index = CalcIndex(player->Location(), MAX_DEPTH);
 			_nodes[child_index].players.push_back(player);
 		}
 		// Clear current node's players
 		node.players.clear();
 	}
 
-	int CalcIndex(psh::FVector location, int depth = MAX_DEPTH) {
+	int CalcIndex(const psh::FVector location, const int depth = MAX_DEPTH) const
+	{
 		// Convert 2D location to 1D index
-		int index = std::round(location.X * std::pow(2, depth)) +
+		const int index = std::round(location.X * std::pow(2, depth)) +
 					std::round(location.Y * std::pow(2, depth)) *
 					std::round(MAP_SIZE / std::pow(2, depth));
 		return index;

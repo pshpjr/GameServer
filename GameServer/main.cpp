@@ -1,13 +1,16 @@
+#include <iostream>
 
 #include "Server.h"
 
 
+
 int main() 
 {
-
-
-
-    auto server= make_unique<psh::Server>();
+    
+    const auto server= make_unique<psh::Server>();
+    server->SetDisableClickAndClose();
     server->Start();
     server->Wait();
+
+    return 0;
 }

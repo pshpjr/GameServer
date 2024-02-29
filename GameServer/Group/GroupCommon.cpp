@@ -1,13 +1,12 @@
 ﻿#include "GroupCommon.h"
 
-#include "CLogger.h"
-#include "CoreGlobal.h"
-#include "IOCP.h"
-#include "SendBuffer.h"
 
 void psh::GroupCommon::OnUpdate()
 {
-    UpdateContent(1);
+    int delta = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - _prevUpdate).count();
+
+    _prevUpdate += chrono::milliseconds(delta);
+    UpdateContent(delta);
     _fps++;
 
     
@@ -20,7 +19,8 @@ void psh::GroupCommon::OnUpdate()
     if(!_useDB)
     {
     }
-    
+
+    SendMonitor();
     // auto& iocp = *_iocp;
     // if ( iocp.IsValidSession(_monitorSession) )
     // {
@@ -36,7 +36,7 @@ void psh::GroupCommon::OnUpdate()
     //         _monitorSession = clientResult.Value();
     //
     //         auto loginBuffer = SendBuffer::Alloc();
-    //         loginBuffer << en_PACKET_SS_MONITOR_LOGIN << _serverGroup << _serverNo;
+    //         loginBuffer << en_PACKET_SS_MONITOR_LOGIN << _groupId << _serverNo;
     //         SendPacket(_monitorSession, loginBuffer);
     //     }
     //

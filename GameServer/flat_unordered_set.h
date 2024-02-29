@@ -36,11 +36,10 @@ public:
             if (outer == outer_end && other.outer == other.outer_end) 
                 return true;
             // 두 이터레이터가 같은 outer 및 inner 위치를 가리키는지 확인 
-            else
-                if (outer == other.outer && inner == other.inner) 
+            if (outer == other.outer && inner == other.inner) 
                 return true;
-            // 그 외의 경우, 이 두 이터레이터는 같지 않습니다. 
-            else return false; 
+                // 그 외의 경우, 이 두 이터레이터는 같지 않습니다. 
+            return false;
         } 
 
         bool operator!=(const iterator& other) const {
@@ -75,14 +74,14 @@ public:
         _data[hasher(data)&INDEX_MASK].push_back(std::forward<T>(data));
     }
     
-    void insert(T& data)
+    void insert(const T& data)
     {
         _size++;
         auto hashResult = hasher(data)&INDEX_MASK;
         _data[hashResult].push_back(data);
     }
 
-    void erase(T& data)
+    void erase(const T& data)
     {
         _size--;
         _data[hasher(data)&INDEX_MASK].erase(remove(_data[hasher(data)&INDEX_MASK].begin(),_data[hasher(data)&INDEX_MASK].end(),data),_data[hasher(data)&INDEX_MASK].end());
@@ -96,15 +95,13 @@ public:
         if (outer_iter == _data.end()) {
             return end();
         }
-        else {
-            return iterator(outer_iter, _data.end(), outer_iter->begin());
-        }
+        return iterator(outer_iter, _data.end(), outer_iter->begin());
     }
 
     iterator end() {
         return iterator(_data.end(), _data.end(), {});
     }
-    int size()
+    int size() const
     {
         return _size;
     }

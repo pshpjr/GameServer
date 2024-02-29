@@ -4,8 +4,9 @@
 
 #include "IOCP.h"
 #include "../GameMap.h"
-#include "../Player.h"
+#include "../base/Player.h"
 #include "../Server.h"
+#include "Profiler.h"
 
 namespace psh
 {
@@ -13,24 +14,26 @@ namespace psh
     {
         auto playerPtr = _server->getPlayerPtr(id);
         _players.emplace(id,playerPtr);
-
+        _iocp->SetTimeout(id, 30000);
+        
+        playerPtr->SetGroup(this);
         auto levelInfoPacket = SendBuffer::Alloc();
-        MakeGame_ResChangeLevel(levelInfoPacket,playerPtr->AccountNumber(), _serverType);
+        MakeGame_ResLevelEnter(levelInfoPacket,playerPtr->AccountNumber(),playerPtr->ObjectId(), _groupType);
         SendPacket(playerPtr->SessionId(), levelInfoPacket);
     }
 
-    void psh::VillageGroup::OnLeave(SessionID id)
+    void psh::VillageGroup::OnLeave(const SessionID id)
     {
         auto it = _players.find(id);
         auto& [_,playerPtr] = *it;
         
-        _gameMap->DestroyPlayer(playerPtr);
+        _playerMap->BroadcastDisconnect(playerPtr);
         _players.erase(it);
     }
 
 
 
-    void psh::VillageGroup::OnRecv(SessionID id, CRecvBuffer& recvBuffer)
+    void psh::VillageGroup::OnRecv(const SessionID id, CRecvBuffer& recvBuffer)
     {
         psh::ePacketType type;
         recvBuffer >> type;
@@ -45,41 +48,40 @@ namespace psh
         case psh::ePacketType::eGame_ReqAttack:
             OnAttack(id,recvBuffer);
             break;
+        case psh::ePacketType::eGame_ReqLevelChange:
+            OnReqLevelChange(id,recvBuffer);
+            break;
         default:
             DebugBreak();
             break;
         }
     }
     
-    void VillageGroup::OnChangeComp(SessionID id, CRecvBuffer& recvBuffer)
+    void VillageGroup::OnChangeComp(const SessionID id, CRecvBuffer& recvBuffer)
     {
         AccountNo accountNo;
         GetGame_ReqChangeComplete(recvBuffer,accountNo);
         
         auto& [_,playerPtr] = *_players.find(id);
         
-        _gameMap->SpawnPlayer(playerPtr, _serverType);
+        _playerMap->SpawnPlayer(playerPtr);
     }
-    
-    void psh::VillageGroup::UpdateContent(int delta)
-    {
-        for(auto& [_,player] : _players)
-        {
-            if(player->isMove())
-            {
-                auto normalDirection = (player->Destination() - player->Location()).Normalize();
-                float DistanceToDestination = (player->Destination() - player->Location()).Size();
 
-                if(DistanceToDestination < 10)
-                {
-                    _gameMap->MovePlayer(player,player->Destination());
-                    player->MoveStop();
-                }
-                else
-                {
-                    _gameMap->MovePlayer(player, player->Location() + (normalDirection*10));
-                }
-            }
+    void VillageGroup::OnReqLevelChange(const SessionID id, CRecvBuffer& recvBuffer) const
+    {
+        AccountNo accountNo;
+        ServerType type;
+        GetGame_ReqLevelChange(recvBuffer,accountNo,type);
+        
+        MoveSession(id,_server->GetGroupID(type));
+    }
+
+    void psh::VillageGroup::UpdateContent(const float delta)
+    {
+        
+        for(auto& [_,actor] : _players)
+        {
+            actor->Update(delta);
         }
         
     }
@@ -92,26 +94,25 @@ namespace psh
     {
     }
     
-    void VillageGroup::OnAttack(SessionID sessionId, CRecvBuffer& buffer)
+    void VillageGroup::OnAttack(const SessionID sessionId, CRecvBuffer& buffer)
     {
         auto& [_,player] = *_players.find(sessionId);
-        AccountNo account;
-        GetGame_ReqAttack(buffer,account);
+        char type;
+        GetGame_ReqAttack(buffer,type);
 		
         if(player == nullptr)
         {
             _iocp->DisconnectSession(sessionId);
         }
 
-        _gameMap->BroadcastAttack(player);
+        player->Attack(type);
     }
     
-    void psh::VillageGroup::OnMove(SessionID sessionId, CRecvBuffer& buffer)
+    void psh::VillageGroup::OnMove(const SessionID sessionId, CRecvBuffer& buffer)
     {
-        printf(format("Request isMove {:d} \n",sessionId.id).c_str());
-        AccountNo accountNo;
+        //printf(format("Request isMove {:d} \n",sessionId.id).c_str());
         FVector location;
-        GetGame_ReqMove(buffer,accountNo,location);
+        GetGame_ReqMove(buffer,location);
         
         auto result = _players[sessionId];
         if(result == nullptr)
@@ -119,10 +120,8 @@ namespace psh
             _iocp->DisconnectSession(sessionId);
         }
 
-        _gameMap->BroadcastMoveStart(result,location);
+        location = Clamp(location,0,_playerMap->Size());
         
-        result->Destination(location);
-        result->MoveStart();
-        // _gameMap->
+        result->MoveStart(location);
     }
 }

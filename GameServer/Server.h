@@ -6,7 +6,6 @@
 
 
 
-
 namespace psh 
 {
     class Player;
@@ -22,21 +21,26 @@ namespace psh
         
         void OnRecvPacket(SessionID sessionId, CRecvBuffer& buffer) override;
         void OnMonitorRun() override;
-
+        
         shared_ptr<Player> getPlayerPtr(SessionID id);
+
+        bool MoveDebug() const {return _moveDebug;}
+        GroupID GetGroupID(ServerType type)const {return _groups[static_cast<int>(type)];}
+    
     private:
         void OnLoginLogin(SessionID sessionId, CRecvBuffer& buffer);
         void OnLogin(SessionID sessionId, CRecvBuffer& buffer);
 
         
     private:
-
+        SessionSet _connects;
         USE_LOCK
         
-        AccountNo g_AccountNo = 0;
+        ObjectID g_clientID = 0;
         SessionMap<shared_ptr<Player>> g_players;
 
         vector<GroupID> _groups;
+        bool _moveDebug = false;
     };
 
 }

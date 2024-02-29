@@ -29,21 +29,20 @@ public:
         root(new Node(nullptr, center - halfDimension, center + halfDimension)) {}
 
     // 플레이어를 삽입하거나 이동합니다
-    void MovePlayer(psh::FVector oldLocation, psh::FVector newLocation, std::shared_ptr<psh::Player>& target) override {
+    void MovePlayer(const psh::FVector oldLocation, const psh::FVector newLocation, std::shared_ptr<psh::Player>& target) override {
         Node* oldNode = FindNodeContainingPoint(root, oldLocation);
         if(oldNode && oldNode != FindNodeContainingPoint(root,newLocation)) {
             {
-                PRO_BEGIN("Remove")
                 RemovePlayer(oldNode, target);
             }
             {
-                PRO_BEGIN("Add")
+ 
                 AddPlayer(newLocation, target);
             }
         }
     }
 
-    void AddPlayer(psh::FVector location, std::shared_ptr<psh::Player>& target) {
+    void AddPlayer(const psh::FVector location, std::shared_ptr<psh::Player>& target) {
         if(!Insert(root, nullptr, location, target))
         {
             DebugBreak();
@@ -51,26 +50,24 @@ public:
     }
 
     void RemovePlayer(Node* node, std::shared_ptr<psh::Player>& target) {
-        auto it = std::find(node->players.begin(), node->players.end(), target);
+        const auto it = std::find(node->players.begin(), node->players.end(), target);
         if(it != node->players.end()) {
             node->players.erase(it);
         }
     }
     void Iterate(psh::FVector radius , const function<void(psh::Player&)>& toInvoke) override;
-    std::list<psh::Player*> GetPlayerListPoint(psh::FVector start, psh::FVector end) const;
-
 
     void Iterate(psh::FVector start, psh::FVector end, const std::function<void(psh::Player&)>& toInvoke) override;
 
 private:
     Node* root;
 
-    bool Overlap(psh::FVector min1, psh::FVector max1, psh::FVector min2, psh::FVector max2) const
+    bool Overlap(const psh::FVector min1, const psh::FVector max1, const psh::FVector min2, const psh::FVector max2) const
     {
         return min1.X <= max2.X && min2.X <= max1.X && min1.Y <= max2.Y && min2.Y <= max1.Y;
     }
     
-    void GetPlayersInRange(Node* node, psh::FVector start, psh::FVector end, const function<void(psh::Player&)>& toInvoke) const
+    void GetPlayersInRange(Node* node, const psh::FVector start, const psh::FVector end, const function<void(psh::Player&)>& toInvoke) const
     {
         // 노드가 없거나 검색 범위밖인 경우 반환
         if (node == nullptr || !Overlap(node->minPoint, node->maxPoint, start, end))
@@ -96,8 +93,8 @@ private:
     }   
     
     void Subdivide(Node* node) {
-        psh::FVector center = (node->minPoint + node->maxPoint) / 2.0;
-        psh::FVector half = (node->maxPoint - node->minPoint) / 2.0;
+        const psh::FVector center = (node->minPoint + node->maxPoint) / 2.0;
+        const psh::FVector half = (node->maxPoint - node->minPoint) / 2.0;
 
         node->SE = new Node(node, center, center + half);
         node->SW = new Node(node, psh::FVector(node->minPoint.X, center.Y), psh::FVector(center.X, node->maxPoint.Y));
@@ -108,7 +105,7 @@ private:
         auto& players = node->players;
         for (auto it = players.begin(); it != players.end(); /* it incremented in loop */) {
             shared_ptr<psh::Player> target = *it;
-            psh::FVector location = target->Location();
+            const psh::FVector location = target->Location();
 
             // Remove player from current node and insert it into appropriate child node.
             if (Insert(node->NE, node, location, target) ||
@@ -125,7 +122,7 @@ private:
         }
     }
 
-    bool Insert(Node* node, Node* parent, psh::FVector location, shared_ptr<psh::Player>& target) {
+    bool Insert(Node* node, Node* parent, const psh::FVector location, shared_ptr<psh::Player>& target) {
         // Player's location is outside of the node's boundary, return false
         if (!InBoundary(node, location)) {
             return false;
@@ -144,7 +141,7 @@ private:
         }
         
         Subdivide(node);
-        bool result = Insert(node->NE, node, location, target) || 
+        const bool result = Insert(node->NE, node, location, target) || 
                Insert(node->NW, node, location, target) ||
                Insert(node->SE, node, location, target) ||
                Insert(node->SW, node, location, target);
@@ -156,12 +153,12 @@ private:
     }
 
     // 위치가 주어진 범위 내부에 있는지 확인합니다.
-    static bool InBoundary(Node* node, psh::FVector location) {
+    static bool InBoundary(Node* node, const psh::FVector location) {
         return (location.X >= node->minPoint.X && location.X < node->maxPoint.X &&
                 location.Y >= node->minPoint.Y && location.Y < node->maxPoint.Y);
     }
 
-    static Node* FindNodeContainingPoint(Node* node, psh::FVector point) {
+    static Node* FindNodeContainingPoint(Node* node, const psh::FVector point) {
         // 노드의 범위를 벗어나는 점인 경우
         if (!InBoundary(node, point)) {
             return nullptr;

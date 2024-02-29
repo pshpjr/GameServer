@@ -7,43 +7,16 @@
 #include "Profiler.h"
 #include "Sector.h"
 #include "ContentTypes.h"
-#include "Player.h"
 #include "Server.h"
+#include "Data/TableData.h"
 #include <iostream>
 
-//특정 방향으로 이동할 때 탐색해야 할 섹터. 방향마다 크기가 다름. 
-vector<vector<vector<pair<short,short>>>> AddTable =
-{
-    {
-        {{-1, -1}, {-1, 0}, {-1, 1}, {1, -1}, {0, -1}}, {{-1, -1}, {-1, 0}, {-1, 1}}, {{-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}}
-    },
-    {
-		    {{1, -1}, {0, -1}, {-1, -1}}, {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, {{-1, 1}, {0, 1}, {1, 1}}
-    },
-  {
-        {{1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}}, {{1, 1}, {1, 0}, {1, -1}}, {{-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}}
-    }
-};
+#include "Base/Player.h"
 
-vector<vector<vector<pair<short,short>>>> DeleteTable =
-{
-    {
-        {{-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}}, {{1, 1}, {1, 0}, {1, -1}}, {{1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}}
-    },
-    {
-		     {{-1, 1}, {0, 1}, {1, 1}}, {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, {{1, -1}, {0, -1}, {-1, -1}}
-    },
-    {
-		    {{-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}}, {{-1, -1}, {-1, 0}, {-1, 1}}, {{-1, -1}, {-1, 0}, {-1, 1}, {1, -1}, {0, -1}}
-    }
-};
 
-static constexpr std::array<pair<short,short>,9> broadcast = {{
-    {-1, 0}, {0, -1}, {1, 0}
-    ,{0,0}, {0, 1}, {-1, -1}
-    , {1, -1}, {-1, 1}, {1, 1}}};
-
-psh::GameMap::GameMap(const short mapSize, const short sectorSize, Server* owner,ServerType type)
+//가로가 x, 세로가 y.
+//y를 가지고 있는 x벡터들
+psh::GameMap::GameMap(const short mapSize, const short sectorSize, Server* owner)
     :SECTOR_SIZE(sectorSize),MAP_SIZE(mapSize)
 ,MAX_SECTOR_INDEX_X(MAP_SIZE / SECTOR_SIZE - 1),
 MAX_SECTOR_INDEX_Y(MAP_SIZE / SECTOR_SIZE - 1), _owner(owner)
@@ -54,40 +27,79 @@ MAX_SECTOR_INDEX_Y(MAP_SIZE / SECTOR_SIZE - 1), _owner(owner)
     {
         i.resize(MAP_SIZE / SECTOR_SIZE);
     }
+
+    _grid.resize(MAP_SIZE/GRID_SIZE);
+    for(auto& i :_map)
+    {
+        i.resize(MAP_SIZE/GRID_SIZE);
+    }
 }
 
-auto psh::GameMap::GetSectorsViewFromOffset(const Sector& targetSector, std::span<const pair<short,short>> offsets)
+auto psh::GameMap::GetSectorsFromOffset(const psh::Sector& target, std::span<const psh::Sector> offsets) const 
 {
-    //오프셋을 섹터로 변환.
-    auto sectors= std::views::all(offsets)
-        | std::views::transform([&](const auto offset){ 
-               short x = targetSector.x + offset.first;
-               short y = targetSector.y + offset.second;
-               return Sector{x, y}; });
+    // Convert offset to sectors
+    return std::views::all(offsets)
+        | std::views::transform([&](const Sector offset){
+            const short x = target.x + offset.x;
+            const short y = target.y + offset.y;
+            return psh::Sector{x, y}; });
+}
 
-    //가능한 섹터만 필터링. 
-    auto valid = sectors|std::views::filter([&](const auto sector)
-    {
-        if(IsValidSector(sector))
-        {
-            return true;
-        }
-        return false;
-    });
+template<class T>
+auto FlatRange(T xBegin, T xEnd, T yBegin, T yEnd)
+{
+    return std::views::iota(xBegin, xEnd+1)
+    | std::views::transform([=](auto x) 
+        { 
+            return std::views::iota(yBegin, yEnd+1) 
+            | std::views::transform([=](auto y) 
+                { 
+                    return psh::Sector{x, y}; 
+                }); 
+        })
+    | std::views::join;
+}
 
-    //섹터를 맵의 섹터 포인터로 변환
-    auto refs = valid | std::views::transform([&](const auto sector){ 
-               return std::ref(_map[sector.y][sector.x]); });
-    return refs;
+auto psh::GameMap::GetSectorsFromRange(const FVector& point1, const FVector& point2) const
+{
+    const auto p1Sector = GetSector(point1);
+    const auto p2Sector = GetSector(point2);
+
+    return FlatRange(p1Sector.x, p2Sector.x, p1Sector.y, p2Sector.y);
+}
+
+auto psh::GameMap::GetValidSectorView()
+{
+    return std::views::filter([this]( Sector sector)
+            {
+                return IsValidSector(sector);
+            })
+            | std::views::transform([this](Sector sector)
+            {
+                return std::ref(_map[sector.x][sector.y]);
+            });
+}
+
+
+auto psh::GameMap::GetSituatedSectorView(const psh::Sector& target, const std::span<const psh::Sector> offsets)
+{
+    auto sectors = GetSectorsFromOffset(target, offsets);
+    return sectors | GetValidSectorView();
+}
+
+auto psh::GameMap::GetVicinalSectorView(const FVector& p1, const FVector& p2)
+{
+    auto sectors = GetSectorsFromRange(p1, p2);
+    return sectors | GetValidSectorView();
 }
 
 void psh::GameMap::PrintPlayerInfo()
 {
-    auto tmp = GetPlayerInfo();
+    const auto tmp = GetPlayerInfo();
     
     for(auto& col : tmp)
     {
-        for(auto& sector : col)
+        for(const auto& sector : col)
         {
             cout << sector <<' ';
         }
@@ -96,38 +108,47 @@ void psh::GameMap::PrintPlayerInfo()
 
 }
 
+
 vector<vector<int>> psh::GameMap::GetPlayerInfo()
 {
-    vector<vector<int>> ret(MAX_SECTOR_INDEX_Y,vector<int>(MAX_SECTOR_INDEX_X));
+    vector ret(MAX_SECTOR_INDEX_Y,vector<int>(MAX_SECTOR_INDEX_X));
 
-    for(int i =0; i<MAX_SECTOR_INDEX_Y; i++)
+    for(int i =0; i<MAX_SECTOR_INDEX_X; i++)
     {
-        for(int j = 0;j< MAX_SECTOR_INDEX_X; j++)
+        for(int j = 0;j< MAX_SECTOR_INDEX_Y; j++)
         {
-            ret[MAX_SECTOR_INDEX_X - j - 1][ i] = _map[i][j].size();
+            ret[MAX_SECTOR_INDEX_X - i - 1][ j] = _map[i][j].size();
         }
     }
     return ret;
 }
 
-std::span<const pair<short, short>> psh::GameMap::GetMoveOffset(Sector moveInfo)
+int psh::GameMap::Players()
 {
-    
+    int count = 0;
+    for (auto& col : _map)
+    {
+        for (auto& row : col)
+        {
+            count += row.size();
+        }
+    }
+    return count;
 }
 
 //새로 플레이어 생성하는 함수. 주변에 뿌린다. 
-void psh::GameMap::SpawnPlayer(shared_ptr<Player>& target, psh::ServerType type)
+void psh::GameMap::SpawnPlayer(shared_ptr<Player>& target)
 {
-    auto curSector = GetSector(target->Location());
-    //추가하고
-    AddPlayer(curSector,target);
+    const auto curSector = GetSector(target->Location());
     
+    //알리고 
+    SendCreateCharacterAndGetInfo(target);
 
-    //알린다. 
-    SendCreateCharacter(target,true, broadcast);
+    //추가한다. 
+    AddPlayer(curSector, target);
 }
 
-void psh::GameMap::AddPlayer(shared_ptr<Player>& target)
+void psh::GameMap::AddPlayer(const shared_ptr<psh::Player>& target)
 {
     const auto targetSector = GetSector(target->Location());
 
@@ -137,131 +158,205 @@ void psh::GameMap::AddPlayer(shared_ptr<Player>& target)
     AddPlayer(targetSector,target);
 }
 
-void psh::GameMap::AddPlayer(Sector targetSector, shared_ptr<Player>& target)
+void psh::GameMap::AddPlayer(const Sector targetSector, const shared_ptr<psh::Player>& target)
 {
     //_map[targetSector.y][targetSector.x].push_back(target);
-    _map[targetSector.y][targetSector.x].insert(target);
+    _map[targetSector.x][targetSector.y].insert(target);
 }
 
-void psh::GameMap::SendCreateCharacter(shared_ptr<Player>& target, bool isSpawn, std::span<const pair<short, short>> offsets)
+void psh::GameMap::SendCreateCharacterAndGetInfo(const shared_ptr<psh::Player>& target)
 {
     auto myInfoBuffer =  SendBuffer::Alloc();
-    MakeGame_ResCreateActor(myInfoBuffer,target->AccountNumber(),isSpawn,Player1,target->Location(),target->Direction());
+    target->GetInfo(myInfoBuffer,true);
     
     const auto targetSector = GetSector(target->Location());
-    auto addSectors = GetSectorsViewFromOffset(targetSector,broadcast);
-
-    //정보를 받아옴. 
-    auto otherInfoBuffer =SendBuffer::Alloc();
-    ranges::for_each(addSectors,[&myInfoBuffer,&otherInfoBuffer, this,&target](playerSecor& sector)
+    
+    auto addSectors = GetSituatedSectorView(targetSector,BROADCAST);
+    
+    //정보를 받아옴.
+    vector<SendBuffer> toSend;
+    toSend.push_back(SendBuffer::Alloc());
+    
+    ranges::for_each(addSectors,[&myInfoBuffer,&toSend, this,&target](playerSector& sector)
     {
         for(std::shared_ptr<psh::Player>& player : sector)
         {
-            if (player != target)
+            if (player == target)
             {
-                printf(format("Send create {:d} to {:d}  {:f} {:f} {:f}\n",target->SessionId().id,player->SessionId().id, target->Location().X,target->Location().Y,target->Location().Z).c_str());
-                _owner->SendPacket(player->SessionId(), myInfoBuffer);
-                printf(format("Add otherPlayer {:d} to {:d}|  {:f} {:f} {:f} \n",player->SessionId().id, target->SessionId().id, player->Location().X, player->Location().Y, player->Location().Z).c_str());
-                MakeGame_ResCreateActor(otherInfoBuffer, player->AccountNumber(), false, Player1, player->Location(), player->Direction());
+                continue;
             }
+            
+            _owner->SendPacket(player->SessionId(), myInfoBuffer);
+    
+            if(toSend.back().CanPushSize() < 100)
+            {
+                toSend.push_back(SendBuffer::Alloc());
+            }
+            player->GetInfo(toSend.back(),false);
         }
     });
-
+    
     //각각 전송. 
-    printf(format("Create You. you :  {:d} \n",target->SessionId().id).c_str());
+    //printf(format("Create You. you :  {:d} \n",target->SessionId().id).c_str());
     _owner->SendPacket(target->SessionId(), myInfoBuffer);
-    if(otherInfoBuffer.Size() != 0)
+    
+    if(toSend.back().Size() != 0)
     {
-        printf(format("Send otherPlayer Info {:d} \n",target->SessionId().id).c_str());
-        _owner->SendPacket(target->SessionId(), otherInfoBuffer);
+        _owner->SendPackets(target->SessionId(), toSend);
     }
 }
 
-//플레이어 제거하라고 알리는 함수.
-void psh::GameMap::SendRemoveCharacter(shared_ptr<Player>& target, bool isDead, std::span<const pair<short, short>> offsets)
-{
-    auto destroyThisBuffer =  SendBuffer::Alloc();
-    MakeGame_ResDestroyActor(destroyThisBuffer,target->AccountNumber(),isDead);
-    
-    const auto targetSector = GetSector(target->Location());
 
-    SendToSectors(targetSector,destroyThisBuffer,offsets);
-}
+
 //공격했다는 걸 알리는 함수.
-void psh::GameMap::BroadcastAttack(shared_ptr<Player>& target)
+void psh::GameMap::CheckVictim(const psh::Range& attackRange, int damage,const shared_ptr<ChatCharacter>& attacker)
 {
-    auto attackPacket =  SendBuffer::Alloc();
-    MakeGame_ResAttack(attackPacket,target->AccountNumber());
-
-    const auto targetSector = GetSector(target->Location());
-
-    SendToSectors(targetSector,attackPacket, broadcast);
-}
-
-void psh::GameMap::BroadcastHit(shared_ptr<Player>& target)
-{
+    auto draw = SendBuffer::Alloc();
     
-}
-
-//이동 시작하는 걸 알리는 함수. 
-void psh::GameMap::BroadcastMoveStart(shared_ptr<Player>& target, const FVector newLocation)
-{
-    printf("Move %lld to %f %f %f  \n "
-       "cur : %f %f %f \n",target->SessionId().id, newLocation.X, newLocation.Y, newLocation.Z
-       ,target->Location().X,target->Location().Y,target->Location().Z);
+    //_owner->SendPacket(attacker->SessionId(),draw);
     
-    auto curSector = GetSector(target->Location()); 
-    
-    auto playerMoveBuffer = SendBuffer::Alloc();
-    MakeGame_ResMove(playerMoveBuffer,target->AccountNumber(),newLocation);
-
-    SendToSectors(curSector,playerMoveBuffer, broadcast);
-}
-
-void psh::GameMap::SendToSectors(const Sector& targetSector, SendBuffer& buffer, std::span<const pair<short, short>> offsets)
-{
-    auto broadcastSectors = GetSectorsViewFromOffset(targetSector,broadcast);
-    ranges::for_each(broadcastSectors,[ this,&buffer](playerSecor& sector)
+    auto view = std::views::all(attackRange.getSectors(*this))| GetValidSectorView();
+    ranges::for_each(view,[this,&attackRange,&attacker,damage](playerSector& sector)
     {
         for(auto& player : sector)
         {
+            if(player == attacker)
+                continue;
+
+            if(!attackRange.Contains(player->Location()))
+                continue;
+
+            player->Hit(damage);
+        }
+    });
+}
+
+
+void psh::GameMap::BroadcastDisconnect(const shared_ptr<Player>& target)
+{
+    const auto curSector = GetSector(target->Location());
+    //삭제하고 
+    RemovePlayer(curSector,target);
+    //알린다.
+
+    auto delBuffer = SendBuffer::Alloc();
+
+    MakeGame_ResDestroyActor(delBuffer,target->ObjectId(),false);
+    Broadcast(target->Location(),delBuffer);
+}
+
+void psh::GameMap::Broadcast(FVector location, SendBuffer& buffer)
+{
+    const auto targetSector = GetSector(location);
+    SendToSectors(targetSector,buffer,BROADCAST,nullptr);
+}
+
+
+void psh::GameMap::SendToSectors(const Sector& targetSector,SendBuffer& buffer, const std::span<const psh::Sector> offsets, const shared_ptr<psh::
+                                     Player>& exclude)
+{
+    auto broadcastSectors = GetSituatedSectorView(targetSector,offsets);
+    ranges::for_each(broadcastSectors,[ this,&buffer,&exclude](playerSector& sector)
+    {
+        for(auto& player : sector)
+        {
+            if(player == exclude)
+                continue;
+            
             _owner->SendPacket(player->SessionId(), buffer,0);
         }
     });
 }
 
-//플레이어를 실제로 이동시키는 함수.
-void psh::GameMap::MovePlayer(shared_ptr<Player>& target, const FVector newLocation)
+psh::Sector IndexFromDiff(const psh::Sector sectorDiff)
 {
-    auto curSector = GetSector(target->Location());
-    auto newSector = GetSector(newLocation);
-    //플레이어를 이동한다.     
-    target->Location(newLocation);
+    return psh::Sector(sectorDiff.x + 1,sectorDiff.y+1);
+}
+
+//플레이어를 실제로 이동시키는 함수.
+void psh::GameMap::BroadcastIfSectorChange(const shared_ptr<ChatCharacter>& target,const FVector oldLocation, const FVector newLocation)
+{
+    const auto oldSector = GetSector(oldLocation);
+    const auto newSector = GetSector(newLocation);
     
-    //섹터가 변경되었으면
-    if(curSector == newSector)
+    if(oldSector == newSector)
     {
         return;
     }
+    //섹터가 변경되었으면
+    PRO_BEGIN("SectorChange")
 
+    const auto sectorDiff = Clamp(newSector - oldSector,-1,1);
+    const auto sectorIndex = IndexFromDiff(sectorDiff);
+    
     //이전 섹터에서 지우고
-    RemovePlayer(curSector,target);
-    //삭제해야 할 섹터들에 지우라고 알리고
+    RemovePlayer(oldSector,target);
+    
+    //나를 삭제하라는 패킷을 만들고
+    auto destroyThisPlayer = SendBuffer::Alloc();
+    MakeGame_ResDestroyActor(destroyThisPlayer,target->ObjectId(),false);
+    
+    //나에게 삭제할 플레이어 알리는 패킷 모음
+    vector<SendBuffer> toDelete;
+    toDelete.reserve(4);
+    toDelete.push_back(SendBuffer::Alloc());
+    //삭제해야 하는 섹터들의 플레이어들을 순회하면서
+    
+    ApplyToPlayerInSector(oldSector,DeleteTable[sectorIndex.x][sectorIndex.y]
+        ,[&destroyThisPlayer,&toDelete,this](const auto& player)
+    {
+            //삭제하라고 전송하고
+            _owner->SendPacket(player->SessionId(),destroyThisPlayer);
 
-    //다음 섹터에 추가하고
+            if (toDelete.back().CanPushSize() < 111)
+                toDelete.push_back(SendBuffer::Alloc());
+            //섹터에 있는 플레이어들을 삭제하라는 패킷을 만든다.
+            MakeGame_ResDestroyActor(toDelete.back(), player->ObjectId(), false);
+    });
+    
+
+    //만들어진 패킷이 있으면 나에게 전송한다.
+    if(toDelete.back().Size() !=0)
+    {
+        _owner->SendPackets(target->SessionId(),toDelete);
+    }
+
+
+    //새로 정보를 받아와야 하는 섹터를 순회하면서
+    //플레이어들을 구하고
+    //서로 정보 받아온 후
+    //해당 섹터로 이동하고
+    //만들어진 패킷이 있으면 나에게 전송한다. 
+    
+    auto createThis = SendBuffer::Alloc();
+    target->GetInfo(createThis,false);
+    
+    vector<SendBuffer> toCreate;
+    toCreate.reserve(4);
+    toCreate.push_back(SendBuffer::Alloc());
+
+    ApplyToPlayerInSector(newSector,AddTable[sectorIndex.x][sectorIndex.y]
+        ,[&createThis,&toCreate,this](auto& player)
+    {
+            //생성 전송하고
+            _owner->SendPacket(player->SessionId(),createThis);
+            //정보 추가
+
+            if (toCreate.back().CanPushSize() < 111)
+                toCreate.push_back(SendBuffer::Alloc());
+
+            player->GetInfo(toCreate.back(),false);
+    });
+
+    //만들어진 패킷이 있으면 나에게 전송한다.
+    if(toCreate.back().Size() != 0)
+    {
+        _owner->SendPackets(target->SessionId(), toCreate);
+    }
+    
     AddPlayer(newSector,target);
-    //생성하라고 알리기. (스폰 아님)
 }
 
-//있는 플레이어 삭제하는 함수. 
-void psh::GameMap::DestroyPlayer(shared_ptr<Player>& target)
-{
-    auto curSector = GetSector(target->Location());
-    //삭제하고 
-    RemovePlayer(curSector,target);
-    //알린다. 
-    SendRemoveCharacter(target,false, broadcast);
-}
 
 psh::Sector psh::GameMap::GetSector(const FVector location) const
 {
@@ -284,23 +379,39 @@ bool psh::GameMap::IsValidSector(const Sector sector) const
     return true;
 }
 
-void psh::GameMap::UpdatePlayer()
-{
-    
 
-    
+
+psh::FVector psh::GameMap::GetRandomLocation() const
+{
+    return {rand() % (MAP_SIZE - 100) + 50.0f,rand() % (MAP_SIZE-100) + 50.0f  }; 
 }
 
-void psh::GameMap::RemovePlayer(shared_ptr<Player>& target)
+
+
+void psh::GameMap::ApplyToPlayerInSector(const Sector target, const std::span<const psh::Sector> offsets,
+                                         const std::function<void(shared_ptr<Player>&)>& toInvoke)
+{
+    auto sendSectors = GetSituatedSectorView(target,offsets);
+
+    ranges::for_each(sendSectors,[ this,&toInvoke](playerSector& sector)
+    {
+        for(auto& player : sector)
+        {
+            toInvoke(player);
+        }
+    });
+}
+
+void psh::GameMap::RemovePlayer(const shared_ptr<psh::Player>& target)
 {
     const auto removeSector = GetSector(target->Location());
 
     RemovePlayer(removeSector,target);
 }
 
-void psh::GameMap::RemovePlayer(Sector curSector, shared_ptr<Player>& target)
+void psh::GameMap::RemovePlayer(const Sector curSector, const shared_ptr<Player>& target)
 {
     //_map[curSector.y][curSector.x].erase(remove(_map[curSector.y][curSector.x].begin(),_map[curSector.y][curSector.x].end(), target),_map[curSector.y][curSector.x].end());
-   _map[curSector.y][curSector.x].erase(target);
+   _map[curSector.x][curSector.y].erase(target);
 }
         
