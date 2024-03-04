@@ -12,13 +12,20 @@ namespace psh
         }
         
         ~ChatCharacter() override = default;
-        virtual void Attack(char type){}
-        virtual void Hit(int damage){}
+        void Attack(char type);
+        void Hit(int damage,const shared_ptr<ChatCharacter>& attacker);
         void OnUpdate(float delta) override{}
-        virtual void Die() {}
-        virtual void SendPacket(IOCP* iocp, SendBuffer& buffer){};
+        void MoveStart(FVector destination) override;
+
+    protected:
+        void OnMove() override;
+
+    public:
+        virtual void Die();
     protected:
         int _hp = 100;
+
+        vector<pair<FVector,int>> _attacks;
     };
 }
 

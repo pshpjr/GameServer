@@ -9,7 +9,6 @@
 namespace psh 
 {
     class Player;
-    class GameMap;
     
     class Server :
         public IOCP

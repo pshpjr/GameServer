@@ -7,7 +7,8 @@
 #include "../base/Player.h"
 #include "../Server.h"
 #include "Profiler.h"
-
+#include "../Sector.h"
+#include "../Data/TableData.h"
 namespace psh
 {
     void psh::VillageGroup::OnEnter(SessionID id)
@@ -17,6 +18,9 @@ namespace psh
         _iocp->SetTimeout(id, 30000);
         
         playerPtr->SetGroup(this);
+        playerPtr->SetMap(reinterpret_cast<GameMap<GameObject>*>(_playerMap.get()));
+        playerPtr->Location(_playerMap->GetRandomLocation());
+        
         auto levelInfoPacket = SendBuffer::Alloc();
         MakeGame_ResLevelEnter(levelInfoPacket,playerPtr->AccountNumber(),playerPtr->ObjectId(), _groupType);
         SendPacket(playerPtr->SessionId(), levelInfoPacket);
@@ -26,8 +30,10 @@ namespace psh
     {
         auto it = _players.find(id);
         auto& [_,playerPtr] = *it;
-        
-        _playerMap->BroadcastDisconnect(playerPtr);
+
+        SendDelete(playerPtr,playerPtr->Location(),SEND_OFFSETS::BROADCAST,false);
+
+        _playerMap->Delete(playerPtr,playerPtr->Location());
         _players.erase(it);
     }
 
@@ -56,15 +62,40 @@ namespace psh
             break;
         }
     }
-    
+
+    void VillageGroup::CheckVictim(const Range& attackRange, int damage, const shared_ptr<ChatCharacter>& attacker)
+    {
+        
+        auto view = _playerMap->GetSectorsFromRange(attackRange);
+
+        ranges::for_each(view,[this,&attackRange,&attacker,damage](auto sector)
+            {
+                for(auto& player : sector)
+                {
+                    if(player == attacker)
+                        continue;
+
+                    if(!attackRange.Contains(player->Location()))
+                        continue;
+
+                    player->Hit(damage,attacker);
+                }
+            });
+    }
+
     void VillageGroup::OnChangeComp(const SessionID id, CRecvBuffer& recvBuffer)
     {
         AccountNo accountNo;
         GetGame_ReqChangeComplete(recvBuffer,accountNo);
         
         auto& [_,playerPtr] = *_players.find(id);
+        auto createBuffer = SendBuffer::Alloc();
+        playerPtr->GetInfo(createBuffer,true);
+        SendPacket(playerPtr->SessionId(),createBuffer);
         
-        _playerMap->SpawnPlayer(playerPtr);
+        SendCreateAndGetInfo(playerPtr,playerPtr->Location(),SEND_OFFSETS::BROADCAST,false);
+        
+        _playerMap->Insert(playerPtr,playerPtr->Location());
     }
 
     void VillageGroup::OnReqLevelChange(const SessionID id, CRecvBuffer& recvBuffer) const
@@ -78,12 +109,10 @@ namespace psh
 
     void psh::VillageGroup::UpdateContent(const float delta)
     {
-        
         for(auto& [_,actor] : _players)
         {
             actor->Update(delta);
         }
-        
     }
 
     void psh::VillageGroup::SendMonitor()
@@ -107,7 +136,10 @@ namespace psh
 
         player->Attack(type);
     }
-    
+
+   
+        
+
     void psh::VillageGroup::OnMove(const SessionID sessionId, CRecvBuffer& buffer)
     {
         //printf(format("Request isMove {:d} \n",sessionId.id).c_str());

@@ -1,22 +1,23 @@
 ﻿#pragma once
-#include <shared_mutex>
-#include <vector>
-#include <functional>
 
-#include "ContentTypes.h"
+#include <iostream>
+#include <vector>
+#include <random>
+#include "Sector.h"
 #include "flat_unordered_set.h"
-#include "Data/Item.h"
+#include "Base/Rand.h"
+#include "Base/Item.h"
 
 namespace psh
 {
-    class ChatCharacter;
+    class GameObject;
     struct Range;
     class Server;
     struct FVector;
-    class Player;
-    struct Sector;
 
     //언리얼의 좌표계는 y가 오른쪽. 좌하단이 0, 앞이 x
+
+    template <typename T>
     class GameMap 
     {
         const short SECTOR_SIZE = 100;
@@ -25,70 +26,188 @@ namespace psh
         const short MAX_SECTOR_INDEX_Y = MAP_SIZE / SECTOR_SIZE;
 
         const short GRID_SIZE = 100;
+
+
+    private:
+
+        decltype(auto) GetValidSectorView()
+        {
+            return std::views::filter([this]( Sector sector)
+            {
+                return IsValidSector(sector);
+            })
+            | std::views::transform([this](Sector sector)
+            {
+                return _map[sector.x][sector.y];
+            });
+        }
+        decltype(auto) FlatRange(Sector begin, Sector end)
+        {
+            return std::views::iota(begin.x, end.x+1)
+            | std::views::transform([=](auto x) 
+                { 
+                    return std::views::iota(begin.y, end.y+1) 
+                    | std::views::transform([=](auto y) 
+                        { 
+                            return psh::Sector{x, y}; 
+                        }); 
+                })
+            | std::views::join;
+        }
+        decltype(auto) SectorsView(const FVector& point1, const FVector& point2)
+        {
+            const auto p1Sector = GetSector(point1);
+            const auto p2Sector = GetSector(point2);
+
+            return FlatRange(p1Sector, p2Sector);
+        }
+
+        decltype(auto) SectorsView(const psh::Sector& target, std::span<const psh::Sector> offsets) const
+        {
+            // Convert offset to sectors
+            return std::views::all(offsets)
+                | std::views::transform([&](const Sector offset){
+                    const short x = target.x + offset.x;
+                    const short y = target.y + offset.y;
+                    return psh::Sector{x, y}; });
+        }
         
     public:
-        GameMap(short mapSize, short sectorSize, Server* owner);
+        
+        psh::FVector GetRandomLocation() const
+        {
+            return {RandomUtil::Rand(0,MAP_SIZE-100)+ 50.0f,RandomUtil::Rand(0,MAP_SIZE-100)+ 50.0f }; 
+        }
+        
+        using container = flat_unordered_set<shared_ptr<T>>;
+        GameMap(short mapSize, short sectorSize, Server* owner)
+        :SECTOR_SIZE(sectorSize),MAP_SIZE(mapSize)
+        ,MAX_SECTOR_INDEX_X(MAP_SIZE / SECTOR_SIZE - 1),
+        MAX_SECTOR_INDEX_Y(MAP_SIZE / SECTOR_SIZE - 1), _owner(owner)
+        {
+            ASSERT_CRASH(SECTOR_SIZE > 0,"Invalid Sector Size");
+            _map.resize(MAP_SIZE / SECTOR_SIZE);
+            for(auto& i :_map)
+            {
+                i.resize(MAP_SIZE / SECTOR_SIZE);
+            }
+        }
         ~GameMap() = default;
         
-        
+        void PrintPlayerInfo()
+        {
+            const auto tmp = GetPlayerInfo();
+    
+            for(auto& col : tmp)
+            {
+                for(const auto& sector : col)
+                {
+                    std::cout << sector <<' ';
+                }
+                std::cout <<'\n';
+            }
 
+        }
+        
+        vector<vector<int>> GetPlayerInfo()
+        {
+            vector ret(MAX_SECTOR_INDEX_Y,vector<int>(MAX_SECTOR_INDEX_X));
 
-
-        //새로 플레이어 생성할 때
-        void SpawnPlayer(shared_ptr<Player>& target);
+            for(int i =0; i<MAX_SECTOR_INDEX_X; i++)
+            {
+                for(int j = 0;j< MAX_SECTOR_INDEX_Y; j++)
+                {
+                    ret[MAX_SECTOR_INDEX_X - i - 1][ j] = _map[i][j].size();
+                }
+            }
+            return ret;
+        }
         
-        void CheckVictim(const Range& attackRange, int damage,const shared_ptr<ChatCharacter>& attacker);
-        void BroadcastDisconnect(const shared_ptr<Player>& target);
-        void BroadcastIfSectorChange(const shared_ptr<ChatCharacter>& target, FVector oldLocation, psh::FVector newLocation);
-        void Broadcast(FVector location,SendBuffer& buffer);
-        
-        void PrintPlayerInfo();
-        
-        vector<vector<int>> GetPlayerInfo();
         int Size() const {return MAP_SIZE;}
-        int Players();
-        [[nodiscard]] Sector GetSector(FVector location) const;
+        int Players()
+        {
+            int count = 0;
+            for (auto& col : _map)
+            {
+                for (auto& row : col)
+                {
+                    count += row.size();
+                }
+            }
+            return count;
+        }
+
+        
+        [[nodiscard]] Sector GetSector(FVector location) const
+        {
+            //입력이 비정상이면 비정상적인 값 줌.
+            //여기가 모든 입력을 걸러준다는 가정. 
+            if (location.X < 0 || MAP_SIZE <= location.X  || location.Y < 0 || MAP_SIZE <= location.Y )
+                return {-1,-1};
+    
+            return {static_cast<short>(location.X / SECTOR_SIZE), static_cast<short>(location.Y / SECTOR_SIZE)};
+        }
+
+        decltype(auto) GetSectorsFromRange(const Range& attackRange)
+        {
+            auto objectMapPtr = reinterpret_cast<GameMap<GameObject>*>(this);
+            auto view = std::views::all(attackRange.getSectors(*objectMapPtr))|GetValidSectorView();
+            return view;
+            
+        }
+
+        decltype(auto) GetSectorsFromPoint(const FVector& p1, const FVector& p2)
+        {
+            auto sectors = SectorsView(p1, p2);
+            return sectors | GetValidSectorView();
+        }
+
+        decltype(auto) GetSectorsFromOffset(const psh::Sector& target, std::span<const psh::Sector> offsets)
+        {
+            auto sectors = SectorsView(target, offsets);
+            return sectors | GetValidSectorView();
+        }
+
+        void Insert(const shared_ptr<T>& target,FVector location)
+        {
+            const auto targetSector = GetSector(location);
+    
+            ASSERT_CRASH(0 <= targetSector.x && targetSector.x <=MAX_SECTOR_INDEX_X,"Invalid xLocation");
+            ASSERT_CRASH(0 <= targetSector.y && targetSector.x <=MAX_SECTOR_INDEX_Y,"Invalid yLocation");
+    
+            _map[targetSector.x][targetSector.y].insert(target);
+        }
+        void Delete(const shared_ptr<T>& target ,FVector location)
+        {
+            const auto targetSector = GetSector(location);
+
+            ASSERT_CRASH(0 <= targetSector.x && targetSector.x <=MAX_SECTOR_INDEX_X,"Invalid xLocation");
+            ASSERT_CRASH(0 <= targetSector.y && targetSector.x <=MAX_SECTOR_INDEX_Y,"Invalid yLocation");
+
+            _map[targetSector.x][targetSector.y].erase(target);
+        }
+
+        bool IsValidSector(Sector sector) const
+        {
+            if (sector.x < 0 || sector.y < 0)
+                return false;
+
+            if (MAX_SECTOR_INDEX_X < sector.x || MAX_SECTOR_INDEX_Y < sector.y)
+                return false;
+
+            return true;
+        }
     private:
+        
         GameMap(const GameMap& other) = delete;
         GameMap(GameMap&& other) noexcept = delete;
         GameMap& operator=(const GameMap& other) = delete;
         GameMap& operator=(GameMap&& other) noexcept = delete;
 
-
-        //해당 플레이어에게는 주변 플레이어 정보를, 주변 플레이어에게는 해당 플레이어 정보를 전송한다. 
-        void SendCreateCharacterAndGetInfo(const shared_ptr<Player>& target);
-
-        void SendToSectors(const Sector& targetSector,SendBuffer& buffer, std::span<const psh::Sector> offsets, const shared_ptr<psh::
-                              Player>& exclude);
-        
-
-        void AddPlayer(const shared_ptr<Player>& target);
-        void AddPlayer(Sector targetSector, const shared_ptr<Player>& target);
-        
-        void RemovePlayer(const shared_ptr<Player>& target);
-        void RemovePlayer(Sector curSector, const shared_ptr<Player>& target);
-        
-        void ApplyToPlayerInSector(Sector target, std::span<const psh::Sector> offsets, const std::function<void(shared_ptr<Player>&)>& toInvoke);
-
-
-        bool IsValidSector(Sector sector) const;
-        psh::FVector GetRandomLocation() const ;
-
-        auto GetSituatedSectorView(const psh::Sector& target, std::span<const psh::Sector> offsets);
-        auto GetSectorsFromOffset(const psh::Sector& target, std::span<const psh::Sector> offsets) const ;
-        auto GetVicinalSectorView(const FVector& p1, const FVector& p2);
-        auto GetSectorsFromRange(const FVector& point1, const FVector& point2) const;
-        auto GetValidSectorView();
-        auto GetPlayersFromView();
-        auto ToMapReference() const;
-        auto GetValidSectors() const;
-
+    
     private:
-        using playerSector = flat_unordered_set<shared_ptr<psh::Player>>;
-        std::vector < std::vector <playerSector>> _map;
-        std::vector< std::vector<Item>> _grid;
-        
+        std::vector < std::vector <container>> _map;
         Server* _owner;
     };
-
+    
 }

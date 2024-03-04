@@ -5,13 +5,16 @@
 namespace psh
 {
 	struct Sector;
-	class GameMap;
 
+	template <typename T>	
+	class GameMap;
+	class GameObject;
+	
 	struct Range
 	{
 		virtual ~Range() = default;
 		virtual bool Contains(FVector p) const noexcept = 0;
-		virtual std::vector<psh::Sector> getSectors(const GameMap& map) const = 0;
+		virtual std::vector<psh::Sector> getSectors(GameMap<GameObject>& map) const = 0;
 	};
 
 	
@@ -37,7 +40,7 @@ namespace psh
 		}
 
 		~SquareRange() override = default;
-		std::vector<psh::Sector> getSectors(const GameMap& map) const override;
+		std::vector<psh::Sector> getSectors(GameMap<GameObject>& map) const override;
 
 
 		bool Contains(FVector p) const noexcept override;
@@ -94,12 +97,12 @@ namespace psh
 	{
 		FVector point;
 		float radius;
-		
-		bool Contains(const FVector p) const noexcept override
-		{
-			return Distance(point,p) <= radius;
-		}
-		
+
+		CircleRange(const FVector& point, float radius);
+
+		std::vector<psh::Sector> getSectors(GameMap<GameObject>& map) const override;
+
+		bool Contains(const FVector p) const noexcept override;
 	};
 	
 
