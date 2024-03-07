@@ -20,6 +20,10 @@ namespace psh
         playerPtr->SetGroup(this);
         playerPtr->SetMap(reinterpret_cast<GameMap<GameObject>*>(_playerMap.get()));
         playerPtr->Location(_playerMap->GetRandomLocation());
+        if(playerPtr->isDead())
+        {
+            playerPtr->Revive();
+        }
         
         auto levelInfoPacket = SendBuffer::Alloc();
         MakeGame_ResLevelEnter(levelInfoPacket,playerPtr->AccountNumber(),playerPtr->ObjectId(), _groupType);
@@ -54,7 +58,7 @@ namespace psh
         case psh::ePacketType::eGame_ReqAttack:
             OnAttack(id,recvBuffer);
             break;
-        case psh::ePacketType::eGame_ReqLevelChange:
+        case psh::ePacketType::eGame_ReqLevelEnter:
             OnReqLevelChange(id,recvBuffer);
             break;
         default:
@@ -65,22 +69,6 @@ namespace psh
 
     void VillageGroup::CheckVictim(const Range& attackRange, int damage, const shared_ptr<ChatCharacter>& attacker)
     {
-        
-        auto view = _playerMap->GetSectorsFromRange(attackRange);
-
-        ranges::for_each(view,[this,&attackRange,&attacker,damage](auto sector)
-            {
-                for(auto& player : sector)
-                {
-                    if(player == attacker)
-                        continue;
-
-                    if(!attackRange.Contains(player->Location()))
-                        continue;
-
-                    player->Hit(damage,attacker);
-                }
-            });
     }
 
     void VillageGroup::OnChangeComp(const SessionID id, CRecvBuffer& recvBuffer)
@@ -102,7 +90,7 @@ namespace psh
     {
         AccountNo accountNo;
         ServerType type;
-        GetGame_ReqLevelChange(recvBuffer,accountNo,type);
+        GetGame_ReqLevelEnter(recvBuffer,accountNo,type);
         
         MoveSession(id,_server->GetGroupID(type));
     }
@@ -133,8 +121,6 @@ namespace psh
         {
             _iocp->DisconnectSession(sessionId);
         }
-
-        player->Attack(type);
     }
 
    

@@ -16,7 +16,12 @@ namespace psh
         void Hit(int damage,const shared_ptr<ChatCharacter>& attacker);
         void OnUpdate(float delta) override{}
         void MoveStart(FVector destination) override;
-
+        bool isDead() const {return _dead;}
+        void Revive()
+        {
+            _dead = false;
+            _hp = 100;
+        }
     protected:
         void OnMove() override;
 
@@ -24,7 +29,7 @@ namespace psh
         virtual void Die();
     protected:
         int _hp = 100;
-
+        bool _dead = false;
         vector<pair<FVector,int>> _attacks;
     };
 }

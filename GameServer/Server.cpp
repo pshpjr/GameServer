@@ -121,7 +121,7 @@ namespace psh
 
 		
 		//임시 스폰 테스트용 
-		FVector location = { (float)(rand() % 400 + 50), (float)(rand() % 400 + 50)};
+		FVector location = {RandomUtil::Rand(0,6300) + 50.0f,RandomUtil::Rand(0,6300) + 50.0f};
 		FVector direction = { 0, 0 };
 		ObjectID clientId = g_clientID++;
 		//TODO: 플레이어 위치는 각 그룹에서 정해야 함. 
@@ -134,7 +134,7 @@ namespace psh
 				//플레이어 생성에 실패한 관련 에러 처리. 
 			}
 		}
-		_groupManager->MoveSession(sessionId,_groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Easy)]);
+		_groupManager->MoveSession(sessionId,_groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Village)]);
 	}
 
 

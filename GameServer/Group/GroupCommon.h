@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Group.h"
+#include "SettingParser.h"
 #include "../GameMap.h"
 #include "../Base/Player.h"
 
@@ -18,7 +19,7 @@ namespace psh
         _prevUpdate(std::chrono::steady_clock::now()) {}
         
         void SetUseDB(const bool use){_useDB = use;}
-        void OnUpdate() final;
+        void OnUpdate(int milli) final;
         
         void OnEnter(SessionID id) override{}
         void OnLeave(SessionID id) override{}
@@ -28,15 +29,19 @@ namespace psh
         virtual void CheckItem(const shared_ptr<ChatCharacter>& target){};
         
 
-        void BroadcastMove(const shared_ptr<ChatCharacter>& player, FVector oldLocation, FVector newLocation);
+        virtual void BroadcastMove(const shared_ptr<ChatCharacter>& player, FVector oldLocation, FVector newLocation);
         virtual void OnActorDestroy(const shared_ptr<GameObject>& object){}
         void SendCreate(const shared_ptr<GameObject>& object, FVector location, const std::span<const psh::Sector> offsets, bool isSpawn);
         void SendCreateAndGetInfo(const shared_ptr<psh::GameObject>& object, FVector location, const std::span<const psh::Sector> offsets, bool isSpawn);
         void SendDelete(const shared_ptr<psh::GameObject>& object, FVector location, const std::span<const psh::Sector> offsets, bool isDead);
         void SendDeleteAndGetInfo(const shared_ptr<psh::GameObject>& object, FVector location, const std::span<const psh::Sector> offsets, bool isDead);
         void Broadcast(FVector location,SendBuffer& buffer,GameObject* exclude = nullptr);
-
+        bool GetClosestTarget(FVector location, shared_ptr<psh::ChatCharacter>& target);
     protected:
+        static psh::Sector TableIndexFromDiff(const psh::Sector sectorDiff)
+        {
+            return psh::Sector(sectorDiff.x + 1,sectorDiff.y+1);
+        }
         virtual void UpdateContent(float deltaMs) = 0;
         virtual void SendMonitor() = 0;
 
@@ -44,11 +49,11 @@ namespace psh
         //Info
         const ServerType _groupType = ServerType::End;
         unique_ptr<GameMap<ChatCharacter>> _playerMap;
-        
+
+       
     private:
 
-        
-       
+
         //DB
         bool _useDB = false;
         chrono::steady_clock::time_point _nextDBSend {};

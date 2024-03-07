@@ -186,7 +186,10 @@ namespace psh
 
             _map[targetSector.x][targetSector.y].erase(target);
         }
-
+        void ClamToMap(FVector& loc)
+        {
+            Clamp(loc, 0,MAP_SIZE);
+        }
         bool IsValidSector(Sector sector) const
         {
             if (sector.x < 0 || sector.y < 0)

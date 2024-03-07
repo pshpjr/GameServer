@@ -25,7 +25,7 @@ namespace psh
         bool inCircleRange(const CircleRange& range) const;
 
         virtual void MoveStart(FVector destination);
-
+        void MoveStop();
         void Update(int delta);
     public:
         [[nodiscard]] FVector OldLocation() const
@@ -69,6 +69,10 @@ namespace psh
         [[nodiscard]] GameMap<GameObject>* Map() const
         {
             return _map;
+        }
+        [[nodiscard]] GroupCommon* Owner() const
+        {
+            return _owner;
         }
     private:
         FVector _location;

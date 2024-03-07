@@ -6,6 +6,7 @@
 #include "IOCP.h"
 
 #include "../GameMap.h"
+#include "../Data/AttackData.h"
 
 
 namespace psh 
@@ -17,13 +18,7 @@ namespace psh
 	: ChatCharacter(clientId,location,direction,PLAYER_MOVE_SPEED,eCharacterGroup::Player,type)
 	,_sessionId(sessionId),_accountNo(accountNo)
 	{
-		_attacks =
-		{
-			{{200,200},10},
-			{{200,200},20},			
-			{{400,200},40},	
-			{{500,200},10},	
-		};      
+		_attacks = playerAttack[type];
 	}
 	
 	void Player::OnUpdate(float delta)

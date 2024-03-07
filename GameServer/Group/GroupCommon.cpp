@@ -7,12 +7,10 @@
 #include "../Base/Player.h"
 
 
-void psh::GroupCommon::OnUpdate()
-{
-    int delta = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - _prevUpdate).count();
 
-    _prevUpdate += chrono::milliseconds(delta);
-    UpdateContent(10);
+void psh::GroupCommon::OnUpdate(int milli)
+{
+    UpdateContent(milli);
     _fps++;
 
     
@@ -53,10 +51,28 @@ void psh::GroupCommon::Broadcast(FVector location, SendBuffer& buffer, GameObjec
     });
 }
 
-psh::Sector TableIndexFromDiff(const psh::Sector sectorDiff)
+bool psh::GroupCommon::GetClosestTarget(FVector location, shared_ptr<psh::ChatCharacter>& target)
 {
-    return psh::Sector(sectorDiff.x + 1,sectorDiff.y+1);
+    bool find = false;
+    float closest = 99999;
+    
+    auto broadcastSectors = _playerMap->GetSectorsFromOffset(_playerMap->GetSector(location),SEND_OFFSETS::BROADCAST);
+    ranges::for_each(broadcastSectors,[ this,&target,&closest,&find,location](flat_unordered_set<shared_ptr<ChatCharacter>> sector)
+    {
+        for(auto& player : sector)
+        {
+            auto dist = Distance(player->Location(),location);
+            if( dist < closest)
+            {
+                target = player;
+                find = true;
+            }
+        }
+    });
+    
+    return find;    
 }
+
 
 void psh::GroupCommon::BroadcastMove(const shared_ptr<ChatCharacter>& player, FVector oldLocation, FVector newLocation)
 {
@@ -76,6 +92,7 @@ void psh::GroupCommon::BroadcastMove(const shared_ptr<ChatCharacter>& player, FV
     //맵에서 삭제한다. 
     map.Delete(player,oldLocation);
     SendDeleteAndGetInfo(player,oldLocation,SEND_OFFSETS::DeleteTable[sectorIndex.x][sectorIndex.y],false);
+
     
     SendCreateAndGetInfo(player,newLocation,SEND_OFFSETS::CreateTable[sectorIndex.x][sectorIndex.y],false);
     map.Insert(player,newLocation);

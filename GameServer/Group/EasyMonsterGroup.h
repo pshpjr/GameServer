@@ -8,6 +8,7 @@ namespace psh
 
     class EasyMonsterGroup : public psh::GroupCommon
     {
+        static constexpr int MAX_MONSTER = 1;
     public:
         EasyMonsterGroup(Server* server,short mapSize = 6400, short sectorSize = 800);
         void OnEnter(SessionID id) override;
@@ -18,6 +19,8 @@ namespace psh
         bool SpawnItem(const shared_ptr<GameObject>& object);
         void OnActorDestroy(const shared_ptr<GameObject>& object) override;
         void GetActors(const shared_ptr<psh::GameObject>& object, FVector location, const std::span<const psh::Sector> offsets);
+        void GetDelActors(const shared_ptr<psh::GameObject>& object, FVector location, const std::span<const psh::Sector> offsets);
+        
     protected:
         void UpdateContent(float delta) override;
         void SendMonitor() override;
@@ -26,6 +29,8 @@ namespace psh
         void CheckVictim(const Range& attackRange, int damage, const shared_ptr<ChatCharacter>& attacker) override;
         void CheckItem(const shared_ptr<ChatCharacter>& target) override;
         ~EasyMonsterGroup() override;
+        void BroadcastMove(const shared_ptr<ChatCharacter>& player, FVector oldLocation, FVector newLocation) override;
+
     private:
         void OnMove(SessionID sessionId,CRecvBuffer& buffer);
         void OnAttack(SessionID sessionId, CRecvBuffer& buffer);

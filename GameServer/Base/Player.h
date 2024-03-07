@@ -27,10 +27,9 @@ namespace psh
 		
 		Player(ObjectID clientId,const psh::FVector& location, const psh::FVector& direction,char type,
 			const SessionID& sessionId, AccountNo accountNo );
-		void GetCoin()
+		void GetCoin(char value)
 		{
-			printf("%d \n",_coin);
-			_coin++;
+			_coin+= value;
 		}
 	public:
 		[[nodiscard]] SessionID SessionId() const

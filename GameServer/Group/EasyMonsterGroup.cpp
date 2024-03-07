@@ -15,8 +15,8 @@
 namespace psh
 {
     EasyMonsterGroup::EasyMonsterGroup(Server* server,short mapSize, short sectorSize): GroupCommon(server, ServerType::Easy,mapSize,sectorSize)
-    ,_monsterMap(make_unique<GameMap<ChatCharacter>>(mapSize,mapSize,server))
-    ,_itemMap(make_unique<GameMap<Item>>(mapSize,mapSize,server)) {}
+    ,_monsterMap(make_unique<GameMap<ChatCharacter>>(mapSize,sectorSize,server))
+    ,_itemMap(make_unique<GameMap<Item>>(mapSize,sectorSize,server)) {}
 
     void EasyMonsterGroup::OnEnter(SessionID id)
     {
@@ -61,7 +61,7 @@ namespace psh
         case eGame_ReqAttack:
             OnAttack(id,recvBuffer);
             break;
-        case eGame_ReqLevelChange:
+        case eGame_ReqLevelEnter:
             OnReqLevelChange(id,recvBuffer);
             break;
         default:
@@ -74,7 +74,10 @@ namespace psh
     {
         auto id = GetNextID();
         //auto location= _monsterMap->GetRandomLocation();
-
+        if(isnan(object->Location().X))
+        {
+            DebugBreak();
+        }
         auto [item, success] = _items.emplace(id,make_shared<Item>(id,object->Location(),30.0f,0));
             
         if(!success)
@@ -91,11 +94,13 @@ namespace psh
 
     void EasyMonsterGroup::OnActorDestroy(const shared_ptr<GameObject>& object)
     {
+        printf("ActorDestroy %d\n", object->ObjectId());
         switch (object->ObjectGroup())
         {
         case eCharacterGroup::Player:
             {
-                _iocp->DisconnectSession(static_pointer_cast<Player>(object)->SessionId());
+                _playerMap->Delete(static_pointer_cast<Player>(object) ,object->Location());
+                //_iocp->DisconnectSession(static_pointer_cast<Player>(object)->SessionId());
             }
             break;
         case eCharacterGroup::Monster:
@@ -161,6 +166,47 @@ namespace psh
         }
     }
 
+    void EasyMonsterGroup::GetDelActors(const shared_ptr<psh::GameObject>& object, FVector location,
+        const std::span<const psh::Sector> offsets)
+    {
+        //정보를 받아올 패킷을 만들고
+        vector<SendBuffer> toDelete;
+        toDelete.reserve(4);
+        toDelete.push_back(SendBuffer::Alloc());
+        
+        //몬스터 맵에서 순회하며 정보를 받아온다.
+        auto oldSector = _monsterMap->GetSector(location);
+        auto monsterSector = _monsterMap->GetSectorsFromOffset(oldSector,offsets);
+        ranges::for_each(monsterSector,[this,&toDelete](flat_unordered_set<shared_ptr<ChatCharacter>> sector){
+             for(auto& player : sector)
+             {
+                  if (toDelete.back().CanPushSize() < 111)
+                  {
+                      toDelete.push_back(SendBuffer::Alloc());
+                  }
+                 MakeGame_ResDestroyActor(toDelete.back(),player->ObjectId(),false);
+             }
+        });
+        
+        //아이템 맵에서 순회하며 정보를 받아온다.
+        auto itemSector = _itemMap->GetSectorsFromOffset(oldSector,offsets);
+        ranges::for_each(itemSector,[this,&toDelete](flat_unordered_set<shared_ptr<Item>> sector){
+             for(auto& item : sector)
+             {
+                  if (toDelete.back().CanPushSize() < 111)
+                  {
+                      toDelete.push_back(SendBuffer::Alloc());
+                  }
+                 MakeGame_ResDestroyActor(toDelete.back(),item->ObjectId(),false);
+             }
+        });
+        //있으면 전송한다. 
+
+        if(toDelete.back().Size() !=0){
+            SendPackets(static_pointer_cast<Player>(object)->SessionId(),toDelete);
+        }
+    }
+
     void EasyMonsterGroup::OnChangeComp(const SessionID id, CRecvBuffer& recvBuffer)
     {
         AccountNo accountNo;
@@ -180,14 +226,14 @@ namespace psh
     {
         AccountNo accountNo;
         ServerType type;
-        GetGame_ReqLevelChange(recvBuffer,accountNo,type);
+        GetGame_ReqLevelEnter(recvBuffer,accountNo,type);
         
         MoveSession(id,_server->GetGroupID(type));
     }
 
     void EasyMonsterGroup::UpdateContent(const float delta)
     {
-        if(GetAsyncKeyState('P') & 8001)
+        if(_monsters.size() < MAX_MONSTER)
         {
             SpawnMonster();
         }
@@ -231,7 +277,6 @@ namespace psh
 
     void EasyMonsterGroup::CheckItem(const shared_ptr<ChatCharacter>& target)
     {
-        
         auto items = _itemMap->GetSectorsFromOffset(_itemMap->GetSector(target->Location()),SEND_OFFSETS::Single);
         ranges::for_each(items,[ this,&target](flat_unordered_set<shared_ptr<Item>> sector)
         {
@@ -239,14 +284,50 @@ namespace psh
             {
                 if(item->Collision(target->Location()))
                 {
-                    static_pointer_cast<Player>(target)->GetCoin();
+                    static_pointer_cast<Player>(target)->GetCoin(1);
+                    auto getCoin = SendBuffer::Alloc();
+                    MakeGame_ResGetCoin(getCoin,target->ObjectId(),1);
+                    SendPacket(static_pointer_cast<psh::Player>(target)->SessionId(),getCoin);
                     item->Destroy(false);
                 }
             }
         });
+        
     }
 
     EasyMonsterGroup::~EasyMonsterGroup() = default;
+
+    void EasyMonsterGroup::BroadcastMove(const shared_ptr<ChatCharacter>& player, FVector oldLocation,
+        FVector newLocation)
+    {
+        
+        
+        auto& map = *player->Map();
+        //대상이 있는 섹터와 다음 섹터를 구한다.
+        const auto oldSector = map.GetSector(oldLocation);
+        const auto newSector = map.GetSector(newLocation);
+        // 같다면 리턴한다.
+        if(oldSector == newSector)
+        {
+            return;
+        }
+        // 다르다면 전송해야 할 범위를 구한다.
+        const auto sectorDiff = Clamp(newSector - oldSector,-1,1);
+        const auto sectorIndex = TableIndexFromDiff(sectorDiff);
+
+        if(player->ObjectGroup() == eCharacterGroup::Player)
+        {
+            GroupCommon::BroadcastMove(player, oldLocation, newLocation);
+            GetDelActors(player,oldLocation,SEND_OFFSETS::DeleteTable[sectorIndex.x][sectorIndex.y]);
+            GetActors(player,newLocation,SEND_OFFSETS::CreateTable[sectorIndex.x][sectorIndex.y]);
+        }
+        else if(player->ObjectGroup() == eCharacterGroup::Monster)
+        {
+            GroupCommon::BroadcastMove(player, oldLocation, newLocation);
+        }
+
+        
+    }
 
     void EasyMonsterGroup::OnAttack(const SessionID sessionId, CRecvBuffer& buffer)
     {
@@ -258,7 +339,8 @@ namespace psh
         {
             _iocp->DisconnectSession(sessionId);
         }
-
+        if(player->isDead())
+            return;
         player->Attack(type);
     }
 
@@ -266,8 +348,10 @@ namespace psh
     void EasyMonsterGroup::SpawnMonster()
     {
         auto id = GetNextID();
+        printf("spawnActor %d\n",id);
+        
         //auto location= _monsterMap->GetRandomLocation();
-        FVector location= {RandomUtil::Rand(800,1000) + 100.0f,RandomUtil::Rand(800,1000) + 100.0f};
+        FVector location= {RandomUtil::Rand(0,6300) + 50.0f,RandomUtil::Rand(0,6300) + 50.0f};
         FVector dir= {0,0};
         auto [monster,success] = _monsters.emplace(id,make_shared<Monster>(id,location,dir,RandomUtil::Rand(0,3)));
         if(!success)
@@ -291,6 +375,9 @@ namespace psh
         {
             _iocp->DisconnectSession(sessionId);
         }
+        if(result->isDead())
+            return;
+        
 
         location = Clamp(location,0,_playerMap->Size());
         

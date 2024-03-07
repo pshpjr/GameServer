@@ -328,6 +328,7 @@
     <ClInclude Include="Base\Player.h" />
     <ClInclude Include="Base\Rand.h" />
     <ClInclude Include="Base\Range.h" />
+    <ClInclude Include="Data\AttackData.h" />
     <ClInclude Include="Data\GameDataLoader.h" />
     <ClInclude Include="Data\TableData.h" />
     <ClInclude Include="flat_unordered_set.h" />

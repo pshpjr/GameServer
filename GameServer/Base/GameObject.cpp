@@ -1,4 +1,6 @@
 ﻿#include "GameObject.h"
+
+#include "DBConnection.h"
 #include "../Group/GroupCommon.h"
 
 psh::GameObject::GameObject(ObjectID id, FVector location, FVector direction, float moveSpeedPerSec,
@@ -30,6 +32,15 @@ void psh::GameObject::MoveStart(FVector destination)
     _move = true;
     _destination = destination;
     _direction = (destination - _location).Normalize();
+}
+
+void psh::GameObject::MoveStop()
+{
+    _move = false;
+    auto moveStop =  SendBuffer::Alloc();
+    MakeGame_ResMoveStop(moveStop, ObjectId(),Location());
+    
+    _owner->Broadcast(Location(),moveStop);
 }
 
 void psh::GameObject::Update(int delta)
@@ -73,6 +84,7 @@ void psh::GameObject::Move(float delta)
     {
         _oldLocation = _location;
         _location += (_direction * delta * MoveSpeedPerMs);
+        _map->ClamToMap(_location);
         OnMove();
     }
 }
