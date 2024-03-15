@@ -1,202 +1,182 @@
 ﻿#include "GroupCommon.h"
 
-#include "../GameMap.h"
-#include "../Sector.h"
-#include "../Data/TableData.h"
-#include "../Base/ChatCharacter.h"
+#include "../Base/ObjectManager.h"
 #include "../Base/Player.h"
+#include "../Server.h"
+#include "../Data/TableData.h"
+#include "../Base/AttackManager.h"
 
+psh::GroupCommon::GroupCommon(Server& server, ServerType type
+    , short mapSize, short sectorSize):
+        _server(server) ,_groupType(type), 
+        _prevUpdate(std::chrono::steady_clock::now())
+{
+    _playerMap = make_shared<GameMap<shared_ptr<Player>>>(mapSize, sectorSize);
+    _objectManager = make_unique<ObjectManager>(*this,*_playerMap);   
+}
+
+psh::GroupCommon::~GroupCommon() = default;
+
+void psh::GroupCommon::SendInRange(FVector location
+                                   , std::span<const Sector> offsets
+                                   , SendBuffer& buffer
+                                   , const shared_ptr<psh::Player>& exclude)
+{
+    auto broadcastSectors = _playerMap->GetSectorsFromOffset(_playerMap->GetSector(location), offsets);
+    ranges::for_each(broadcastSectors, [ this,&buffer,&exclude](flat_unordered_set<shared_ptr< psh::Player>> sector)
+    {
+        for (auto player : sector)
+        {
+            if (player == exclude)
+            {
+                continue;
+            }
+
+            SendPacket(player->SessionId(), buffer);
+        }
+    });
+}
+
+void psh::GroupCommon::OnEnter(SessionID id)
+{
+    auto dataPtr = _server.getDbData(id);
+
+    if (static_cast<ServerType>(dataPtr->ServerType()) != _groupType)
+    {
+        dataPtr->SetServerType(static_cast<char>(_groupType));
+        dataPtr->SetLocation(_playerMap->GetRandomLocation());
+    }
+
+    auto playerPtr = make_unique<Player>(_objectManager->NextObjectId(),*_objectManager,*this, dataPtr->Location(), *dataPtr);
+
+    //TODO: DB 사용시 제거.
+    auto levelInfoPacket = SendBuffer::Alloc();
+    MakeGame_ResLevelEnter(levelInfoPacket,playerPtr->AccountNumber(),playerPtr->ObjectId(), _groupType);
+    SendPacket(playerPtr->SessionId(), levelInfoPacket);
+    
+
+    _players.insert({id, std::move(playerPtr)});
+    _iocp->SetTimeout(id, 30000);
+
+}
+
+void psh::GroupCommon::OnLeave(SessionID id)
+{
+    auto it = _players.find(id);
+    auto& [_,playerPtr] = *it;
+
+    _objectManager->DestroyActor(playerPtr,playerPtr->Location(),SEND_OFFSETS::BROADCAST, false,false);
+    _players.erase(it);
+}
 
 
 void psh::GroupCommon::OnUpdate(int milli)
 {
     UpdateContent(milli);
     _fps++;
-
     
-    if ( std::chrono::steady_clock::now() < _nextDBSend )
+    if (std::chrono::steady_clock::now() < _nextDBSend)
     {
-        return ;
+
+        return;
     }
-
-
-    if(!_useDB)
+    if (!_useDB)
     {
     }
 
     SendMonitor();
 
-
-
     _nextDBSend += 1s;
     _fps = 0;
 }
 
-psh::GroupCommon::~GroupCommon()
+void psh::GroupCommon::OnRecv(SessionID id, CRecvBuffer& recvBuffer)
 {
-}
-
-void psh::GroupCommon::Broadcast(FVector location, SendBuffer& buffer, GameObject* exclude)
-{
-    auto broadcastSectors = _playerMap->GetSectorsFromOffset(_playerMap->GetSector(location),SEND_OFFSETS::BROADCAST);
-    ranges::for_each(broadcastSectors,[ this,&buffer,&exclude](flat_unordered_set<shared_ptr<ChatCharacter>> sector)
+    ePacketType type;
+    recvBuffer >> type;
+    auto& [_,playerPtr] = *_players.find(id);
+    switch (type)
     {
-        for(auto& player : sector)
-        {
-            if(player.get() == exclude)
-                continue;
-            
-            SendPacket(static_pointer_cast<Player>(player)->SessionId(), buffer);
-        }
-    });
-}
-
-bool psh::GroupCommon::GetClosestTarget(FVector location, shared_ptr<psh::ChatCharacter>& target)
-{
-    bool find = false;
-    float closest = 99999;
-    
-    auto broadcastSectors = _playerMap->GetSectorsFromOffset(_playerMap->GetSector(location),SEND_OFFSETS::BROADCAST);
-    ranges::for_each(broadcastSectors,[ this,&target,&closest,&find,location](flat_unordered_set<shared_ptr<ChatCharacter>> sector)
-    {
-        for(auto& player : sector)
-        {
-            auto dist = Distance(player->Location(),location);
-            if( dist < closest)
-            {
-                target = player;
-                find = true;
-            }
-        }
-    });
-    
-    return find;    
-}
-
-
-void psh::GroupCommon::BroadcastMove(const shared_ptr<ChatCharacter>& player, FVector oldLocation, FVector newLocation)
-{
-    auto& map = *player->Map();
-    //대상이 있는 섹터와 다음 섹터를 구한다.
-    const auto oldSector = map.GetSector(oldLocation);
-    const auto newSector = map.GetSector(newLocation);
-    // 같다면 리턴한다.
-    if(oldSector == newSector)
-    {
-        return;
-    }
-    // 다르다면 전송해야 할 범위를 구한다.
-    const auto sectorDiff = Clamp(newSector - oldSector,-1,1);
-    const auto sectorIndex = TableIndexFromDiff(sectorDiff);
-    
-    //맵에서 삭제한다. 
-    map.Delete(player,oldLocation);
-    SendDeleteAndGetInfo(player,oldLocation,SEND_OFFSETS::DeleteTable[sectorIndex.x][sectorIndex.y],false);
-
-    
-    SendCreateAndGetInfo(player,newLocation,SEND_OFFSETS::CreateTable[sectorIndex.x][sectorIndex.y],false);
-    map.Insert(player,newLocation);
-}
-
-void psh::GroupCommon::SendCreate(const shared_ptr<psh::GameObject>& object, FVector location, const std::span<const psh::Sector> offsets, bool isSpawn)
-{
-    SendBuffer createThis = SendBuffer::Alloc();
-    object->GetInfo(createThis,isSpawn);
-
-    auto oldSector = _playerMap->GetSector(location);
-    
-    // 주변 모두에게 전송
-    auto addSectors = _playerMap->GetSectorsFromOffset(oldSector,offsets);
-    
-    ranges::for_each(addSectors,[this,&createThis](flat_unordered_set<shared_ptr<ChatCharacter>> sector){
-         for(auto& player : sector)
-         {
-             SendPacket(static_pointer_cast<Player>(player)->SessionId(),createThis);
-         }
-    });
-}
-
-void psh::GroupCommon::SendCreateAndGetInfo(const shared_ptr<psh::GameObject>& object, FVector location, const std::span<const psh::Sector> offsets, bool isSpawn)
-{
-    SendBuffer createThis = SendBuffer::Alloc();
-    object->GetInfo(createThis,isSpawn);
-    
-    vector<SendBuffer> toCreate;
-    toCreate.reserve(4);
-    toCreate.push_back(SendBuffer::Alloc());
-
-    auto oldSector = _playerMap->GetSector(location);
-    
-    // 주변 모두에게 전송하고, 그 플레이어들의 정보를 받아온다.(나는 없으니까 제외 안 해도 됨)
-    auto addSectors = _playerMap->GetSectorsFromOffset(oldSector,offsets);
-
-    //실행시킨다. 
-    ranges::for_each(addSectors,[this,&createThis,&toCreate](flat_unordered_set<shared_ptr<ChatCharacter>> sector){
-         for(auto& player : sector)
-         {
-              SendPacket(static_pointer_cast<Player>(player)->SessionId(),createThis);
-              if (toCreate.back().CanPushSize() < 111)
-              {
-                  toCreate.push_back(SendBuffer::Alloc());
-              }
-              player->GetInfo(toCreate.back(),false);
-         }
-    });
-
-    if(toCreate.back().Size() !=0){
-        SendPackets(static_pointer_cast<Player>(object)->SessionId(),toCreate);
+        case eGame_ReqChangeComplete:
+            RecvChangeComp(id, recvBuffer);
+        break;
+        case eGame_ReqMove:
+            RecvMove(id, recvBuffer);
+        break;
+        case eGame_ReqAttack:
+            RecvAttack(id, recvBuffer);
+        break;
+        case eGame_ReqLevelEnter:
+            RecvReqLevelChange(id, recvBuffer);
+        break;
+        default:
+            DebugBreak();
+        break;
     }
 }
 
-void psh::GroupCommon::SendDelete(const shared_ptr<psh::GameObject>& object, FVector location,
-                                  const std::span<const psh::Sector> offsets, bool isDead)
+void psh::GroupCommon::RecvReqLevelChange(SessionID id, CRecvBuffer& recvBuffer) const
 {
-    SendBuffer deleteThis = SendBuffer::Alloc();
-    MakeGame_ResDestroyActor(deleteThis,object->ObjectId(),isDead);
+    AccountNo accountNo;
+    ServerType type;
+    GetGame_ReqLevelEnter(recvBuffer, accountNo, type);
 
-    auto oldSector = _playerMap->GetSector(location);
-    
-    // 주변 모두에게 전송하고, 그 플레이어들의 정보를 받아온다.(나는 없으니까 제외 안 해도 됨)
-    auto delSectors = _playerMap->GetSectorsFromOffset(oldSector,offsets);
-    //실행시킨다. 
-    ranges::for_each(delSectors,[this,&deleteThis](flat_unordered_set<shared_ptr<ChatCharacter>> sector){
-         for(auto& player : sector)
-         {
-             SendPacket(static_pointer_cast<Player>(player)->SessionId(),deleteThis);
-         }
-    });
+    MoveSession(id, _server.GetGroupID(type));
 }
 
-void psh::GroupCommon::SendDeleteAndGetInfo(const shared_ptr<psh::GameObject>& object, FVector location,
-                                            const std::span<const psh::Sector> offsets, bool isDead)
+void psh::GroupCommon::RecvChangeComp(SessionID id, CRecvBuffer& recvBuffer)
 {
-    SendBuffer deleteThis = SendBuffer::Alloc();
-    MakeGame_ResDestroyActor(deleteThis,object->ObjectId(),isDead);
+    AccountNo accountNo;
+    GetGame_ReqChangeComplete(recvBuffer, accountNo);
+
+    auto& [_,playerPtr] = *_players.find(id);
     
-    vector<SendBuffer> toDelete;
-    toDelete.reserve(4);
-    toDelete.push_back(SendBuffer::Alloc());
-
-    auto oldSector = _playerMap->GetSector(location);
-    
-    // 주변 모두에게 전송하고, 그 플레이어들의 정보를 받아온다.(나는 없으니까 제외 안 해도 됨)
-    auto delSectors = _playerMap->GetSectorsFromOffset(oldSector,offsets);
-
-    //실행시킨다. 
-    ranges::for_each(delSectors,[this,&deleteThis,&toDelete,isDead](flat_unordered_set<shared_ptr<ChatCharacter>> sector){
-         for(auto& player : sector)
-         {
-              SendPacket(static_pointer_cast<Player>(player)->SessionId(),deleteThis);
-              if (toDelete.back().CanPushSize() < 111)
-              {
-                  toDelete.push_back(SendBuffer::Alloc());
-              }
-              MakeGame_ResDestroyActor(toDelete.back(),player->ObjectId(),isDead);
-         }
-    });
-
-    if(toDelete.back().Size() !=0){
-        SendPackets(static_pointer_cast<Player>(object)->SessionId(),toDelete);
+    if (playerPtr->isDead())
+    {
+        playerPtr->Revive();
     }
+
+    _objectManager->SpawnActor(playerPtr,_attackManager.get());
 }
 
+void psh::GroupCommon::RecvMove(SessionID sessionId, CRecvBuffer& buffer)
+{
+    auto& [_,player] = *_players.find(sessionId);
+    FVector location;
+    GetGame_ReqMove(buffer,location);
+    FVector oldLocation = player->Location();
+    if (player == nullptr)
+    {
+        _iocp->DisconnectSession(sessionId);
+    }
+    
+    player->MoveStart(location);
+    if(isnan(player->Direction().Y) )
+        __debugbreak();
+}
+
+void psh::GroupCommon::RecvAttack(SessionID sessionId, CRecvBuffer& buffer)
+{
+    auto& [_,player] = *_players.find(sessionId);
+    char type;
+    GetGame_ReqAttack(buffer, type);
+
+    if (player == nullptr)
+    {
+        _iocp->DisconnectSession(sessionId);
+    }
+    player->Attack(type);
+}
+
+
+void psh::GroupCommon::UpdateContent(int deltaMs)
+{
+    for (auto& [_,actor] : _players)
+    {
+        actor->Update(deltaMs);
+        if(isnan(actor->Direction().Y) )
+            __debugbreak();
+    }
+    
+    _objectManager->Update(deltaMs);
+}

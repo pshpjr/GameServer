@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class HardMonsterGroup
+class PvpAttackManager
 {
 public:
     

@@ -10,23 +10,19 @@ namespace psh
 
 namespace psh
 {
-
     class Item : public GameObject
     {
     public:
-        Item(ObjectID id, const FVector location, const float distance, char type)
-            : GameObject(id, location, {0, 0}, 0, eCharacterGroup::Item, type), _range(location,distance)
+        Item(ObjectID id,ObjectManager& manager, GroupCommon& group, const FVector location, const float distance, char type)
+            : GameObject(id,manager,group, location, {0, 0}, 0, eCharacterGroup::Item, type)
+            , _range(location, distance)
         {
         }
-
-        void Spawn();
-
         bool Collision(FVector point);
 
-        void Take(shared_ptr<ChatCharacter>& target);
+        void Take(ChatCharacter& target);
 
     private:
         CircleRange _range;
     };
 }
-

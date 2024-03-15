@@ -10,9 +10,11 @@ public:
 
 class TmpDataLoader : public GameDataLoader
 {
-
 public:
-    TmpDataLoader() {  }    
+    TmpDataLoader()
+    {
+    }
+
 private:
-    HashMap<String,int> _data;
+    HashMap<String, int> _data;
 };

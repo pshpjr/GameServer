@@ -4,5 +4,4 @@
 class PVPGroup : public Group
 {
 public:
-    
 };

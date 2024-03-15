@@ -7,7 +7,10 @@ namespace psh
     {
         inline static thread_local std::mt19937 gen = std::mt19937(0);
 
-        static void SRand(int seed) { gen =  std::mt19937(seed);}
+        static void SRand(int seed)
+        {
+            gen = std::mt19937(seed);
+        }
 
         static int Rand(int min, int max)
         {
@@ -15,5 +18,4 @@ namespace psh
             return dis(gen);
         }
     };
-
 }

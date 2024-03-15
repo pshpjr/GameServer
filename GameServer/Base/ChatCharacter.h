@@ -1,36 +1,47 @@
 ﻿#pragma once
+#include "AttackManager.h"
 #include "GameObject.h"
+
 
 namespace psh
 {
-    class ChatCharacter : public psh::GameObject
+    class AttackManager;
+
+    class ChatCharacter : public GameObject
     {
     public:
-        ChatCharacter(ObjectID id, FVector location, FVector direction, float moveSpeed,eCharacterGroup group = eCharacterGroup::Object, char type = 0):
-        GameObject( id,location, direction,moveSpeed,group,type)
+        ChatCharacter(ObjectID id
+, ObjectManager& owner
+, GroupCommon& group
+                            , FVector location
+                            , float moveSpeedPerSec = 400
+                            , eCharacterGroup characterType = eCharacterGroup::Object
+                            , char type = 0):
+                                      GameObject(id,owner,group, location, {0,0}, moveSpeedPerSec, characterType, type)
         {
         }
-        
+
         ~ChatCharacter() override = default;
         void Attack(char type);
-        void Hit(int damage,const shared_ptr<ChatCharacter>& attacker);
-        void OnUpdate(float delta) override{}
-        void MoveStart(FVector destination) override;
-        bool isDead() const {return _dead;}
+        void Hit(int damage, const ObjectID attacker);
+        bool isDead() const
+        {
+            return _dead;
+        }
+
         void Revive()
         {
             _dead = false;
             _hp = 100;
         }
-    protected:
-        void OnMove() override;
-
+        void SetAttackManager(AttackManager* manager){_attackManager = manager;}
     public:
-        virtual void Die();
+        void Die();
+
     protected:
+
         int _hp = 100;
         bool _dead = false;
-        vector<pair<FVector,int>> _attacks;
+        vector<pair<FVector, int>> _attacks;
     };
 }
-

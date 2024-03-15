@@ -4,36 +4,53 @@
 #include <PacketGenerated.h>
 
 #include "IOCP.h"
+#include "ObjectManager.h"
 
 #include "../GameMap.h"
 #include "../Data/AttackData.h"
+#include "../Data/TableData.h"
 
 
-namespace psh 
+namespace psh
 {
-	constexpr int PLAYER_MOVE_SPEED = 400;
-	
-	Player::Player(ObjectID clientId, const psh::FVector& location, const psh::FVector& direction, char type,
-		const SessionID& sessionId, AccountNo accountNo)
-	: ChatCharacter(clientId,location,direction,PLAYER_MOVE_SPEED,eCharacterGroup::Player,type)
-	,_sessionId(sessionId),_accountNo(accountNo)
-	{
-		_attacks = playerAttack[type];
-	}
-	
-	void Player::OnUpdate(float delta)
-	{
-	}
+    constexpr float PLAYER_MOVE_SPEED = 400;
 
-	void Player::Die()
-	{
-		ChatCharacter::Die();
-	}
-	
-	void Player::OnMove()
-	{
-		ChatCharacter::OnMove();
-		_owner->CheckItem(static_pointer_cast<ChatCharacter>(shared_from_this()));
-	}
+    Player::Player(ObjectID id
+            , ObjectManager& owner
+            , GroupCommon& group
+                            , FVector location
+                            , DBData& data)
+        : ChatCharacter(id, owner,group,location,
+            PLAYER_MOVE_SPEED, eCharacterGroup::Player, data.CharacterType())
+        , _data(data)
+    {
+        _attacks = playerAttack[data.CharacterType()];
+    }
+
+    void Player::GetCoin(char value)
+    {
+        auto getCoin = SendBuffer::Alloc();
+        MakeGame_ResGetCoin(getCoin, ObjectId(), 1);
+        _group.SendPacket(SessionId(), getCoin);
+        
+        _data.AddCoint(value);
+    }
+
+    void Player::MakeCreatePacket(SendBuffer& buffer, bool spawn) const
+    {
+        MakeGame_ResCreateActor(buffer, ObjectId(), ObjectGroup(), Type(), Location(), Direction(), Destination(), isMove(), spawn,_data.Nick());
+
+    }
+
+    void Player::OnDestroy() const
+    {
+        auto die = SendBuffer::Alloc();
+        MakeGame_ResDestroyActor(die, ObjectId(), true);
+        _group.SendPacket(SessionId(), die);
+    }
+
+    void Player::OnUpdate(float delta)
+    {
+    }
+
 }
-

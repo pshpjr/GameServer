@@ -1,90 +1,87 @@
 ﻿#include "GameObject.h"
 
-#include "DBConnection.h"
 #include "../Group/GroupCommon.h"
+#include "ObjectManager.h"
+#include "../Data/TableData.h"
 
-psh::GameObject::GameObject(ObjectID id, FVector location, FVector direction, float moveSpeedPerSec,
-    eCharacterGroup group, char type):
-_owner(nullptr),
-_map(nullptr),
-_moveSpeedPerSec(moveSpeedPerSec), _oldLocation(location), _destination(location), _objectId(id),
-_location(location), _direction(direction), _objectGroup(group), _type(type)
+psh::GameObject::GameObject(ObjectID id
+, ObjectManager& owner
+, GroupCommon& group
+                            , FVector location
+                            , FVector direction
+                            , float moveSpeedPerSec
+                            , eCharacterGroup characterType
+                            , char type):
+                                            _location(location)
+                                            , _direction(direction)
+                                            , _objectGroup(characterType)
+                                            , _type(type)
+                                            , _owner(owner)
+                                            ,_group(group)
+                                            , _moveSpeedPerSec(moveSpeedPerSec)
+                                            , _oldLocation(location)
+                                            , _destination(location)
+                                            , _objectId(id)
 {
 }
 
-bool psh::GameObject::InSquareRange(const SquareRange& range) const
+psh::GameObject::~GameObject()
 {
-    return range.Contains(_location);
+    
+};
+
+void psh::GameObject::MakeCreatePacket(SendBuffer& buffer, bool spawn) const
+{
+    MakeGame_ResCreateActor(buffer, _objectId, _objectGroup, _type, _location, _direction, _destination, _move, spawn,{});
 }
 
-void psh::GameObject::GetInfo(SendBuffer& buffer, bool spawn) const
-{
-    MakeGame_ResCreateActor(buffer,_objectId,_objectGroup,_type,_location,_direction,_destination,_move,spawn);
-}
-
-bool psh::GameObject::inCircleRange(const CircleRange& range) const
+bool psh::GameObject::InRange(const Range& range) const
 {
     return range.Contains(_location);
 }
 
 void psh::GameObject::MoveStart(FVector destination)
 {
+    auto moveBuffer = SendBuffer::Alloc();
+    MakeGame_ResMove(moveBuffer,_objectId,destination);
+    _group.SendInRange(_location,SEND_OFFSETS::BROADCAST,moveBuffer);
+
+    if(destination == Location())
+        return;
+    
     _move = true;
     _destination = destination;
-    _direction = (destination - _location).Normalize();
+    _direction = (destination - Location()).Normalize();
+
+
 }
 
 void psh::GameObject::MoveStop()
 {
     _move = false;
-    auto moveStop =  SendBuffer::Alloc();
-    MakeGame_ResMoveStop(moveStop, ObjectId(),Location());
-    
-    _owner->Broadcast(Location(),moveStop);
+    auto moveStop = SendBuffer::Alloc();
+    MakeGame_ResMoveStop(moveStop, ObjectId(), Location());
+    _group.SendInRange(_location,SEND_OFFSETS::BROADCAST, moveStop);
 }
 
 void psh::GameObject::Update(int delta)
 {
-    if(_move)
+    if (_move)
     {
-        Move(delta);
+        const float DistanceToDestination = (_destination - _location).Size();
+        const FVector moveDelta = _direction * delta * MoveSpeedPerMs;
+
+        if (DistanceToDestination <= moveDelta.Size())
+        {
+            _owner.RequestMove(shared_from_this(), _destination);
+            MoveStop();
+        }
+        else
+        {
+            _owner.RequestMove(shared_from_this(), _location + moveDelta);
+        }
+        int a = 0;
     }
     OnUpdate(delta);
 }
 
-void psh::GameObject::SetGroup(GroupCommon* group)
-{
-    _owner = group;
-}
-
-void psh::GameObject::SetMap(GameMap<GameObject>* map)
-{
-    _map = map;
-}
-
-void psh::GameObject::Destroy(bool isDie)
-{
-    auto destroyPacket =  SendBuffer::Alloc();
-    MakeGame_ResDestroyActor(destroyPacket, ObjectId(),isDie);
-    _owner->Broadcast(Location(),destroyPacket);
-    _owner->OnActorDestroy(shared_from_this());
-}
-
-void psh::GameObject::Move(float delta)
-{
-    const float DistanceToDestination = (_destination - _location).Size();
-    if(DistanceToDestination < 10)
-    {
-        _location = _destination;
-        OnMove();
-        _oldLocation = _location;
-        _move = false;
-    }
-    else
-    {
-        _oldLocation = _location;
-        _location += (_direction * delta * MoveSpeedPerMs);
-        _map->ClamToMap(_location);
-        OnMove();
-    }
-}

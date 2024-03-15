@@ -3,50 +3,47 @@
 
 #include "ContentTypes.h"
 #include "ChatCharacter.h"
+#include "../Data/DBData.h"
 
 
 //player는 어떤 값이 올바른지 모르니까 외부에서 올바른 값으로 넣어줘야 하는가?
 //player는 map에서만 생성하는가?
 
-namespace psh 
+namespace psh
 {
-	
-	struct Sector;
-	
-	class Player : public ChatCharacter
-	{
-	public:
-		~Player() override = default;
-		void OnUpdate(float delta) override;
-		void Die() override;
+    struct Sector;
 
-	protected:
-		void OnMove() override;
+    class Player : public ChatCharacter
+    {
+    public:
+        ~Player() override = default;
+        void OnUpdate(float delta) override;
 
-	public:
-		
-		Player(ObjectID clientId,const psh::FVector& location, const psh::FVector& direction,char type,
-			const SessionID& sessionId, AccountNo accountNo );
-		void GetCoin(char value)
-		{
-			_coin+= value;
-		}
-	public:
-		[[nodiscard]] SessionID SessionId() const
-		{
-			return _sessionId;
-		}
+    public:
+        Player(ObjectID id
+            , ObjectManager& owner
+            , GroupCommon& group
+                            , FVector location
+                            , DBData& data);
+
+        void GetCoin(char value);
+
+        void MakeCreatePacket(SendBuffer& buffer, bool spawn) const override;
+
+        [[nodiscard]] SessionID SessionId() const
+        {
+            return _data.SessionId();
+        }
 
 
-		[[nodiscard]] AccountNo AccountNumber() const
-		{
-			return _accountNo;
-		}
+        [[nodiscard]] AccountNo AccountNumber() const
+        {
+            return _data.AccountNo();
+        }
 
-	private:
-		SessionID _sessionId;
-		AccountNo _accountNo;
-		int _coin = 0;
-	};
+        void OnDestroy() const override;
+
+    private:
+        DBData& _data;
+    };
 }
-

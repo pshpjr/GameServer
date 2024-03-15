@@ -4,12 +4,11 @@
 #include "ContentTypes.h"
 #include "IOCP.h"
 
-
-
-namespace psh 
+namespace psh
 {
+    class DBData;
     class Player;
-    
+
     class Server :
         public IOCP
     {
@@ -17,31 +16,32 @@ namespace psh
         Server();
         void OnConnect(SessionID sessionId, const SockAddr_in& info) override;
         void OnDisconnect(SessionID sessionId) override;
-        
+
         void OnRecvPacket(SessionID sessionId, CRecvBuffer& buffer) override;
         void OnMonitorRun() override;
-        
-        shared_ptr<Player> getPlayerPtr(SessionID id);
 
-        bool MoveDebug() const {return _moveDebug;}
-        GroupID GetGroupID(ServerType type)const {return _groups[static_cast<int>(type)];}
-    
+        shared_ptr<DBData> getDbData(SessionID id);
+
+        bool MoveDebug() const
+        {
+            return _moveDebug;
+        }
+
+        GroupID GetGroupID(ServerType type) const
+        {
+            return _groups[static_cast<int>(type)];
+        }
+
     private:
         void OnLoginLogin(SessionID sessionId, CRecvBuffer& buffer);
         void OnLogin(SessionID sessionId, CRecvBuffer& buffer);
 
-        
     private:
-        SessionSet _connects;
         USE_LOCK
-        
-        ObjectID g_clientID = 0;
-        SessionMap<shared_ptr<Player>> g_players;
+
+        SessionMap<shared_ptr<DBData>> g_players;
 
         vector<GroupID> _groups;
         bool _moveDebug = false;
     };
-
 }
-
-

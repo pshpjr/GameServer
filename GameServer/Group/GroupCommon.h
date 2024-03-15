@@ -1,64 +1,60 @@
 ﻿#pragma once
+#include "ContentTypes.h"
 #include "Group.h"
-#include "SettingParser.h"
+#include "../Sector.h"
 #include "../GameMap.h"
-#include "../Base/Player.h"
+
+
 
 namespace psh
 {
-    class Server;
-    
+    class AttackManager;
     class Player;
-    class ChatCharacter;
+    class Server;
+
     class GroupCommon : public Group
     {
-    
     public:
-        GroupCommon(Server* server, ServerType type,short mapSize = 6400, short sectorSize = 800):
-        _server(server) ,_groupType(type), _playerMap(make_unique<GameMap<ChatCharacter>>(mapSize, sectorSize, server)),
-        _prevUpdate(std::chrono::steady_clock::now()) {}
-        
-        void SetUseDB(const bool use){_useDB = use;}
-        void OnUpdate(int milli) final;
-        
-        void OnEnter(SessionID id) override{}
-        void OnLeave(SessionID id) override{}
-        void OnRecv(SessionID id, CRecvBuffer& recvBuffer) override = 0;
+        GroupCommon(Server& server, ServerType type, short mapSize = 6400, short sectorSize = 800);
+
         ~GroupCommon() override;
-        virtual void CheckVictim(const Range& attackRange, int damage,const shared_ptr<ChatCharacter>& attacker){};
-        virtual void CheckItem(const shared_ptr<ChatCharacter>& target){};
-        
+        void SendInRange(FVector location
+                         , std::span<const Sector> offsets
+                         , SendBuffer& buffer
+                         , const shared_ptr<psh::Player>& exclude = nullptr);
 
-        virtual void BroadcastMove(const shared_ptr<ChatCharacter>& player, FVector oldLocation, FVector newLocation);
-        virtual void OnActorDestroy(const shared_ptr<GameObject>& object){}
-        void SendCreate(const shared_ptr<GameObject>& object, FVector location, const std::span<const psh::Sector> offsets, bool isSpawn);
-        void SendCreateAndGetInfo(const shared_ptr<psh::GameObject>& object, FVector location, const std::span<const psh::Sector> offsets, bool isSpawn);
-        void SendDelete(const shared_ptr<psh::GameObject>& object, FVector location, const std::span<const psh::Sector> offsets, bool isDead);
-        void SendDeleteAndGetInfo(const shared_ptr<psh::GameObject>& object, FVector location, const std::span<const psh::Sector> offsets, bool isDead);
-        void Broadcast(FVector location,SendBuffer& buffer,GameObject* exclude = nullptr);
-        bool GetClosestTarget(FVector location, shared_ptr<psh::ChatCharacter>& target);
-    protected:
-        static psh::Sector TableIndexFromDiff(const psh::Sector sectorDiff)
+        void SetUseDB(const bool use)
         {
-            return psh::Sector(sectorDiff.x + 1,sectorDiff.y+1);
+            _useDB = use;
         }
-        virtual void UpdateContent(float deltaMs) = 0;
-        virtual void SendMonitor() = 0;
 
-        Server* _server;
+        void OnEnter(SessionID id) final;
+        void OnLeave(SessionID id) final;
+        void OnUpdate(int milli) final;
+        void OnRecv(SessionID id, CRecvBuffer& recvBuffer) override;
+        void RecvReqLevelChange(SessionID id, CRecvBuffer& recvBuffer) const;
+        void RecvChangeComp(SessionID id, CRecvBuffer& recvBuffer);
+        void RecvMove(SessionID sessionId, CRecvBuffer& buffer);
+        virtual void RecvAttack(SessionID sessionId, CRecvBuffer& buffer);
+
+    protected:
+        virtual void UpdateContent(int deltaMs);
+        virtual void SendMonitor(){}
         //Info
+        Server& _server;
         const ServerType _groupType = ServerType::End;
-        unique_ptr<GameMap<ChatCharacter>> _playerMap;
+        unique_ptr<psh::ObjectManager> _objectManager = nullptr;
+        unique_ptr<psh::AttackManager> _attackManager = nullptr;
 
-       
+        SessionMap<shared_ptr<Player>> _players;
+        shared_ptr<GameMap<shared_ptr<Player>>> _playerMap;
+        
     private:
-
-
         //DB
         bool _useDB = false;
-        chrono::steady_clock::time_point _nextDBSend {};
-        chrono::steady_clock::time_point _prevUpdate {};
-        
+        chrono::steady_clock::time_point _nextDBSend{};
+        chrono::steady_clock::time_point _prevUpdate{};
+
         //Monitor
         long _groupSessionCount = 0;
         long _fps = 0;
@@ -68,6 +64,4 @@ namespace psh
         static Port _monitorPort;
 
     };
-    
-
 }

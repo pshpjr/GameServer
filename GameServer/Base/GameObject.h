@@ -6,37 +6,58 @@
 
 namespace psh
 {
+    class AttackManager;
+    class ObjectManager;
     class GroupCommon;
-    template <typename T>
-    class GameMap;
-    
+
+
     class GameObject : public enable_shared_from_this<GameObject>
     {
     public:
-        GameObject(ObjectID id, FVector location, FVector direction, float moveSpeedPerSec,
-                   eCharacterGroup group = eCharacterGroup::Object, char type = 0);
+        GameObject(ObjectID id
+                    , ObjectManager& owner
+                    , GroupCommon& group
+                   , FVector location
+                   , FVector direction
+                   , float moveSpeedPerSec
+                   , eCharacterGroup characterType = eCharacterGroup::Object
+                   , char type = 0);
 
-        virtual ~GameObject() = default;
+        virtual ~GameObject();
+
+        bool InRange(const Range& range) const;
         
-        bool InSquareRange(const SquareRange& range) const;
-
-        virtual void GetInfo(SendBuffer& buffer, bool spawn) const;
-
-        bool inCircleRange(const CircleRange& range) const;
-
-        virtual void MoveStart(FVector destination);
+        virtual void MakeCreatePacket(SendBuffer& buffer, bool spawn) const;
+        
+        void MoveStart(FVector destination);
         void MoveStop();
         void Update(int delta);
+        
+        virtual void OnCreate() const
+        {
+        }
+
+        virtual void OnDestroy() const
+        {
+        }
+    
+        
     public:
         [[nodiscard]] FVector OldLocation() const
         {
             return _oldLocation;
         }
+        
+        void OldLocation(FVector location)
+        {
+            _oldLocation = location;
+        }
 
-        void  ObjectId(ObjectID id) 
+        void ObjectId(ObjectID id)
         {
             _objectId = id;
         }
+
         [[nodiscard]] ObjectID ObjectId() const
         {
             return _objectId;
@@ -49,66 +70,57 @@ namespace psh
 
         void Location(FVector loc)
         {
-            _location =  loc;
-            _oldLocation = loc;
-            _destination = loc;
+            _location = loc;
+
         }
+
         [[nodiscard]] bool isMove() const
         {
             return _move;
         }
-        [[nodiscard]] FVector Direction()const
+
+        [[nodiscard]] FVector Direction() const
         {
             return _direction;
         }
+        [[nodiscard]] FVector Destination() const
+        {
+            return _destination;
+        }
 
+        [[nodiscard]] char Type() const
+        {
+            return _type;
+        }
+        
         [[nodiscard]] eCharacterGroup ObjectGroup() const
         {
             return _objectGroup;
         }
-        [[nodiscard]] GameMap<GameObject>* Map() const
-        {
-            return _map;
-        }
-        [[nodiscard]] GroupCommon* Owner() const
-        {
-            return _owner;
-        }
+        psh::AttackManager* _attackManager = nullptr;//nullable
+
     private:
         FVector _location;
         FVector _direction;
         eCharacterGroup _objectGroup = eCharacterGroup::Object;
         char _type = 0;
-    
-    
-    protected:
-        virtual void OnUpdate(float delta){}
-        virtual void OnMove(){}
-        GroupCommon* _owner;
-        GameMap<GameObject>* _map;
-        
-    public:
-        void SetGroup(GroupCommon* group);
 
-        void SetMap(GameMap<GameObject>* map);
-        void Destroy(bool isDie);
+    protected:
+        virtual void OnUpdate(float delta)
+        {
+        }
+
+        ObjectManager& _owner;
+        GroupCommon& _group;
 
     private:
-
-        
-        void Move(float delta);
-
-        
         float _moveSpeedPerSec;
         float MoveSpeedPerMs = _moveSpeedPerSec/1000.0f;
         FVector _oldLocation;
         FVector _destination;
         bool _move = false;
         bool _stateChanged = false;
-        
+
         ObjectID _objectId;
     };
-
 }
-
-

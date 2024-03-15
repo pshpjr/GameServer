@@ -3,11 +3,9 @@
 #include "Server.h"
 
 
-
-int main() 
+int main()
 {
-    
-    const auto server= make_unique<psh::Server>();
+    const auto server = make_unique<psh::Server>();
     server->SetDisableClickAndClose();
     server->Start();
     server->Wait();
