@@ -20,7 +20,8 @@ namespace psh
         virtual void Update(int deltaMs){}
         void SpawnActor(const shared_ptr<psh::GameObject>& actor,AttackManager* attackManager);
         virtual void OnActorDestroy(GameObject& actor);
-        void DestroyActor(const shared_ptr<psh::GameObject>& actor, FVector location, const std::span<const Sector> offsets, bool isDead, bool notifySelf);
+        void DestroyActor(const shared_ptr<psh::GameObject>& actor, FVector location, const std::span<const Sector> offsets, bool isDead, bool notifySelf, char
+                          cause);
         void RequestMove(const shared_ptr<psh::GameObject>& actor, psh::FVector nextLocation);
         ObjectID NextObjectId()
         {

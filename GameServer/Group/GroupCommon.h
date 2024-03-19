@@ -39,7 +39,8 @@ namespace psh
 
     protected:
         virtual void UpdateContent(int deltaMs);
-        virtual void SendMonitor(){}
+        virtual void SendMonitor();
+
         //Info
         Server& _server;
         const ServerType _groupType = ServerType::End;

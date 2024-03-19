@@ -24,8 +24,8 @@ void psh::ObjectManager::RequestMove(const shared_ptr<psh::GameObject>& actor, p
     const auto sectorIndex = TableIndexFromDiff(sectorDiff);
 
     const bool isPlayer = actor->ObjectGroup() == eCharacterGroup::Player ;
-
-    DestroyActor(actor,actor->OldLocation(),SEND_OFFSETS::DeleteTable[sectorIndex.x][sectorIndex.y],false,isPlayer);
+    
+    DestroyActor(actor,actor->OldLocation(),SEND_OFFSETS::DeleteTable[sectorIndex.x][sectorIndex.y],false,isPlayer, 0);
     CreateActor(actor,actor->Location(),SEND_OFFSETS::CreateTable[sectorIndex.x][sectorIndex.y],false, isPlayer);
 
     return;
@@ -120,13 +120,14 @@ void psh::ObjectManager::DestroyActor(const shared_ptr<psh::GameObject>& actor
                                       , psh::FVector location
                                       , const std::span<const psh::Sector> offsets
                                       , bool isDead
-                                      , bool notifySelf)
+                                      , bool notifySelf
+                                      , char cause)
 {
     //나는 맵에서 제거한 후에 나 삭제하라고 알린다. 
     EraseToGameMap(actor, location);
 
     auto deleteThis = SendBuffer::Alloc();
-    MakeGame_ResDestroyActor(deleteThis,actor->ObjectId(),false);
+    MakeGame_ResDestroyActor(deleteThis,actor->ObjectId(),isDead,cause);
     _owner.SendInRange(location, offsets, deleteThis);
 
     if (!notifySelf)
@@ -143,11 +144,11 @@ void psh::ObjectManager::DestroyActor(const shared_ptr<psh::GameObject>& actor
     for (auto map : gameMaps)
     {
         auto nearbySectors = map->GetSectorsFromOffset(map->GetSector(location), offsets);
-        ranges::for_each(nearbySectors, [this,&toDestroy,sessionId](flat_unordered_set<shared_ptr<GameObject>> sector)
+        ranges::for_each(nearbySectors, [this,&toDestroy,sessionId,cause](flat_unordered_set<shared_ptr<GameObject>> sector)
         {
             for (auto& actor : sector)
             {
-                MakeGame_ResDestroyActor(toDestroy,actor->ObjectId(),false);
+                MakeGame_ResDestroyActor(toDestroy,actor->ObjectId(),false,cause);
                 if(toDestroy.CanPushSize() < 111)
                 {
                     _owner.SendPacket(sessionId,toDestroy);

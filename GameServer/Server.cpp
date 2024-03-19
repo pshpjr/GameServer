@@ -63,7 +63,7 @@ namespace psh
 
     void Server::OnMonitorRun()
     {
-        //PrintMonitorString();
+        PrintMonitorString();
 
         // if(GetAsyncKeyState('D'))
         // {
@@ -84,7 +84,7 @@ namespace psh
     //로그인 서버 겸용으로 쓰다가 나중에 제거. 
     void Server::OnLoginLogin(SessionID sessionId, CRecvBuffer& buffer)
     {
-        printf(format("Login to LoginServer {:d} \n", sessionId.id).c_str());
+        //printf(format("Login to LoginServer {:d} \n", sessionId.id).c_str());
         using namespace psh;
         static AccountNo gAccountNo = 0;
 
@@ -100,7 +100,7 @@ namespace psh
 
     void Server::OnLogin(SessionID sessionId, CRecvBuffer& buffer)
     {
-        printf(format("Login to GameServer {:d} \n", sessionId.id).c_str());
+        //printf(format("Login to GameServer {:d} \n", sessionId.id).c_str());
         using namespace psh;
         AccountNo AccountNo;
         SessionKey key;
@@ -112,19 +112,20 @@ namespace psh
 
             MakeGame_ResLogin(loginResult, AccountNo, true);
             SendPacket(sessionId, loginResult);
-            printf(format("Send Game Login Success {:d} \n", sessionId.id).c_str());
+            //printf(format("Send Game Login Success {:d} \n", sessionId.id).c_str());
         }
 
         
 
         {
-            FVector location = {500, 500};
+            FVector location = FVector(RandomUtil::Rand(0,6300), RandomUtil::Rand(0,6300));
+            //FVector location = {3000, 3000};
             WRITE_LOCK
             auto nickIndex = rand() % gNicks.size();
             auto [it, result] = g_players.emplace(sessionId
-                                                  , make_shared<DBData>(sessionId, AccountNo, location, 0, rand() % 4, 0
+                                                  , make_shared<DBData>(sessionId, AccountNo, location, 1, rand() % 4, 0
                                                                         , 100,gNicks[nickIndex]));
-            printf(format("CreatePlayer {:d} \n", AccountNo).c_str());
+            //printf(format("CreatePlayer {:d} \n", AccountNo).c_str());
             if (result == false)
             {
                 //플레이어 생성에 실패한 관련 에러 처리. 

@@ -17,7 +17,6 @@ namespace psh
     {
     public:
         ~Player() override = default;
-        void OnUpdate(float delta) override;
 
     public:
         Player(ObjectID id
@@ -34,7 +33,7 @@ namespace psh
         {
             return _data.SessionId();
         }
-
+    
 
         [[nodiscard]] AccountNo AccountNumber() const
         {

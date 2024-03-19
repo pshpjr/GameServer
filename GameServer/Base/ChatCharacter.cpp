@@ -33,7 +33,6 @@ void psh::ChatCharacter::Attack(char type)
 void psh::ChatCharacter::Hit(int damage, const psh::ObjectID attacker)
 {
     _hp -= damage;
-    printf("hit %d\n", _hp);
 
     auto hitPacket = SendBuffer::Alloc();
     MakeGame_ResHit(hitPacket, ObjectId(), attacker, _hp);
@@ -46,10 +45,18 @@ void psh::ChatCharacter::Hit(int damage, const psh::ObjectID attacker)
 }
 
 
+void psh::ChatCharacter::Update(int delta)
+{
+    if(!_dead)
+        GameObject::Update(delta);
+}
+
 void psh::ChatCharacter::Die()
 {
     _dead = true;
-    
+
+    //printf("Die %d \n",ObjectId());
     _owner.OnActorDestroy(*this);
-    _owner.DestroyActor(shared_from_this(),Location(),SEND_OFFSETS::BROADCAST,true,false);
+
+    _owner.DestroyActor(shared_from_this(),Location(),SEND_OFFSETS::BROADCAST,true,false, 1);
 }

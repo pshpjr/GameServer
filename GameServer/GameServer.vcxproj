@@ -151,6 +151,7 @@
         <ClCompile Include="Base\AttackData.cpp" />
         <ClCompile Include="Base\AttackManager.cpp" />
         <ClCompile Include="Base\ChatCharacter.cpp"/>
+        <ClCompile Include="Base\DBThreadWrapper.cpp" />
         <ClCompile Include="Base\GameObject.cpp"/>
         <ClCompile Include="Base\Item.cpp">
             <AssemblerOutput>NoListing</AssemblerOutput>
@@ -405,6 +406,7 @@
         <ClInclude Include="Base\AttackData.h" />
         <ClInclude Include="Base\AttackManager.h" />
         <ClInclude Include="Base\ChatCharacter.h"/>
+        <ClInclude Include="Base\DBThreadWrapper.h" />
         <ClInclude Include="Base\GameObject.h"/>
         <ClInclude Include="Base\Item.h"/>
         <ClInclude Include="Base\Monster.h"/>
@@ -434,7 +436,6 @@
     </ItemGroup>
     <ItemGroup>
       <Content Include="..\.gitignore" />
-      <Content Include=".gitignore" />
     </ItemGroup>
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
     <ImportGroup Label="ExtensionTargets">

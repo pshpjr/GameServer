@@ -10,7 +10,6 @@ namespace psh
     public:
         ~Monster() override
         {
-            printf("del\n");
         }
 
         void OnUpdate(float delta) override;

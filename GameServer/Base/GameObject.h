@@ -31,7 +31,7 @@ namespace psh
         
         void MoveStart(FVector destination);
         void MoveStop();
-        void Update(int delta);
+        virtual void Update(int delta);
         
         virtual void OnCreate() const
         {
@@ -100,6 +100,7 @@ namespace psh
         psh::AttackManager* _attackManager = nullptr;//nullable
 
     private:
+        ObjectID _objectId;
         FVector _location;
         FVector _direction;
         eCharacterGroup _objectGroup = eCharacterGroup::Object;
@@ -121,6 +122,6 @@ namespace psh
         bool _move = false;
         bool _stateChanged = false;
 
-        ObjectID _objectId;
+
     };
 }

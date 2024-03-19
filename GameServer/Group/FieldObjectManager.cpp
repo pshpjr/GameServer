@@ -70,26 +70,6 @@ void psh::FieldObjectManager::OnActorMove(const shared_ptr<psh::GameObject>& act
 
 void psh::FieldObjectManager::Update(int deltaMs)
 {
-    if(inputDelay > 0)
-        inputDelay-=deltaMs;
-    else
-    {
-        if(GetAsyncKeyState('P') & 0x8001)
-        {
-            FVector location= {RandomUtil::Rand(0,6300) + 50.0f,RandomUtil::Rand(0,6300) + 50.0f};
-            char type = RandomUtil::Rand(0,3);
-            SpawnMonster(location,type);
-            inputDelay = 5000;
-        }
-
-        if(GetAsyncKeyState('I') & 0x8001)
-        {
-            FVector location= {500,500};
-            SpawnItem(location,0);
-            inputDelay = 5000;
-        }
-    }
-    
     for (auto& [_,actor] : _monsters)
     {
         actor->Update(deltaMs);
@@ -106,7 +86,6 @@ void psh::FieldObjectManager::OnActorDestroy(GameObject& actor)
     }
     else if(actor.ObjectGroup() == eCharacterGroup::Item)
     {
-        SpawnItem(actor.Location(),0);
         _items.erase(actor.ObjectId());
     }
 }
@@ -114,9 +93,8 @@ void psh::FieldObjectManager::OnActorDestroy(GameObject& actor)
 void psh::FieldObjectManager::SpawnItem(psh::FVector loc, char type)
 {
     auto id = NextObjectId();
-    printf("spawnItem %d\n", id);
-        
-    auto [item,success] = _items.emplace(id, make_shared<Item>(id,*static_cast<ObjectManager*>(this),_owner, loc,10, type));
+
+    auto [item,success] = _items.emplace(id, make_shared<Item>(id,*static_cast<ObjectManager*>(this),_owner, loc,20, type));
     if (!success)
     {
         return;
@@ -127,8 +105,7 @@ void psh::FieldObjectManager::SpawnItem(psh::FVector loc, char type)
 void psh::FieldObjectManager::SpawnMonster(psh::FVector loc, char type)
 {
     auto id = NextObjectId();
-    printf("spawnActor %d\n", id);
-        
+
     auto [monster,success] = _monsters.emplace(id, make_shared<Monster>(id,*static_cast<ObjectManager*>(this),_owner, loc, type));
     if (!success)
     {

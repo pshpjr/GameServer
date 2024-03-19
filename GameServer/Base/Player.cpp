@@ -45,12 +45,9 @@ namespace psh
     void Player::OnDestroy() const
     {
         auto die = SendBuffer::Alloc();
-        MakeGame_ResDestroyActor(die, ObjectId(), true);
+        MakeGame_ResDestroyActor(die, ObjectId(), true,1);
         _group.SendPacket(SessionId(), die);
     }
-
-    void Player::OnUpdate(float delta)
-    {
-    }
+    
 
 }

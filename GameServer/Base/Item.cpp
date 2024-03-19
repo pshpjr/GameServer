@@ -11,5 +11,5 @@ bool psh::Item::Collision(FVector point)
 
 void psh::Item::Take(psh::ChatCharacter& target)
 {
-    _owner.DestroyActor(shared_from_this(),Location(),SEND_OFFSETS::BROADCAST,false,false);
+    _owner.DestroyActor(shared_from_this(),Location(),SEND_OFFSETS::BROADCAST,false,false, 1);
 }

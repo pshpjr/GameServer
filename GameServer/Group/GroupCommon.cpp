@@ -10,6 +10,7 @@ psh::GroupCommon::GroupCommon(Server& server, ServerType type
     , short mapSize, short sectorSize):
         _server(server) ,_groupType(type), 
         _prevUpdate(std::chrono::steady_clock::now())
+,_nextDBSend(chrono::steady_clock::now())
 {
     _playerMap = make_shared<GameMap<shared_ptr<Player>>>(mapSize, sectorSize);
     _objectManager = make_unique<ObjectManager>(*this,*_playerMap);   
@@ -65,13 +66,22 @@ void psh::GroupCommon::OnLeave(SessionID id)
     auto it = _players.find(id);
     auto& [_,playerPtr] = *it;
 
-    _objectManager->DestroyActor(playerPtr,playerPtr->Location(),SEND_OFFSETS::BROADCAST, false,false);
+    if(!playerPtr->isDead())
+    {
+        _objectManager->DestroyActor(playerPtr,playerPtr->Location(),SEND_OFFSETS::BROADCAST,false,false,2);
+    }
+    
     _players.erase(it);
 }
 
 
 void psh::GroupCommon::OnUpdate(int milli)
 {
+    if(milli > 200)
+    {
+        milli = 200;
+    }
+    
     UpdateContent(milli);
     _fps++;
     
@@ -144,15 +154,12 @@ void psh::GroupCommon::RecvMove(SessionID sessionId, CRecvBuffer& buffer)
     auto& [_,player] = *_players.find(sessionId);
     FVector location;
     GetGame_ReqMove(buffer,location);
-    FVector oldLocation = player->Location();
     if (player == nullptr)
     {
         _iocp->DisconnectSession(sessionId);
     }
     
     player->MoveStart(location);
-    if(isnan(player->Direction().Y) )
-        __debugbreak();
 }
 
 void psh::GroupCommon::RecvAttack(SessionID sessionId, CRecvBuffer& buffer)
@@ -174,9 +181,12 @@ void psh::GroupCommon::UpdateContent(int deltaMs)
     for (auto& [_,actor] : _players)
     {
         actor->Update(deltaMs);
-        if(isnan(actor->Direction().Y) )
-            __debugbreak();
     }
     
     _objectManager->Update(deltaMs);
 }
+
+void psh::GroupCommon::SendMonitor()
+{
+    //printf("Group %d , Players : %d , mapPlayer : %d\n",GetGroupID(),_players.size(), _playerMap->Players());
+};

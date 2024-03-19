@@ -2,7 +2,6 @@
 
 #include <PacketGenerated.h>
 
-#include "../Base/ObjectManager.h"
 #include "FieldObjectManager.h"
 #include "PveAttackManager.h"
 #include "IOCP.h"
@@ -47,13 +46,39 @@ namespace psh
                 break;
         }
     }
-    
+
+    void EasyMonsterGroup::UpdateContent(int deltaMs)
+    {
+        GroupCommon::UpdateContent(deltaMs);
+        auto objectManager =static_cast<FieldObjectManager*>(_objectManager.get());
+        
+        if(inputDelay > 0)
+            inputDelay-=deltaMs;
+        else
+        {
+            if(GetAsyncKeyState('P') & 0x8001)
+            {
+                FVector location= {3000,3000};
+                char type = RandomUtil::Rand(0,3);
+                
+                objectManager->SpawnMonster(location,type);
+                inputDelay = 5000;
+            }
+        }
+
+        if(objectManager->Monsters() < 30)
+        {
+            FVector location= {RandomUtil::Rand(0,6300) + 50.0f,RandomUtil::Rand(0,6300) + 50.0f};
+            char type = RandomUtil::Rand(0,3);
+            objectManager->SpawnMonster(location,type);
+        }
+        
+    }
 
     void EasyMonsterGroup::SendMonitor()
     {
-        
+        _playerMap->PrintPlayerInfo();
     }
-    
 
 
     EasyMonsterGroup::~EasyMonsterGroup() = default;

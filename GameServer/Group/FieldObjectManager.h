@@ -10,7 +10,7 @@ namespace psh
 namespace psh
 {
     class Monster;
-    class FieldObjectManager : psh::ObjectManager
+    class FieldObjectManager : public psh::ObjectManager
     {
     public:
         FieldObjectManager(GroupCommon& group,GameMap<shared_ptr<Player>>& player
@@ -39,7 +39,7 @@ namespace psh
         void OnActorDestroy(GameObject& actor) override;
         void SpawnItem(psh::FVector loc, char type);
         void SpawnMonster(FVector loc, char type);
-        float inputDelay = 0;
+        [[nodiscard]] int Monsters() const {return static_cast<int>(_monsters.size());}
     private:
         GameMap<shared_ptr<Monster>>& _monsterMap;
         HashMap<ObjectID, shared_ptr<Monster>> _monsters;

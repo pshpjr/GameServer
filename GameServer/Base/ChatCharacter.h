@@ -35,11 +35,11 @@ namespace psh
             _hp = 100;
         }
         void SetAttackManager(AttackManager* manager){_attackManager = manager;}
-    public:
+        void Update(int delta) override;
+
         void Die();
 
     protected:
-
         int _hp = 100;
         bool _dead = false;
         vector<pair<FVector, int>> _attacks;
