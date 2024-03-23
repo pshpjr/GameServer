@@ -1,32 +1,50 @@
 ﻿#include "GroupCommon.h"
 
+#include "Profiler.h"
 #include "../Base/ObjectManager.h"
 #include "../Base/Player.h"
 #include "../Server.h"
 #include "../Data/TableData.h"
-#include "../Base/AttackManager.h"
+#include "../Base/DBThreadWrapper.h"
 
-psh::GroupCommon::GroupCommon(Server& server, ServerType type
-    , short mapSize, short sectorSize):
-        _server(server) ,_groupType(type), 
-        _prevUpdate(std::chrono::steady_clock::now())
-,_nextDBSend(chrono::steady_clock::now())
+psh::GroupCommon::GroupCommon(Server& server
+                              , const ServerInitData& data
+                              , ServerType type
+                              , short mapSize
+                              , short sectorSize):
+                                                 _server(server)
+                                                 , _initData(data)
+                                                 , _groupType(type)
+                                                 , _nextDBSend(chrono::steady_clock::now())
+                                                 , _prevUpdate(std::chrono::steady_clock::now())
+
 {
     _playerMap = make_shared<GameMap<shared_ptr<Player>>>(mapSize, sectorSize);
-    _objectManager = make_unique<ObjectManager>(*this,*_playerMap);   
+    _objectManager = make_unique<ObjectManager>(*this, *_playerMap);
+
+    if (_useDB)
+    {
+        _dbThread = make_unique<DBThreadWrapper>(
+                                                 data.gameDBIP.c_str()
+                                                 , data.gameDBPort
+                                                 , data.gameDBID.c_str()
+                                                 , data.gameDBPwd.c_str()
+                                                 , "mydb");
+    }
 }
+
 
 psh::GroupCommon::~GroupCommon() = default;
 
 void psh::GroupCommon::SendInRange(FVector location
                                    , std::span<const Sector> offsets
                                    , SendBuffer& buffer
-                                   , const shared_ptr<psh::Player>& exclude)
+                                   , const shared_ptr<Player>& exclude)
 {
     auto broadcastSectors = _playerMap->GetSectorsFromOffset(_playerMap->GetSector(location), offsets);
-    ranges::for_each(broadcastSectors, [ this,&buffer,&exclude](flat_unordered_set<shared_ptr< psh::Player>> sector)
+    ranges::for_each(broadcastSectors, [ this,&buffer,&exclude](flat_unordered_set<shared_ptr<Player>>& sector)
     {
-        for (auto player : sector)
+        for (auto& player : sector)
         {
             if (player == exclude)
             {
@@ -48,17 +66,18 @@ void psh::GroupCommon::OnEnter(SessionID id)
         dataPtr->SetLocation(_playerMap->GetRandomLocation());
     }
 
-    auto playerPtr = make_unique<Player>(_objectManager->NextObjectId(),*_objectManager,*this, dataPtr->Location(), *dataPtr);
+    auto playerPtr = make_unique<Player>(_objectManager->NextObjectId(), *_objectManager, *this, dataPtr->Location()
+                                         , dataPtr,_dbThread.get());
 
-    //TODO: DB 사용시 제거.
+
+    
     auto levelInfoPacket = SendBuffer::Alloc();
-    MakeGame_ResLevelEnter(levelInfoPacket,playerPtr->AccountNumber(),playerPtr->ObjectId(), _groupType);
+    MakeGame_ResLevelEnter(levelInfoPacket, playerPtr->AccountNumber(), playerPtr->ObjectId(), _groupType);
     SendPacket(playerPtr->SessionId(), levelInfoPacket);
     
-
     _players.insert({id, std::move(playerPtr)});
-    _iocp->SetTimeout(id, 30000);
 
+    _iocp->SetTimeout(id, 30000);
 }
 
 void psh::GroupCommon::OnLeave(SessionID id)
@@ -66,28 +85,31 @@ void psh::GroupCommon::OnLeave(SessionID id)
     auto it = _players.find(id);
     auto& [_,playerPtr] = *it;
 
-    if(!playerPtr->isDead())
+    if (playerPtr->InMap())
     {
-        _objectManager->DestroyActor(playerPtr,playerPtr->Location(),SEND_OFFSETS::BROADCAST,false,false,2);
+        _objectManager->RemoveFromMap(playerPtr, playerPtr->Location(), SEND_OFFSETS::BROADCAST, false, false
+                                      , ObjectManager::removeResult::GroupChange);
+        playerPtr->_data->SetLocation(playerPtr->Location());
+        _dbThread->LeaveGroup(playerPtr->_data, &_server, id, GroupManager::BaseGroupID());
     }
-    
+
     _players.erase(it);
 }
 
 
 void psh::GroupCommon::OnUpdate(int milli)
 {
-    if(milli > 200)
+    if (milli > 200)
     {
         milli = 200;
     }
-    
+
     UpdateContent(milli);
+    _objectManager->CleanupDestroyWait();
     _fps++;
-    
+
     if (std::chrono::steady_clock::now() < _nextDBSend)
     {
-
         return;
     }
     if (!_useDB)
@@ -109,19 +131,19 @@ void psh::GroupCommon::OnRecv(SessionID id, CRecvBuffer& recvBuffer)
     {
         case eGame_ReqChangeComplete:
             RecvChangeComp(id, recvBuffer);
-        break;
+            break;
         case eGame_ReqMove:
             RecvMove(id, recvBuffer);
-        break;
+            break;
         case eGame_ReqAttack:
             RecvAttack(id, recvBuffer);
-        break;
+            break;
         case eGame_ReqLevelEnter:
             RecvReqLevelChange(id, recvBuffer);
-        break;
+            break;
         default:
             DebugBreak();
-        break;
+            break;
     }
 }
 
@@ -131,7 +153,16 @@ void psh::GroupCommon::RecvReqLevelChange(SessionID id, CRecvBuffer& recvBuffer)
     ServerType type;
     GetGame_ReqLevelEnter(recvBuffer, accountNo, type);
 
-    MoveSession(id, _server.GetGroupID(type));
+    auto it = _players.find(id);
+    auto& [_,playerPtr] = *it;
+
+
+    _objectManager->RemoveFromMap(playerPtr, playerPtr->Location(), SEND_OFFSETS::BROADCAST, false, false
+                                  , ObjectManager::removeResult::GroupChange);
+
+    playerPtr->_data->SetLocation(playerPtr->Location());
+
+    _dbThread->LeaveGroup(playerPtr->_data,&_server,id,_server.GetGroupID(type));
 }
 
 void psh::GroupCommon::RecvChangeComp(SessionID id, CRecvBuffer& recvBuffer)
@@ -140,25 +171,25 @@ void psh::GroupCommon::RecvChangeComp(SessionID id, CRecvBuffer& recvBuffer)
     GetGame_ReqChangeComplete(recvBuffer, accountNo);
 
     auto& [_,playerPtr] = *_players.find(id);
-    
+
     if (playerPtr->isDead())
     {
         playerPtr->Revive();
     }
-
-    _objectManager->SpawnActor(playerPtr,_attackManager.get());
+    _dbThread->EnterGroup(playerPtr->_data);
+    _objectManager->SpawnActor(playerPtr, _attackManager.get());
 }
 
 void psh::GroupCommon::RecvMove(SessionID sessionId, CRecvBuffer& buffer)
 {
     auto& [_,player] = *_players.find(sessionId);
     FVector location;
-    GetGame_ReqMove(buffer,location);
+    GetGame_ReqMove(buffer, location);
     if (player == nullptr)
     {
         _iocp->DisconnectSession(sessionId);
     }
-    
+
     player->MoveStart(location);
 }
 
@@ -180,13 +211,17 @@ void psh::GroupCommon::UpdateContent(int deltaMs)
 {
     for (auto& [_,actor] : _players)
     {
-        actor->Update(deltaMs);
+        if (actor->NeedUpdate())
+        {
+            actor->Update(deltaMs);
+        }
     }
-    
+
     _objectManager->Update(deltaMs);
 }
 
 void psh::GroupCommon::SendMonitor()
 {
-    //printf("Group %d , Players : %d , mapPlayer : %d\n",GetGroupID(),_players.size(), _playerMap->Players());
+    printf("Group : %d, Work : %lld, Queue: %d, Handled : %lld\n", GetGroupID(), GetWorkTime(), GetQueued()
+           , GetJobTps());
 };

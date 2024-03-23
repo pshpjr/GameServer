@@ -8,10 +8,10 @@ namespace psh
 
     class EasyMonsterGroup : public psh::GroupCommon
     {
-        static constexpr int MAX_MONSTER = 5;
+        static constexpr int MAX_MONSTER = 0;
 
     public:
-        EasyMonsterGroup(Server& server,ServerType type, short mapSize = 6400, short sectorSize = 800);
+        EasyMonsterGroup(Server& server, const ServerInitData& data,ServerType type, short mapSize = 6400, short sectorSize = 400);
         void OnRecv(SessionID id, CRecvBuffer& recvBuffer) override;
         void UpdateContent(int deltaMs) override;
     protected:

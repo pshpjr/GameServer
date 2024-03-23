@@ -147,12 +147,11 @@
         </Link>
     </ItemDefinitionGroup>
     <ItemGroup>
-        <ClCompile Include="..\..\packetParser\FVector.cpp"/>
         <ClCompile Include="Base\AttackData.cpp" />
         <ClCompile Include="Base\AttackManager.cpp" />
-        <ClCompile Include="Base\ChatCharacter.cpp"/>
+        <ClCompile Include="Base\ChatCharacter.cpp" />
         <ClCompile Include="Base\DBThreadWrapper.cpp" />
-        <ClCompile Include="Base\GameObject.cpp"/>
+        <ClCompile Include="Base\GameObject.cpp" />
         <ClCompile Include="Base\Item.cpp">
             <AssemblerOutput>NoListing</AssemblerOutput>
             <AssemblerListingLocation>x64\Release\</AssemblerListingLocation>
@@ -229,8 +228,8 @@
             <SDLCheck>true</SDLCheck>
             <LinkCompiled>true</LinkCompiled>
         </ClCompile>
-        <ClCompile Include="Base\Monster.cpp"/>
-        <ClCompile Include="Base\ObjectManager.cpp"/>
+        <ClCompile Include="Base\Monster.cpp" />
+        <ClCompile Include="Base\ObjectManager.cpp" />
         <ClCompile Include="Base\Player.cpp">
             <AssemblerOutput>NoListing</AssemblerOutput>
             <AssemblerListingLocation>x64\Release\</AssemblerListingLocation>
@@ -307,11 +306,11 @@
             <SDLCheck>true</SDLCheck>
             <LinkCompiled>true</LinkCompiled>
         </ClCompile>
-        <ClCompile Include="Base\Range.cpp"/>
-        <ClCompile Include="Data\DBData.cpp"/>
-        <ClCompile Include="Data\GameDataLoader.cpp"/>
-        <ClCompile Include="flat_unordered_set.cpp"/>
-        <ClCompile Include="Group\EasyMonsterGroup.cpp"/>
+        <ClCompile Include="Base\Range.cpp" />
+        <ClCompile Include="Data\DBData.cpp" />
+        <ClCompile Include="Data\GameDataLoader.cpp" />
+        <ClCompile Include="flat_unordered_set.cpp" />
+        <ClCompile Include="Group\EasyMonsterGroup.cpp" />
         <ClCompile Include="Group\FieldObjectManager.cpp" />
         <ClCompile Include="Group\GroupCommon.cpp">
           <AssemblerOutput>NoListing</AssemblerOutput>
@@ -391,51 +390,41 @@
         </ClCompile>
         <ClCompile Include="Group\PveAttackManager.cpp" />
         <ClCompile Include="Group\PvpAttackManager.cpp" />
-        <ClCompile Include="Group\PVPGroup.cpp"/>
+        <ClCompile Include="Group\PVPGroup.cpp" />
         <ClCompile Include="Group\VillageGroup.cpp" />
-        <ClCompile Include="main.cpp"/>
-        <ClCompile Include="Sector.cpp"/>
-        <ClCompile Include="Server.cpp"/>
+        <ClCompile Include="main.cpp" />
+        <ClCompile Include="Sector.cpp" />
+        <ClCompile Include="Server.cpp" />
     </ItemGroup>
     <ItemGroup>
-        <ClInclude Include="..\..\packetParser\ContentTypes.h"/>
-        <ClInclude Include="..\..\packetParser\FVector.h"/>
-        <ClInclude Include="..\..\packetParser\GameData.h"/>
-        <ClInclude Include="..\..\packetParser\NameString.h"/>
-        <ClInclude Include="..\..\packetParser\PacketGenerated.h"/>
         <ClInclude Include="Base\AttackData.h" />
         <ClInclude Include="Base\AttackManager.h" />
-        <ClInclude Include="Base\ChatCharacter.h"/>
+        <ClInclude Include="Base\ChatCharacter.h" />
         <ClInclude Include="Base\DBThreadWrapper.h" />
-        <ClInclude Include="Base\GameObject.h"/>
-        <ClInclude Include="Base\Item.h"/>
-        <ClInclude Include="Base\Monster.h"/>
-        <ClInclude Include="Base\ObjectManager.h"/>
-        <ClInclude Include="Base\Player.h"/>
-        <ClInclude Include="Base\Rand.h"/>
-        <ClInclude Include="Base\Range.h"/>
-        <ClInclude Include="Data\AttackData.h"/>
-        <ClInclude Include="Data\DBData.h"/>
-        <ClInclude Include="Data\GameDataLoader.h"/>
+        <ClInclude Include="Base\GameObject.h" />
+        <ClInclude Include="Base\Item.h" />
+        <ClInclude Include="Base\Monster.h" />
+        <ClInclude Include="Base\ObjectManager.h" />
+        <ClInclude Include="Base\Player.h" />
+        <ClInclude Include="Base\Rand.h" />
+        <ClInclude Include="Base\Range.h" />
+        <ClInclude Include="Data\AttackData.h" />
+        <ClInclude Include="Data\DBData.h" />
+        <ClInclude Include="Data\GameDataLoader.h" />
         <ClInclude Include="Data\MockData.h" />
-        <ClInclude Include="Data\TableData.h"/>
-        <ClInclude Include="flat_unordered_set.h"/>
-        <ClInclude Include="GameMap.h"/>
-        <ClInclude Include="Group\EasyMonsterGroup.h"/>
+        <ClInclude Include="Data\ServerInitData.h" />
+        <ClInclude Include="Data\TableData.h" />
+        <ClInclude Include="flat_unordered_set.h" />
+        <ClInclude Include="GameMap.h" />
+        <ClInclude Include="Group\EasyMonsterGroup.h" />
         <ClInclude Include="Group\FieldObjectManager.h" />
         <ClInclude Include="Group\GroupCommon.h" />
         <ClInclude Include="Group\PveAttackManager.h" />
         <ClInclude Include="Group\PvpAttackManager.h" />
-        <ClInclude Include="Group\PVPGroup.h"/>
+        <ClInclude Include="Group\PVPGroup.h" />
         <ClInclude Include="Group\VillageGroup.h" />
-        <ClInclude Include="Sector.h"/>
-        <ClInclude Include="Server.h"/>
-    </ItemGroup>
-    <ItemGroup>
-        <Text Include="..\..\packetParser\PacketDefine.txt"/>
-    </ItemGroup>
-    <ItemGroup>
-      <Content Include="..\.gitignore" />
+        <ClInclude Include="Sector.h" />
+        <ClInclude Include="Server.h" />
     </ItemGroup>
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
     <ImportGroup Label="ExtensionTargets">

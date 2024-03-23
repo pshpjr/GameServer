@@ -9,10 +9,11 @@
 
 namespace psh
 {
-    EasyMonsterGroup::EasyMonsterGroup(Server& server,ServerType type, short mapSize, short sectorSize):
+    EasyMonsterGroup::EasyMonsterGroup(Server& server, const ServerInitData& data, ServerType type, short mapSize, short sectorSize):
         GroupCommon(server
-        , type,
-        mapSize, sectorSize)
+            ,data
+        , type
+        ,mapSize, sectorSize)
         , _monsterMap(make_unique<GameMap<shared_ptr<Monster>>>(mapSize, sectorSize))
         , _itemMap(make_unique<GameMap<shared_ptr<Item>>>(mapSize, sectorSize))
     {
@@ -65,19 +66,38 @@ namespace psh
                 inputDelay = 5000;
             }
         }
-
-        if(objectManager->Monsters() < 30)
+        //
+        auto toSpawn =   MAX_MONSTER - objectManager->Monsters();
+        for(int i = 0 ; i<toSpawn;i++)
         {
-            FVector location= {RandomUtil::Rand(0,6300) + 50.0f,RandomUtil::Rand(0,6300) + 50.0f};
-            char type = RandomUtil::Rand(0,3);
+            FVector location= {RandomUtil ::Rand(0,6300) + 50.0f,RandomUtil ::Rand(0,6300) + 50.0f};
+            char type = RandomUtil ::Rand(0,3);
             objectManager->SpawnMonster(location,type);
         }
-        
+        // {
+        //     auto playerData = _playerMap->GetPlayerInfo();
+        //     int rows= playerData.size();
+        //     int cols = playerData[0].size();
+        //     for(int i = 0; i<rows;i++)
+        //     {
+        //         for(int j = 0; j<cols; j++)
+        //         {
+        //             if(playerData[i][j] < 5)
+        //             {
+        //                 FVector location= {i * 800 + 50.0f,j * 800 + 50.0f};
+        //                 char type = RandomUtil ::Rand(0,3);
+        //                 objectManager->SpawnMonster(location,type);
+        //                 toSpawn--;
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     void EasyMonsterGroup::SendMonitor()
     {
-        _playerMap->PrintPlayerInfo();
+    
+        printf("Group : %d, Work : %lld, Queue: %d, Handled : %lld\n",GetGroupID(), GetWorkTime(),GetQueued(),GetJobTps());
     }
 
 

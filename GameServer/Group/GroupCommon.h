@@ -3,11 +3,16 @@
 #include "Group.h"
 #include "../Sector.h"
 #include "../GameMap.h"
+#include "../Data/ServerInitData.h"
 
 
+
+struct ServerInitData;
+class DBConnection;
 
 namespace psh
 {
+    class DBThreadWrapper;
     class AttackManager;
     class Player;
     class Server;
@@ -15,7 +20,7 @@ namespace psh
     class GroupCommon : public Group
     {
     public:
-        GroupCommon(Server& server, ServerType type, short mapSize = 6400, short sectorSize = 800);
+        GroupCommon(Server& server,const ServerInitData& data, ServerType type, short mapSize = 6400, short sectorSize = 400);
 
         ~GroupCommon() override;
         void SendInRange(FVector location
@@ -36,13 +41,16 @@ namespace psh
         void RecvChangeComp(SessionID id, CRecvBuffer& recvBuffer);
         void RecvMove(SessionID sessionId, CRecvBuffer& buffer);
         virtual void RecvAttack(SessionID sessionId, CRecvBuffer& buffer);
-
+        
     protected:
         virtual void UpdateContent(int deltaMs);
         virtual void SendMonitor();
-
+        unique_ptr<psh::DBThreadWrapper> _dbThread; 
+        
+        
         //Info
         Server& _server;
+        const ServerInitData& _initData;
         const ServerType _groupType = ServerType::End;
         unique_ptr<psh::ObjectManager> _objectManager = nullptr;
         unique_ptr<psh::AttackManager> _attackManager = nullptr;
@@ -52,7 +60,7 @@ namespace psh
         
     private:
         //DB
-        bool _useDB = false;
+        bool _useDB = true;
         chrono::steady_clock::time_point _nextDBSend{};
         chrono::steady_clock::time_point _prevUpdate{};
 

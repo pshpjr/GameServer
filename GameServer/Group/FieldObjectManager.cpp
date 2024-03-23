@@ -1,4 +1,6 @@
 ﻿#include "FieldObjectManager.h"
+
+#include "Profiler.h"
 #include "../base/Player.h"
 #include "../base/Monster.h"
 #include "../Data/TableData.h"
@@ -54,13 +56,14 @@ void psh::FieldObjectManager::OnActorMove(const shared_ptr<psh::GameObject>& act
         return;
     
     auto items = _itemMap.GetSectorsFromOffset(_itemMap.GetSector(actor->Location()), SEND_OFFSETS::Single);
-    ranges::for_each(items, [ this,&actor](flat_unordered_set<shared_ptr<Item>> sector)
+    ranges::for_each(items, [ this,&actor](GameMap<shared_ptr<Item>>::container& sector)
     {
         for (auto& item : sector)
         {
-            if (item->Collision(actor->Location()))
+            if (item->Collision(actor->Location())&& item->isValid())
             {
                 static_pointer_cast<Player>(actor)->GetCoin(1);
+                
 
                 item->Take(*static_pointer_cast<ChatCharacter>(actor));
             }
@@ -70,25 +73,28 @@ void psh::FieldObjectManager::OnActorMove(const shared_ptr<psh::GameObject>& act
 
 void psh::FieldObjectManager::Update(int deltaMs)
 {
+    PRO_BEGIN(L"FieldManagerUpdateMonster");
     for (auto& [_,actor] : _monsters)
     {
-        actor->Update(deltaMs);
+        if(actor->NeedUpdate())
+            actor->Update(deltaMs);
     }
 }
 
-void psh::FieldObjectManager::OnActorDestroy(GameObject& actor)
+void psh::FieldObjectManager::CleanupActor(GameObject* actor)
 {
-    ObjectManager::OnActorDestroy(actor);       
-    if(actor.ObjectGroup() == eCharacterGroup::Monster)
+    if(actor->ObjectGroup() == eCharacterGroup::Monster)
     {
-        SpawnItem(actor.Location(),0);
-        _monsters.erase(actor.ObjectId());
+        SpawnItem(actor->Location(),0);
+        _monsters.erase(actor->ObjectId());
     }
-    else if(actor.ObjectGroup() == eCharacterGroup::Item)
+    else if(actor->ObjectGroup() == eCharacterGroup::Item)
     {
-        _items.erase(actor.ObjectId());
+        _items.erase(actor->ObjectId());
     }
+    //플레이어면 아무것도 안 함. 
 }
+
 
 void psh::FieldObjectManager::SpawnItem(psh::FVector loc, char type)
 {

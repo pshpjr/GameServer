@@ -20,9 +20,11 @@ namespace psh
         }
         bool Collision(FVector point);
 
+        void OnDestroy() override;
         void Take(ChatCharacter& target);
-
+        bool isValid() const {return _valid;}
     private:
         CircleRange _range;
+        bool _valid = true;
     };
 }

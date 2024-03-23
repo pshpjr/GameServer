@@ -32,7 +32,12 @@ psh::GameObject::~GameObject()
 
 void psh::GameObject::MakeCreatePacket(SendBuffer& buffer, bool spawn) const
 {
-    MakeGame_ResCreateActor(buffer, _objectId, _objectGroup, _type, _location, _direction, _destination, _move, spawn,{});
+    MakeGame_ResCreateActor(buffer, _objectId, _objectGroup, _type, _location, _direction,  spawn);
+
+    if(isMove())
+    {
+        MakeGame_ResMove(buffer,_objectId,_objectGroup, _destination);
+    }
 }
 
 bool psh::GameObject::InRange(const Range& range) const
@@ -80,7 +85,6 @@ void psh::GameObject::Update(int delta)
         {
             _owner.RequestMove(shared_from_this(), _location + moveDelta);
         }
-        int a = 0;
     }
     OnUpdate(delta);
 }

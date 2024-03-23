@@ -2,6 +2,7 @@
 #include "ContentTypes.h"
 #include "FVector.h"
 #include "Types.h"
+#include "../Base/DBThreadWrapper.h"
 
 namespace psh
 {
@@ -55,7 +56,8 @@ namespace psh
             return _location;
         }
 
-        void SetLocation(const FVector& location)
+        
+        void SetLocation(FVector location)
         {
             _location = location;
         }
@@ -90,7 +92,7 @@ namespace psh
             _coin = coin;
         }
 
-        void AddCoint(int value)
+        void AddCoin(int value)
         {
             _coin += value;
         }
@@ -105,6 +107,8 @@ namespace psh
             _hp = hp;
         }
 
+
+        
     private:
         SessionID _sessionId;
         psh::AccountNo _accountNo;

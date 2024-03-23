@@ -3,6 +3,10 @@
 
 #include "ContentTypes.h"
 #include "IOCP.h"
+#include "SettingParser.h"
+#include "Data/ServerInitData.h"
+
+class DBConnection;
 
 namespace psh
 {
@@ -12,6 +16,12 @@ namespace psh
     class Server :
         public IOCP
     {
+        struct defaultSetting
+        {
+            
+        };
+
+        
     public:
         Server();
         void OnConnect(SessionID sessionId, const SockAddr_in& info) override;
@@ -36,12 +46,19 @@ namespace psh
         void OnLoginLogin(SessionID sessionId, CRecvBuffer& buffer);
         void OnLogin(SessionID sessionId, CRecvBuffer& buffer);
 
+        [[nodiscard]] DBConnection& GetGameDbConnection();
+        
     private:
-        USE_LOCK
+        //1 : dbData, 2 : dbConnection
+        USE_MANY_LOCKS(2)
 
-        SessionMap<shared_ptr<DBData>> g_players;
+        SessionMap<shared_ptr<DBData>> g_dbData;
 
         vector<GroupID> _groups;
         bool _moveDebug = false;
+
+    SettingParser serverSettings;
+        ServerInitData _initData;
+        int DBTLSId;
     };
 }

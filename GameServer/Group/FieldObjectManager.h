@@ -36,7 +36,7 @@ namespace psh
         void EraseToGameMap(const shared_ptr<psh::GameObject>& actor, FVector location) override;
         void OnActorMove(const shared_ptr<GameObject>& actor) override;
         void Update(int deltaMs) override;
-        void OnActorDestroy(GameObject& actor) override;
+        void CleanupActor(GameObject* actor) override;
         void SpawnItem(psh::FVector loc, char type);
         void SpawnMonster(FVector loc, char type);
         [[nodiscard]] int Monsters() const {return static_cast<int>(_monsters.size());}

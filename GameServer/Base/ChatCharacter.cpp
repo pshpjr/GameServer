@@ -6,6 +6,12 @@
 #include "../Group/GroupCommon.h"
 #include "AttackData.h"
 
+void psh::ChatCharacter::MakeCreatePacket(SendBuffer& buffer, bool spawn) const
+{
+    GameObject::MakeCreatePacket(buffer, spawn);
+    MakeGame_ResChracterDetail(buffer,ObjectId(),_hp);
+}
+
 void psh::ChatCharacter::Attack(char type)
 {
     if(_attackManager == nullptr)
@@ -36,6 +42,7 @@ void psh::ChatCharacter::Hit(int damage, const psh::ObjectID attacker)
 
     auto hitPacket = SendBuffer::Alloc();
     MakeGame_ResHit(hitPacket, ObjectId(), attacker, _hp);
+
     _group.SendInRange(Location(),SEND_OFFSETS::BROADCAST, hitPacket);
 
     if (_hp <= 0)
@@ -44,19 +51,10 @@ void psh::ChatCharacter::Hit(int damage, const psh::ObjectID attacker)
     }
 }
 
-
-void psh::ChatCharacter::Update(int delta)
-{
-    if(!_dead)
-        GameObject::Update(delta);
-}
-
 void psh::ChatCharacter::Die()
 {
-    _dead = true;
-
+    SetNeedUpdate(false);
+    _owner.RemoveFromMap(shared_from_this(),Location(),SEND_OFFSETS::BROADCAST,true,false, ObjectManager::removeResult::Die);
     //printf("Die %d \n",ObjectId());
-    _owner.OnActorDestroy(*this);
-
-    _owner.DestroyActor(shared_from_this(),Location(),SEND_OFFSETS::BROADCAST,true,false, 1);
+    _owner.DestroyActor(this);
 }

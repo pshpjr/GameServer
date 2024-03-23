@@ -34,7 +34,7 @@ namespace psh
                    {
                        return IsValidSector(sector);
                    })
-                   | std::views::transform([this](Sector sector)
+                   | std::views::transform([this](Sector sector) -> container&
                    {
                        return _map[sector.x][sector.y];
                    });
@@ -81,7 +81,7 @@ namespace psh
         }
 
         using container = flat_unordered_set<T>;
-
+//        using container = vector<T>;
         GameMap(short mapSize, short sectorSize)
             : SECTOR_SIZE(sectorSize)
             , MAP_SIZE(mapSize)
@@ -101,16 +101,17 @@ namespace psh
         void PrintPlayerInfo()
         {
             const auto tmp = GetPlayerInfo();
-
+            std::ostringstream print;
             for (auto& col : tmp)
             {
                 for (const auto& sector : col)
                 {
-                    std::cout << sector << ' ';
+                    print.width(2);
+                    print <<  sector << ' ';
                 }
-                std::cout << '\n';
+                print << '\n';
             }
-            std::cout << '\n';
+            std::cout << print.str() << '\n';
         }
 
         vector<vector<int>> GetPlayerInfo()

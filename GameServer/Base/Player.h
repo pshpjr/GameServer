@@ -23,26 +23,27 @@ namespace psh
             , ObjectManager& owner
             , GroupCommon& group
                             , FVector location
-                            , DBData& data);
+                            , shared_ptr<DBData> data
+                            , DBThreadWrapper* dbThread);
 
         void GetCoin(char value);
-
+        
         void MakeCreatePacket(SendBuffer& buffer, bool spawn) const override;
-
+        
         [[nodiscard]] SessionID SessionId() const
         {
-            return _data.SessionId();
+            return _data->SessionId();
         }
-    
+        void Die() override;
+
 
         [[nodiscard]] AccountNo AccountNumber() const
         {
-            return _data.AccountNo();
+            return _data->AccountNo();
         }
-
-        void OnDestroy() const override;
-
+        shared_ptr<DBData> _data;
     private:
-        DBData& _data;
+
+        DBThreadWrapper* _dbThread= nullptr;
     };
 }

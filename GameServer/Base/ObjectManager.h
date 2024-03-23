@@ -11,6 +11,13 @@ namespace psh
     class ObjectManager
     {
     public:
+        enum removeResult : char
+        {
+          Move,
+            Die,
+            GroupChange
+        };
+        
         ObjectManager(GroupCommon& owner, GameMap<shared_ptr<Player>>& playerMap)
             : _owner(owner)
             , _playerMap(playerMap)
@@ -19,14 +26,25 @@ namespace psh
         virtual ~ObjectManager();
         virtual void Update(int deltaMs){}
         void SpawnActor(const shared_ptr<psh::GameObject>& actor,AttackManager* attackManager);
-        virtual void OnActorDestroy(GameObject& actor);
-        void DestroyActor(const shared_ptr<psh::GameObject>& actor, FVector location, const std::span<const Sector> offsets, bool isDead, bool notifySelf, char
+        void DestroyActor(psh::GameObject* actor);
+        void RemoveFromMap(const shared_ptr<psh::GameObject>& actor, FVector location, const std::span<const Sector> offsets, bool isDead, bool notifySelf, char
                           cause);
         void RequestMove(const shared_ptr<psh::GameObject>& actor, psh::FVector nextLocation);
         ObjectID NextObjectId()
         {
             return ++_objectID;
         }
+        void CleanupDestroyWait()
+        {
+            for(auto obj : _deleteWait)
+            {
+                obj->OnDestroy();
+                CleanupActor(obj);
+            }
+            _deleteWait.clear();
+        }
+        virtual void CleanupActor(GameObject* actor) {}
+        
     protected:
         /**
  * \brief objectManager에서 관리중인 Map들을 container에 담아준다. 해당 map에 있는 액터의 정보를 받아올 때 사용.
@@ -47,14 +65,14 @@ namespace psh
         virtual void OnActorMove(const shared_ptr<GameObject>& actor){}
         GroupCommon& _owner;
         GameMap<shared_ptr<Player>>& _playerMap;
-        
+        list<psh::GameObject*> _deleteWait;
     private:
         static Sector TableIndexFromDiff(const Sector sectorDiff)
         {
             return Sector(sectorDiff.x + 1, sectorDiff.y + 1);
         }
         
-        void CreateActor(const shared_ptr<psh::GameObject>& actor
+        void InsertInMap(const shared_ptr<psh::GameObject>& actor
                          , const psh::FVector location
                          , std::span<const Sector> offsets
                          , const bool isSpawn
