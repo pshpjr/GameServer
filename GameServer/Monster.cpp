@@ -5,7 +5,6 @@
 #include "Profiler.h"
 #include "../GameMap.h"
 #include "../Data/AttackData.h"
-#include "../Data/TableData.h"
 
 namespace psh
 {
@@ -15,7 +14,7 @@ namespace psh
         : ChatCharacter(clientId, manager,group,location,  PLAYER_MOVE_SPEED, eCharacterGroup::Monster, type)
         ,_spawnLocation(location)
     {
-        _attacks = monsterAttack[type];
+        _attacks = ATTACK::monsterAttack[type];
     }
 
 

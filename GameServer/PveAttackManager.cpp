@@ -1,9 +1,9 @@
 ﻿#include "PveAttackManager.h"
 
-#include "../Base/AttackData.h"
 #include "../Base/ChatCharacter.h"
 #include "../base/Player.h"
 #include "../base/Monster.h"
+#include "../Data/AttackData.h"
 #include "../Data/TableData.h"
 
 bool psh::PveAttackManager::GetClosestTarget(FVector location, weak_ptr<ChatCharacter>& target)

@@ -15,7 +15,6 @@ namespace psh
         void OnRecv(SessionID id, CRecvBuffer& recvBuffer) override;
         void UpdateContent(int deltaMs) override;
     protected:
-        void SendMonitor() override;
 
     public:
         ~EasyMonsterGroup() override;

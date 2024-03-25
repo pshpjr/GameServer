@@ -93,13 +93,7 @@ namespace psh
         //     }
         // }
     }
-
-    void EasyMonsterGroup::SendMonitor()
-    {
     
-        printf("Group : %d, Work : %lld, Queue: %d, Handled : %lld\n",GetGroupID(), GetWorkTime(),GetQueued(),GetJobTps());
-    }
-
 
     EasyMonsterGroup::~EasyMonsterGroup() = default;
 

@@ -8,7 +8,6 @@
 
 #include "../GameMap.h"
 #include "../Data/AttackData.h"
-#include "../Data/TableData.h"
 
 
 namespace psh
@@ -26,7 +25,7 @@ namespace psh
         , _data(data)
         ,_dbThread(dbThread)
     {
-        _attacks = playerAttack[data->CharacterType()];
+        _attacks = ATTACK::playerAttack[data->CharacterType()];
     }
 
     void Player::GetCoin(char value)

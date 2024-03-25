@@ -61,8 +61,8 @@ namespace psh
     private:
         //DB
         bool _useDB = true;
-        chrono::steady_clock::time_point _nextDBSend{};
-        chrono::steady_clock::time_point _prevUpdate{};
+        std::chrono::steady_clock::time_point _nextDBSend{};
+        std::chrono::steady_clock::time_point _prevUpdate{};
 
         //Monitor
         long _groupSessionCount = 0;

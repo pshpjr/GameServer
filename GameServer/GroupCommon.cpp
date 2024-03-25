@@ -15,7 +15,7 @@ psh::GroupCommon::GroupCommon(Server& server
                                                  _server(server)
                                                  , _initData(data)
                                                  , _groupType(type)
-                                                 , _nextDBSend(chrono::steady_clock::now())
+                                                 , _nextDBSend(std::chrono::steady_clock::now())
                                                  , _prevUpdate(std::chrono::steady_clock::now())
 
 {
@@ -222,6 +222,14 @@ void psh::GroupCommon::UpdateContent(int deltaMs)
 
 void psh::GroupCommon::SendMonitor()
 {
-    printf("Group : %d, Work : %lld, Queue: %d, Handled : %lld\n", GetGroupID(), GetWorkTime(), GetQueued()
-           , GetJobTps());
+    auto monitor = _dbThread->GetMonitor();
+    
+    printf("Players : %zd\n"
+        "Group : %d, Work : %lld, Queue: %d, Handled : %lld\n"
+           "DBQueued: %lld, DBEnqueue : %lld, DBDequeue : %lld, DBDelayAvg : %f\n"
+        ,_players.size()
+           , int(GetGroupID()), GetWorkTime(), GetQueued(), GetJobTps()
+           ,monitor.queued,monitor.enqueue,monitor.dequeue,monitor.delaySum / float(monitor.dequeue));
+
+    _playerMap->PrintPlayerInfo();
 };

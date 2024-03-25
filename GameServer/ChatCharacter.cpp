@@ -3,8 +3,9 @@
 #include "AttackManager.h"
 #include "ObjectManager.h"
 #include "../Data/TableData.h"
+#include "../Data/AttackData.h"
+
 #include "../Group/GroupCommon.h"
-#include "AttackData.h"
 
 void psh::ChatCharacter::MakeCreatePacket(SendBuffer& buffer, bool spawn) const
 {
