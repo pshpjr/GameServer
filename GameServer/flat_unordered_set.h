@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <vector>
 #include <ranges>
-
+#include "Macro.h"
 template <typename T>
 class flat_unordered_set_iterator
 {
@@ -124,22 +124,27 @@ public:
     void insert(T&& data)
     {
         _size++;
-        _data[hasher(data) & INDEX_MASK].push_back(std::forward<T>(data));
+        GetBucket(data).push_back(std::forward<T>(data));
     }
+
 
     void insert(const T& data)
     {
         _size++;
-        auto hashResult = hasher(data) & INDEX_MASK;
-        _data[hashResult].push_back(data);
+        GetBucket(data).push_back(data);
     }
 
     void erase(const T& data)
     {
+        auto& bucket = GetBucket(data);
         _size--;
-        _data[hasher(data) & INDEX_MASK].erase(remove(_data[hasher(data) & INDEX_MASK].begin()
-                                                      , _data[hasher(data) & INDEX_MASK].end(), data)
-                                               , _data[hasher(data) & INDEX_MASK].end());
+        ASSERT_CRASH(_size>=0,L"InvalidEraseSize");
+        auto bucketSize = bucket.size();
+        
+        bucket.erase(remove(bucket.begin()
+                                                      , bucket.end(), data)
+                                               , bucket.end());
+        ASSERT_CRASH(bucket.size() == bucketSize - 1,L"bucket isn't contain data" );
     }
 
     iterator begin()
@@ -192,7 +197,23 @@ public:
     //     return views::all(this);
     // }
 private:
+    std::vector<T>& GetBucket(const T& data)
+    {
+        return _data[hasher(data) & INDEX_MASK];
+    }
+    
     std::vector<std::vector<T>> _data;
     std::hash<T> hasher;
     int _size = 0;
+};
+
+template<class V>
+struct flat_unordered_set_view : std::ranges::view_interface<flat_unordered_set_view<V>>
+{
+    //auto begin() const { return std::ranges::begin(v); }
+    auto begin() const { return flat_unordered_set_iterator<V>(); }
+
+    auto end() const { return std::ranges::end(v); }
+
+    V v;
 };

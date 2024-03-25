@@ -1,20 +1,32 @@
 #include "stdafx.h"
 #include "Server.h"
+
+#include "DBConnection.h"
 #include "GameMap.h"
 #include "LockGuard.h"
-#include "Base/Player.h"
+#include "Player.h"
 #include "PacketGenerated.h"
-#include "Base/ObjectManager.h"
-#include "Group/EasyMonsterGroup.h"
-#include "Data/DBData.h"
-#include "Data/MockData.h"
+#include "ObjectManager.h"
+#include "EasyMonsterGroup.h"
+#include "DBData.h"
+#include "MockData.h"
 
 namespace psh
 {
-    Server::Server() : _groups(static_cast<vector<GroupID>::size_type>(ServerType::End), GroupID::InvalidGroupID())
+    Server::Server() : _groups(static_cast<vector<GroupID>::size_type>(ServerType::End), GroupID::InvalidGroupID()),
+    DBTLSId(TlsAlloc())
     {
-        _groups[static_cast<vector<GroupID>::size_type>(ServerType::Village)] = CreateGroup<GroupCommon>(*this,ServerType::Village);
-        _groups[static_cast<vector<GroupID>::size_type>(ServerType::Easy)] = CreateGroup<EasyMonsterGroup>(*this,ServerType::Easy);
+
+
+        serverSettings.Init(L"DBSetting.txt");
+        serverSettings.GetValue(L"db.GameDBIP",_initData.gameDBIP);
+        serverSettings.GetValue(L"db.GameDBPort",_initData.gameDBPort);
+        serverSettings.GetValue(L"db.GameDBID",_initData.gameDBID);
+        serverSettings.GetValue(L"db.GameDBPwd",_initData.gameDBPwd);
+        
+        
+        _groups[static_cast<vector<GroupID>::size_type>(ServerType::Village)] = CreateGroup<GroupCommon>(*this,_initData, ServerType::Village);
+        _groups[static_cast<vector<GroupID>::size_type>(ServerType::Easy)] = CreateGroup<EasyMonsterGroup>(*this,_initData,ServerType::Easy);
     }
 
     void Server::OnConnect(const SessionID sessionId, const SockAddr_in& info)
@@ -28,13 +40,13 @@ namespace psh
 
         {
             WRITE_LOCK
-            const auto it = g_players.find(sessionId);
-            if (it == g_players.end())
+            const auto it = g_dbData.find(sessionId);
+            if (it == g_dbData.end())
             {
                 return;
             }
-            auto target = it->second;
-            g_players.erase(it);
+            auto& target = it->second;
+            g_dbData.erase(it);
         }
     }
 
@@ -57,6 +69,7 @@ namespace psh
                 OnLogin(sessionId, buffer);
                 break;
             default:
+                __debugbreak();
                 break;
         }
     }
@@ -64,11 +77,11 @@ namespace psh
     void Server::OnMonitorRun()
     {
         PrintMonitorString();
-
-        // if(GetAsyncKeyState('D'))
-        // {
-        // 	Stop();
-        // }
+        printf("g_dbDataSize : %lld\n", g_dbData.size());
+        if(GetAsyncKeyState(VK_HOME))
+        {
+        	Stop();
+        }
     }
 
     shared_ptr<DBData> Server::getDbData(const SessionID id)
@@ -76,7 +89,7 @@ namespace psh
         //없으면 알아서 터짐.
 
         READ_LOCK
-        auto ret = g_players.find(id)->second;
+        auto& ret = g_dbData.find(id)->second;
 
         return ret;
     }
@@ -104,25 +117,76 @@ namespace psh
         using namespace psh;
         AccountNo AccountNo;
         SessionKey key;
-
+        
         {
+            //로그인은 무조건 성공
             GetGame_ReqLogin(buffer, AccountNo, key);
 
             auto loginResult = SendBuffer::Alloc();
 
             MakeGame_ResLogin(loginResult, AccountNo, true);
             SendPacket(sessionId, loginResult);
-            //printf(format("Send Game Login Success {:d} \n", sessionId.id).c_str());
         }
 
-        
-
+        //일단 AccounNo가 특정 범위이면 하는걸로
+        if(AccountNo <= 1000)
         {
+            auto conn = GetGameDbConnection();
+
+            conn->Query("select Nick,HP,Coins,CharType,ServerType,LocationX,LocationY,LoginState from mydb.player where AccountNo = %d",AccountNo);
+
+            if ( !conn->next() )
+            {
+                // InterlockedIncrement(&_dbErrorCount);
+                // gLogger->Write(L"Redis", LogLevel::Debug, L"DBFail : %d ", AccountNo);
+                //
+                // sendFail(AccountNo, sessionId, L"LoginFailRelease",*connectionResult);
+                DisconnectSession(sessionId);
+                return;
+            }
+            
+            Nickname nick(conn->getString(0));
+            int hp = conn->getInt(1);
+            int coins = conn->getInt(2);
+            char charType = conn->getChar(3);
+            char serverType = conn->getChar(4);
+            FVector location = {conn->getFloat(5),conn->getFloat(6)};
+            bool loginState = conn->getChar(7);
+            
+            conn->reset();
+            {
+                WRITE_LOCK
+                    auto [it, result] = g_dbData.emplace(
+                        sessionId, make_shared<DBData>(sessionId, AccountNo, location
+                            , serverType, charType, coins, hp, nick));
+                if (result == false)
+                {
+                    //플레이어 생성에 실패한 관련 에러 처리. 
+                }
+            }
+
+            if (serverType > 1)
+            {
+                serverType = 1;
+            }
+
+            if(hp <=0)
+            {
+                //마을로 보낸다.
+                _groupManager->MoveSession(sessionId, _groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Village)]);
+            }
+            else
+            {
+                _groupManager->MoveSession(sessionId, _groups[static_cast<std::vector<GroupID>::size_type>(serverType)]);
+            }
+        }
+        else
+            {
             FVector location = FVector(RandomUtil::Rand(0,6300), RandomUtil::Rand(0,6300));
             //FVector location = {3000, 3000};
             WRITE_LOCK
             auto nickIndex = rand() % gNicks.size();
-            auto [it, result] = g_players.emplace(sessionId
+            auto [it, result] = g_dbData.emplace(sessionId
                                                   , make_shared<DBData>(sessionId, AccountNo, location, 1, rand() % 4, 0
                                                                         , 100,gNicks[nickIndex]));
             //printf(format("CreatePlayer {:d} \n", AccountNo).c_str());
@@ -130,7 +194,23 @@ namespace psh
             {
                 //플레이어 생성에 실패한 관련 에러 처리. 
             }
+            _groupManager->MoveSession(sessionId, _groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Easy)]);
         }
-        _groupManager->MoveSession(sessionId, _groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Easy)]);
+       
+    }
+
+    DBConnection* Server::GetGameDbConnection()
+    {        
+        void* tlsValue = TlsGetValue(DBTLSId);
+
+        if ( tlsValue == nullptr )
+        {
+            {
+                WRITE_LOCK_IDX(1)
+                tlsValue = (void* )new DBConnection(_initData.gameDBIP.c_str(),_initData.gameDBPort, _initData.gameDBID.c_str(), _initData.gameDBPwd.c_str(), "mydb");
+            }
+            TlsSetValue(DBTLSId, tlsValue);
+        }
+        return ( DBConnection* ) tlsValue;
     }
 }

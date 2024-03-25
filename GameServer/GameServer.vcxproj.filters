@@ -18,112 +18,195 @@
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Server.cpp">
+    <ClCompile Include="AttackManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="GameMap.cpp">
+    <ClCompile Include="ChatCharacter.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Player.cpp">
+    <ClCompile Include="DBData.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Sector.cpp">
+    <ClCompile Include="DBThreadWrapper.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Data\Item.cpp">
+    <ClCompile Include="EasyMonsterGroup.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="FieldObjectManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="flat_unordered_set.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="GameDataLoader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="GameObject.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Group\EasyMonsterGroup.cpp">
+    <ClCompile Include="GroupCommon.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Group\GroupCommon.cpp">
+    <ClCompile Include="Item.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Group\HardMonsterGroup.cpp">
+    <ClCompile Include="Monster.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Group\PVPGroup.cpp">
+    <ClCompile Include="ObjectManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Group\VillageGroup.cpp">
+    <ClCompile Include="Player.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="MapPerfomaceTest\DirectQuadTree.cpp">
+    <ClCompile Include="PveAttackManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="MapPerfomaceTest\IGameObjectContainer.cpp">
+    <ClCompile Include="PvpAttackManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="MapPerfomaceTest\NormalQuadTree.cpp">
+    <ClCompile Include="PVPGroup.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Range.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Sector.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Server.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="VillageGroup.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\OneDrive\university\portfolio\packetParser\FVector.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Server.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="AttackData.h">
+      <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="GameMap.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="AttackManager.h">
+      <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="ChatCharacter.h">
+      <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\packetParser\ContentTypes.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="DBData.h">
+      <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\packetParser\NameString.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="DBThreadWrapper.h">
+      <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Sector.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="EasyMonsterGroup.h">
+      <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\packetParser\GameData.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Data\Item.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Data\TableData.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="FieldObjectManager.h">
+      <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="flat_unordered_set.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GameDataLoader.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GameMap.h">
+      <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GroupCommon.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Item.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Map.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MockData.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectManager.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="PveAttackManager.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="PvpAttackManager.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="PVPGroup.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Rand.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Range.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Sector.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Server.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerInitData.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TableData.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="VillageGroup.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\OneDrive\university\portfolio\packetParser\ContentTypes.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Group\EasyMonsterGroup.h">
+    <ClInclude Include="..\..\..\..\OneDrive\university\portfolio\packetParser\FVector.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Group\GroupCommon.h">
+    <ClInclude Include="..\..\..\..\OneDrive\university\portfolio\packetParser\GameData.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Group\HardMonsterGroup.h">
+    <ClInclude Include="..\..\..\..\OneDrive\university\portfolio\packetParser\NameString.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Group\PVPGroup.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Group\VillageGroup.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="MapPerfomaceTest\DirectQuadTree.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="MapPerfomaceTest\IGameObjectContainer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="MapPerfomaceTest\NormalQuadTree.h">
+    <ClInclude Include="..\..\..\..\OneDrive\university\portfolio\packetParser\PacketGenerated.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\packetParser\PacketDefine.txt" />
+    <Text Include="DBSetting.txt">
+      <Filter>소스 파일</Filter>
+    </Text>
+    <Text Include="serverInfo.txt">
+      <Filter>소스 파일</Filter>
+    </Text>
+    <Text Include="serverSetting.txt">
+      <Filter>소스 파일</Filter>
+    </Text>
+    <Text Include="subnetSetting.txt">
+      <Filter>소스 파일</Filter>
+    </Text>
+    <Text Include="..\..\..\..\OneDrive\university\portfolio\packetParser\PacketDefine.txt" />
+    <Text Include="..\..\..\..\OneDrive\university\portfolio\packetParser\sql_queries.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\OneDrive\university\portfolio\packetParser\GenDBData.py" />
+    <None Include="..\..\..\..\OneDrive\university\portfolio\packetParser\MyParser.py" />
   </ItemGroup>
 </Project>
