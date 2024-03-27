@@ -27,6 +27,8 @@ namespace psh
                             , DBThreadWrapper* dbThread);
 
         void GetCoin(char value);
+
+        void SendCoinInfo();
         
         void MakeCreatePacket(SendBuffer& buffer, bool spawn) const override;
         
@@ -42,8 +44,15 @@ namespace psh
             return _data->AccountNo();
         }
         shared_ptr<DBData> _data;
+        void OnCreate() override
+        {
+            SendCoinInfo();
+        }
+
     private:
 
         DBThreadWrapper* _dbThread= nullptr;
     };
+
+    
 }

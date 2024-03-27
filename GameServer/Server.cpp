@@ -17,14 +17,16 @@ namespace psh
     DBTLSId(TlsAlloc())
     {
 
-
-        serverSettings.Init(L"DBSetting.txt");
+        serverSettings.Init(L"GameSettings.txt");
         serverSettings.GetValue(L"db.GameDBIP",_initData.gameDBIP);
         serverSettings.GetValue(L"db.GameDBPort",_initData.gameDBPort);
         serverSettings.GetValue(L"db.GameDBID",_initData.gameDBID);
         serverSettings.GetValue(L"db.GameDBPwd",_initData.gameDBPwd);
+        serverSettings.GetValue(L"db.MonitorIP",_initData.MonitorServerIP);
+        serverSettings.GetValue(L"db.MonitorPort",_initData.MonitorServerPort);
         
-        
+        serverSettings.GetValue(L"db.useMonitorServer", _initData.UseMonitorServer);
+
         _groups[static_cast<vector<GroupID>::size_type>(ServerType::Village)] = CreateGroup<GroupCommon>(*this,_initData, ServerType::Village);
         _groups[static_cast<vector<GroupID>::size_type>(ServerType::Easy)] = CreateGroup<EasyMonsterGroup>(*this,_initData,ServerType::Easy);
     }
@@ -76,8 +78,8 @@ namespace psh
 
     void Server::OnMonitorRun()
     {
-        PrintMonitorString();
-        printf("g_dbDataSize : %lld\n", g_dbData.size());
+        //PrintMonitorString();
+        //printf("g_dbDataSize : %lld\n", g_dbData.size());
         if(GetAsyncKeyState(VK_HOME))
         {
         	Stop();

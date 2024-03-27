@@ -59,19 +59,20 @@ namespace psh
         {
             if(GetAsyncKeyState('P') & 0x8001)
             {
-                FVector location= {3000,3000};
+                FVector location = _playerMap->GetRandomLocation();
+                //FVector location= {3000,3000};
                 char type = RandomUtil::Rand(0,3);
                 
                 objectManager->SpawnMonster(location,type);
                 inputDelay = 5000;
             }
         }
-        //
+        
         auto toSpawn =   MAX_MONSTER - objectManager->Monsters();
         for(int i = 0 ; i<toSpawn;i++)
         {
             FVector location= {RandomUtil ::Rand(0,6300) + 50.0f,RandomUtil ::Rand(0,6300) + 50.0f};
-            char type = RandomUtil ::Rand(0,3);
+            char type = RandomUtil ::Rand(0,1);
             objectManager->SpawnMonster(location,type);
         }
         // {

@@ -107,7 +107,6 @@ namespace psh
             _hp = hp;
         }
 
-
         
     private:
         SessionID _sessionId;

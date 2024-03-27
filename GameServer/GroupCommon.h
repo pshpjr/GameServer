@@ -4,7 +4,7 @@
 #include "Sector.h"
 #include "GameMap.h"
 #include "ServerInitData.h"
-
+#include "MonitorProtocol.h"
 
 
 struct ServerInitData;
@@ -27,11 +27,6 @@ namespace psh
                          , std::span<const Sector> offsets
                          , SendBuffer& buffer
                          , const shared_ptr<psh::Player>& exclude = nullptr);
-
-        void SetUseDB(const bool use)
-        {
-            _useDB = use;
-        }
 
         void OnEnter(SessionID id) final;
         void OnLeave(SessionID id) final;
@@ -60,17 +55,19 @@ namespace psh
         
     private:
         //DB
-        bool _useDB = true;
+        bool _useMonitor = false;
         chrono::steady_clock::time_point _nextDBSend{};
         chrono::steady_clock::time_point _prevUpdate{};
 
         //Monitor
+        void SendLogin();
+        void SendMonitorData(en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, int value);
+
+
+
         long _groupSessionCount = 0;
         long _fps = 0;
 
-        static SessionID _monitorSession;
-        static String _monitorIp;
-        static Port _monitorPort;
-
+        SessionID _monitorSession = InvalidSessionID();
     };
 }

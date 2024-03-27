@@ -62,12 +62,16 @@ void psh::ObjectManager::InsertInMap(const shared_ptr<psh::GameObject>& actor
         return;
     }
     
+
+
+
     std::vector<GameMap<shared_ptr<GameObject>>*> gameMaps;
     GetAllGameMap(gameMaps);
     
     auto toCreate = SendBuffer::Alloc();
     auto sessionId = static_pointer_cast<const psh::Player>(actor)->SessionId();
     
+
     for (auto map : gameMaps)
     {
         auto nearbySectors = map->GetSectorsFromOffset(map->GetSector(location), offsets);
@@ -88,6 +92,8 @@ void psh::ObjectManager::InsertInMap(const shared_ptr<psh::GameObject>& actor
     {
         _owner.SendPacket(sessionId,toCreate);
     }
+
+
     InsertInGameMap(actor, location);
 }
 
@@ -149,6 +155,16 @@ void psh::ObjectManager::RemoveFromMap(const shared_ptr<psh::GameObject>& actor
         {
             for (auto& actor : sector)
             {
+//                if (actor->ObjectGroup() == psh::eCharacterGroup::Player)
+//{
+//    if (static_pointer_cast<Player>(actor)->AccountNumber() == 666)
+//    {
+//        __debugbreak();
+//    }
+//
+//
+//}
+
                 MakeGame_ResDestroyActor(toDestroy,actor->ObjectId(),false,cause);
                 if(toDestroy.CanPushSize() < 111)
                 {

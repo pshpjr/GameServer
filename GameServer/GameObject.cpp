@@ -47,17 +47,15 @@ bool psh::GameObject::InRange(const Range& range) const
 
 void psh::GameObject::MoveStart(FVector destination)
 {
+
     auto moveBuffer = SendBuffer::Alloc();
     MakeGame_ResMove(moveBuffer,_objectId,_objectGroup,destination);
     _group.SendInRange(_location,SEND_OFFSETS::BROADCAST,moveBuffer);
 
-    if(destination == Location())
-        return;
-    
     _move = true;
     _destination = destination;
     _direction = (destination - Location()).Normalize();
-
+    ASSERT_CRASH(!isnan(_direction.X), "InvalidDestination");
 
 }
 
@@ -74,7 +72,7 @@ void psh::GameObject::Update(int delta)
     if (_move)
     {
         const float DistanceToDestination = (_destination - _location).Size();
-        const FVector moveDelta = _direction * delta * MoveSpeedPerMs;
+        const FVector moveDelta = _direction * static_cast<float>(delta)* MoveSpeedPerMs;
 
         if (DistanceToDestination <= moveDelta.Size())
         {

@@ -22,15 +22,15 @@ psh::GroupCommon::GroupCommon(Server& server
     _playerMap = make_shared<GameMap<shared_ptr<Player>>>(mapSize, sectorSize);
     _objectManager = make_unique<ObjectManager>(*this, *_playerMap);
 
-    if (_useDB)
-    {
-        _dbThread = make_unique<DBThreadWrapper>(
-                                                 data.gameDBIP.c_str()
-                                                 , data.gameDBPort
-                                                 , data.gameDBID.c_str()
-                                                 , data.gameDBPwd.c_str()
-                                                 , "mydb");
-    }
+    _useMonitor = _initData.UseMonitorServer;
+
+    _dbThread = make_unique<DBThreadWrapper>(
+                                                data.gameDBIP.c_str()
+                                                , data.gameDBPort
+                                                , data.gameDBID.c_str()
+                                                , data.gameDBPwd.c_str()
+                                                , "mydb");
+    
 }
 
 
@@ -112,10 +112,6 @@ void psh::GroupCommon::OnUpdate(int milli)
     {
         return;
     }
-    if (!_useDB)
-    {
-    }
-
     SendMonitor();
 
     _nextDBSend += 1s;
@@ -185,12 +181,28 @@ void psh::GroupCommon::RecvMove(SessionID sessionId, CRecvBuffer& buffer)
     auto& [_,player] = *_players.find(sessionId);
     FVector location;
     GetGame_ReqMove(buffer, location);
+    //printf("%f %f %f %f\n", _location.X, _location.Y, destination.X, destination.Y);
+
     if (player == nullptr)
     {
         _iocp->DisconnectSession(sessionId);
+        return;
+    }
+
+    //자기가 있는 위치로 이동해서 nan되는 문제 발생시 
+    //단순히 리턴 하면 더미에서 move 패킷 검증올 못함. 
+    //그거 방지용
+    if (location == player->Location())
+    {
+        auto moveBuffer = SendBuffer::Alloc();
+        MakeGame_ResMove(moveBuffer, player->ObjectId(), player->ObjectGroup(), player->Location());
+        SendPacket(player->SessionId(), moveBuffer);
+        printf("InvalidLocation. objID : %d, AccountNo : %lld\n", player->ObjectGroup(), player->AccountNumber());
+        return;
     }
 
     player->MoveStart(location);
+
 }
 
 void psh::GroupCommon::RecvAttack(SessionID sessionId, CRecvBuffer& buffer)
@@ -222,14 +234,64 @@ void psh::GroupCommon::UpdateContent(int deltaMs)
 
 void psh::GroupCommon::SendMonitor()
 {
-    auto monitor = _dbThread->GetMonitor();
+    
+
     
     printf("Players : %zd\n"
         "Group : %d, Work : %lld, Queue: %d, Handled : %lld\n"
-           "DBQueued: %lld, DBEnqueue : %lld, DBDequeue : %lld, DBDelayAvg : %f\n"
+         
         ,_players.size()
            , int(GetGroupID()), GetWorkTime(), GetQueued(), GetJobTps()
-           ,monitor.queued,monitor.enqueue,monitor.dequeue,monitor.delaySum / float(monitor.dequeue));
+           );
 
-    //_playerMap->PrintPlayerInfo();
-};
+    if (!_useMonitor)
+    {
+        return;
+    }
+
+    auto monitor = _dbThread->GetMonitor();
+    printf("DBQueued: %lld, DBEnqueue : %lld, DBDequeue : %lld, DBDelayAvg : %f\n"
+        , monitor.queued, monitor.enqueue, monitor.dequeue, monitor.delaySum / float(monitor.dequeue));
+
+    if (_monitorSession == InvalidSessionID())
+    {
+        auto client = _server.GetClientSession(_initData.MonitorServerIP, _initData.MonitorServerPort);
+        if (client.HasError())
+        {
+            return;
+        }
+        _monitorSession = client.Value();
+        SendLogin();
+    }
+    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_RUN, int(1));
+    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_WORK_TIME, static_cast<int>(GetWorkTime()));
+    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_JOB_QUEUE_SIZE, GetQueued());
+    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_JOB_TPS, static_cast<int>(GetJobTps()));
+    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SESSIONS, static_cast<int>(Sessions()));
+    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_PLAYERS, static_cast<int>(_players.size()));
+    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_TPS, static_cast<int>(monitor.dequeue));
+    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_QUEUE_SIZE, static_cast<int>(monitor.queued));
+
+    if (monitor.dequeue != 0) 
+    {
+        SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_QUERY_AVG, static_cast<int>(monitor.delaySum / float(monitor.dequeue)));
+    }
+
+    
+}
+void psh::GroupCommon::SendLogin()
+{
+    auto buffer = SendBuffer::Alloc();
+
+    buffer << en_PACKET_SS_MONITOR_LOGIN << WORD(1) << static_cast<char>(GetGroupID());
+    _server.SendPacket(_monitorSession, buffer);
+}
+
+void psh::GroupCommon::SendMonitorData(en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, int value)
+{
+    auto buffer = SendBuffer::Alloc();
+
+    buffer << en_PACKET_SS_MONITOR_DATA_UPDATE << WORD(1) << static_cast<char>(GetGroupID()) << type << value << static_cast<int>( time(nullptr));
+    _server.SendPacket(_monitorSession, buffer);
+}
+;

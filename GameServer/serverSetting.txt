@@ -5,7 +5,7 @@ port:11333
 backlog:20
 runningThreads:4
 workerThreads:20
-staticKey:0
+staticKey:50
 }
 
 

@@ -36,13 +36,15 @@ namespace psh
         }
         
         auto target = _target.lock();
-        
+
         if (target == nullptr)
         {
+            if (searchCooldown > 0)
+                return;
+
             PRO_BEGIN("GetClosestTarget")
-            _attackManager->GetClosestTarget(Location(), _target);
+            _attackManager->GetClosestTarget(_spawnLocation, _target);
             searchCooldown += 2000;
-            auto newTarget = _target.lock();
             return;
         }
         
@@ -69,11 +71,11 @@ namespace psh
             return;
         }
         
-        if((target->Location() - _spawnLocation).Size() > 800)
+        if((Location() - _spawnLocation).Size() > 800)
         {
             MoveStart(_spawnLocation);
             target = nullptr;
-            moveCooldown += 4000;
+            moveCooldown += 2000;
             return;
         }
 

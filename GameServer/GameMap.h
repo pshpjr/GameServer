@@ -200,7 +200,7 @@ namespace psh
 
         void ClamToMap(FVector& loc)
         {
-            loc = Clamp(loc, 0, MAP_SIZE-1);
+            loc = Clamp(loc, 0, static_cast<float>(MAP_SIZE-1));
         }
 
         bool IsValidSector(Sector sector) const

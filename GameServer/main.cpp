@@ -7,7 +7,7 @@
 int main()
 {
     DBConnection::LibInit();
-    SEND_OFFSETS::Init();
+    SEND_OFFSETS::Init(); 
     psh::ATTACK::Init();
     const auto server = make_unique<psh::Server>();
     server->SetDisableClickAndClose();

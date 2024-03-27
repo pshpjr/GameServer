@@ -81,10 +81,13 @@
     <ClCompile Include="VillageGroup.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\OneDrive\university\portfolio\packetParser\FVector.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="..\..\..\..\..\OneDrive\university\portfolio\packetParser\FVector.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="HardMonsterGroup.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -188,6 +191,12 @@
     <ClInclude Include="..\..\..\..\OneDrive\university\portfolio\packetParser\PacketGenerated.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="MonitorProtocol.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="HardMonsterGroup.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="DBSetting.txt">
@@ -208,5 +217,10 @@
   <ItemGroup>
     <None Include="..\..\..\..\OneDrive\university\portfolio\packetParser\GenDBData.py" />
     <None Include="..\..\..\..\OneDrive\university\portfolio\packetParser\MyParser.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="MyDebug.natvis">
+      <Filter>소스 파일</Filter>
+    </Natvis>
   </ItemGroup>
 </Project>

@@ -30,12 +30,17 @@ namespace psh
 
     void Player::GetCoin(char value)
     {
-        auto getCoin = SendBuffer::Alloc();
-        MakeGame_ResGetCoin(getCoin, ObjectId(), 1);
-        _group.SendPacket(SessionId(), getCoin);
-        
         _data->AddCoin(value);
         _dbThread->UpdateCoin(_data);
+
+        SendCoinInfo();
+    }
+
+    void Player::SendCoinInfo()
+    {
+        auto getCoin = SendBuffer::Alloc();
+        MakeGame_ResGetCoin(getCoin, ObjectId(), _data->Coin());
+        _group.SendPacket(SessionId(), getCoin);
     }
 
     void Player::MakeCreatePacket(SendBuffer& buffer, bool spawn) const

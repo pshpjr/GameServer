@@ -9,4 +9,9 @@ struct ServerInitData
     Port gameDBPort;
     std::string gameDBID;
     std::string gameDBPwd;
+
+    bool UseMonitorServer;
+    String MonitorServerIP;
+    Port MonitorServerPort;
+
 };

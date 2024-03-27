@@ -8,5 +8,5 @@ redisIP :"127.0.0.1"
 redisPort:6379
 MonitorIP : "127.0.0.1"
 MonitorPort : 20229
-useMonitorServer : 0
+useMonitorServer : 1
 }

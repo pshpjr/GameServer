@@ -19,11 +19,18 @@ bool psh::PveAttackManager::GetClosestTarget(FVector location, weak_ptr<ChatChar
             auto dist = Distance(player->Location(),location);
             if( dist < closest)
             {
+                closest = dist;
                 target = player;
                 find = true;
             }
         }
     });
+    
+    if (closest > 700)
+    {
+        find = false;
+        target.reset();
+    }
     return find;
 }
 

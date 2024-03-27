@@ -100,7 +100,7 @@ void psh::FieldObjectManager::SpawnItem(psh::FVector loc, char type)
 {
     auto id = NextObjectId();
 
-    auto [item,success] = _items.emplace(id, make_shared<Item>(id,*static_cast<ObjectManager*>(this),_owner, loc,20, type));
+    auto [item,success] = _items.emplace(id, make_shared<Item>(id,*static_cast<ObjectManager*>(this),_owner, loc,static_cast<float>( 20), type));
     if (!success)
     {
         return;
