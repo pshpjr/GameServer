@@ -14,11 +14,11 @@ namespace psh
     {
     public:
         FieldObjectManager(GroupCommon& group,GameMap<shared_ptr<Player>>& player
-            ,  GameMap<shared_ptr<Monster>>& monster, GameMap<shared_ptr<Item>>& item):
-            ObjectManager(group,player)
+            ,  GameMap<shared_ptr<Monster>>& monster, GameMap<shared_ptr<Item>>& item
+            , AttackManager* attackManager):
+            ObjectManager(group,player,attackManager)
             , _monsterMap(monster)
             , _itemMap(item)
-        ,_attackManager(make_unique<PveAttackManager>(_monsterMap,_playerMap))
         {
         }
 
@@ -46,7 +46,5 @@ namespace psh
         
         GameMap<shared_ptr<Item>>& _itemMap;
         HashMap<ObjectID, shared_ptr<Item>> _items;
-
-        unique_ptr<PveAttackManager> _attackManager;
     };
 }

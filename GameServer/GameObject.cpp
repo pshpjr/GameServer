@@ -55,6 +55,8 @@ void psh::GameObject::MoveStart(FVector destination)
     _move = true;
     _destination = destination;
     _direction = (destination - Location()).Normalize();
+
+
     ASSERT_CRASH(!isnan(_direction.X), "InvalidDestination");
 
 }

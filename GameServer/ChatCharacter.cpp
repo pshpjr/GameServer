@@ -13,20 +13,21 @@ void psh::ChatCharacter::MakeCreatePacket(SendBuffer& buffer, bool spawn) const
     MakeGame_ResChracterDetail(buffer,ObjectId(),_hp);
 }
 
-void psh::ChatCharacter::Attack(char type)
+void psh::ChatCharacter::Attack(char type, psh::FVector dir)
 {
     if(_attackManager == nullptr)
         return;
     
+
     auto attackPacket = SendBuffer::Alloc();
-    MakeGame_ResAttack(attackPacket, ObjectId(), type);
+    MakeGame_ResAttack(attackPacket, ObjectId(), type,dir);
 
     _group.SendInRange(Location(),SEND_OFFSETS::BROADCAST, attackPacket);
 
     SquareRange attackRange = {
         {Location().X - _attacks[type].first.X / 2, Location().Y}
         , {Location().X + _attacks[type].first.X / 2, Location().Y + _attacks[type].first.Y}};
-    attackRange.Rotate(Direction(), Location());
+    attackRange.Rotate(dir, Location());
 
     auto draw = SendBuffer::Alloc();
     for (auto& point : attackRange._points)
@@ -52,10 +53,10 @@ void psh::ChatCharacter::Hit(int damage, const psh::ObjectID attacker)
     }
 }
 
+            
 void psh::ChatCharacter::Die()
 {
-    SetNeedUpdate(false);
     _owner.RemoveFromMap(shared_from_this(),Location(),SEND_OFFSETS::BROADCAST,true,false, ObjectManager::removeResult::Die);
     //printf("Die %d \n",ObjectId());
-    _owner.DestroyActor(this);
+    _owner.DestroyActor(shared_from_this());
 }

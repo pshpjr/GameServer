@@ -64,8 +64,13 @@ namespace psh
             {
                 MoveStop();
             }
-        
-            Attack(0);
+            
+
+            auto attackDir = (target->Location() - Location()).Normalize();
+
+            attackDir = isnan(attackDir.X) ? Direction() : attackDir;
+ 
+            Attack(0, attackDir);
         
             attackCooldown += 1000;
             return;

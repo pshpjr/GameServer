@@ -20,7 +20,7 @@ psh::GroupCommon::GroupCommon(Server& server
 
 {
     _playerMap = make_shared<GameMap<shared_ptr<Player>>>(mapSize, sectorSize);
-    _objectManager = make_unique<ObjectManager>(*this, *_playerMap);
+    _objectManager = make_unique<ObjectManager>(*this, *_playerMap,nullptr);
 
     _useMonitor = _initData.UseMonitorServer;
 
@@ -87,6 +87,7 @@ void psh::GroupCommon::OnLeave(SessionID id)
 
     if (playerPtr->InMap())
     {
+        //Destroy 쓰면 나가고 맞는 상황이 생김. leaveGroup 이후 값의 변동이 생길 수 있음. 
         _objectManager->RemoveFromMap(playerPtr, playerPtr->Location(), SEND_OFFSETS::BROADCAST, false, false
                                       , ObjectManager::removeResult::GroupChange);
         playerPtr->_data->SetLocation(playerPtr->Location());
@@ -153,8 +154,12 @@ void psh::GroupCommon::RecvReqLevelChange(SessionID id, CRecvBuffer& recvBuffer)
     auto& [_,playerPtr] = *it;
 
 
-    _objectManager->RemoveFromMap(playerPtr, playerPtr->Location(), SEND_OFFSETS::BROADCAST, false, false
-                                  , ObjectManager::removeResult::GroupChange);
+    if (playerPtr->InMap())
+    {
+        _objectManager->RemoveFromMap(playerPtr, playerPtr->Location(), SEND_OFFSETS::BROADCAST, false, false
+            , ObjectManager::removeResult::GroupChange);
+    }
+
 
     playerPtr->_data->SetLocation(playerPtr->Location());
 
@@ -209,13 +214,14 @@ void psh::GroupCommon::RecvAttack(SessionID sessionId, CRecvBuffer& buffer)
 {
     auto& [_,player] = *_players.find(sessionId);
     char type;
-    GetGame_ReqAttack(buffer, type);
+    psh::FVector dir;
+    GetGame_ReqAttack(buffer, type,dir);
 
     if (player == nullptr)
     {
         _iocp->DisconnectSession(sessionId);
     }
-    player->Attack(type);
+    player->Attack(type,dir);
 }
 
 
@@ -237,12 +243,12 @@ void psh::GroupCommon::SendMonitor()
     
 
     
-    printf("Players : %zd\n"
-        "Group : %d, Work : %lld, Queue: %d, Handled : %lld\n"
-         
-        ,_players.size()
-           , int(GetGroupID()), GetWorkTime(), GetQueued(), GetJobTps()
-           );
+    //printf("Players : %zd\n"
+    //    "Group : %d, Work : %lld, Queue: %d, Handled : %lld\n"
+    //     
+    //    ,_players.size()
+    //       , int(GetGroupID()), GetWorkTime(), GetQueued(), GetJobTps()
+    //       );
 
     if (!_useMonitor)
     {

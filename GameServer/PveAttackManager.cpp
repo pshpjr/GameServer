@@ -42,8 +42,12 @@ void psh::PveAttackManager::OnAttack(const AttackData& attack)
         ranges::for_each(victims, [ this,&attack](
                  flat_unordered_set<shared_ptr<Monster>> sector)
                  {
+
                      for (auto& monster : sector)
                      {
+                         if (monster->isDead())
+                             __debugbreak();
+
                          if (monster->ObjectId() == attack.Attacker)
                          {
                              continue;
@@ -64,6 +68,9 @@ void psh::PveAttackManager::OnAttack(const AttackData& attack)
                  {
                      for (auto& player : sector)
                      {
+                         if (player->isDead())
+                             continue;
+
                          if (player->ObjectId() == attack.Attacker)
                          {
                              continue;

@@ -18,15 +18,16 @@ namespace psh
             GroupChange
         };
         
-        ObjectManager(GroupCommon& owner, GameMap<shared_ptr<Player>>& playerMap)
+        ObjectManager(GroupCommon& owner, GameMap<shared_ptr<Player>>& playerMap, AttackManager* attackManager)
             : _owner(owner)
-            , _playerMap(playerMap)
+            , _playerMap(playerMap),
+            _attackManager(attackManager)
         {
         }
         virtual ~ObjectManager();
         virtual void Update(int deltaMs){}
         void SpawnActor(const shared_ptr<psh::GameObject>& actor,AttackManager* attackManager);
-        void DestroyActor(psh::GameObject* actor);
+        void DestroyActor(shared_ptr<psh::GameObject> actor);
         void RemoveFromMap(const shared_ptr<psh::GameObject>& actor, FVector location, const std::span<const Sector> offsets, bool isDead, bool notifySelf, char
                           cause);
         void RequestMove(const shared_ptr<psh::GameObject>& actor, psh::FVector nextLocation);
@@ -36,15 +37,17 @@ namespace psh
         }
         void CleanupDestroyWait()
         {
-            for(auto obj : _deleteWait)
+            for(auto& obj : _deleteWait)
             {
+
                 obj->OnDestroy();
-                CleanupActor(obj);
+                CleanupActor(obj.get());
             }
             _deleteWait.clear();
         }
         virtual void CleanupActor(GameObject* actor) {}
         
+
     protected:
         /**
  * \brief objectManager에서 관리중인 Map들을 container에 담아준다. 해당 map에 있는 액터의 정보를 받아올 때 사용.
@@ -65,7 +68,8 @@ namespace psh
         virtual void OnActorMove(const shared_ptr<GameObject>& actor){}
         GroupCommon& _owner;
         GameMap<shared_ptr<Player>>& _playerMap;
-        list<psh::GameObject*> _deleteWait;
+        list<shared_ptr<psh::GameObject>>_deleteWait;
+        AttackManager* _attackManager;
     private:
         static Sector TableIndexFromDiff(const Sector sectorDiff)
         {
@@ -81,6 +85,7 @@ namespace psh
 
 
         ObjectID _objectID = 0;
+
     };
     
 }

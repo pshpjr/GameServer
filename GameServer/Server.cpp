@@ -10,6 +10,8 @@
 #include "EasyMonsterGroup.h"
 #include "DBData.h"
 #include "MockData.h"
+#include "PVPGroup.h"
+#include "HardMonsterGroup.h"
 
 namespace psh
 {
@@ -29,6 +31,8 @@ namespace psh
 
         _groups[static_cast<vector<GroupID>::size_type>(ServerType::Village)] = CreateGroup<GroupCommon>(*this,_initData, ServerType::Village);
         _groups[static_cast<vector<GroupID>::size_type>(ServerType::Easy)] = CreateGroup<EasyMonsterGroup>(*this,_initData,ServerType::Easy);
+        _groups[static_cast<vector<GroupID>::size_type>(ServerType::Hard)] = CreateGroup<HardMonsterGroup>(*this,_initData,ServerType::Hard);
+        _groups[static_cast<vector<GroupID>::size_type>(ServerType::Pvp)] = CreateGroup<PvpGroup>(*this,_initData,ServerType::Pvp);
     }
 
     void Server::OnConnect(const SessionID sessionId, const SockAddr_in& info)
@@ -165,11 +169,6 @@ namespace psh
                 {
                     //플레이어 생성에 실패한 관련 에러 처리. 
                 }
-            }
-
-            if (serverType > 1)
-            {
-                serverType = 1;
             }
 
             if(hp <=0)

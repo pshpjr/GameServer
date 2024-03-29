@@ -17,11 +17,12 @@ namespace psh
         , _monsterMap(make_unique<GameMap<shared_ptr<Monster>>>(mapSize, sectorSize))
         , _itemMap(make_unique<GameMap<shared_ptr<Item>>>(mapSize, sectorSize))
     {
-        _objectManager = 
-        unique_ptr<ObjectManager>{
-            reinterpret_cast<psh::ObjectManager*>(
-                new FieldObjectManager(*this,*_playerMap,*_monsterMap,*_itemMap))},
-        _attackManager = static_cast<unique_ptr<AttackManager>>(make_unique<PveAttackManager>(*_monsterMap,*_playerMap));
+        _attackManager = static_cast<unique_ptr<AttackManager>>(make_unique<PveAttackManager>(*_monsterMap, *_playerMap));
+        _objectManager =
+            unique_ptr<ObjectManager>{
+                static_cast<psh::ObjectManager*>(
+                    new FieldObjectManager(*this,*_playerMap,*_monsterMap,*_itemMap,_attackManager.get())) };
+
     }
 
     void EasyMonsterGroup::OnRecv(const SessionID id, CRecvBuffer& recvBuffer)

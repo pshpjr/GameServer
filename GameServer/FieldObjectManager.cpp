@@ -105,7 +105,7 @@ void psh::FieldObjectManager::SpawnItem(psh::FVector loc, char type)
     {
         return;
     }
-    SpawnActor(item->second,_attackManager.get());
+    SpawnActor(item->second,_attackManager);
 }
 
 void psh::FieldObjectManager::SpawnMonster(psh::FVector loc, char type)
@@ -117,6 +117,6 @@ void psh::FieldObjectManager::SpawnMonster(psh::FVector loc, char type)
     {
         return;
     }
-    monster->second->SetAttackManager(_attackManager.get());
-    SpawnActor(monster->second,_attackManager.get());
+    monster->second->SetAttackManager(_attackManager);
+    SpawnActor(monster->second,_attackManager);
 }

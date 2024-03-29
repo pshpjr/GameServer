@@ -115,8 +115,10 @@ void psh::ObjectManager::SpawnActor(const shared_ptr<psh::GameObject>& actor,Att
     actor->OnCreate();
 }
 
-void psh::ObjectManager::DestroyActor(psh::GameObject* actor)
+//1 : die
+void psh::ObjectManager::DestroyActor(shared_ptr<psh::GameObject> actor)
 {
+    actor->SetNeedUpdate(false);
     _deleteWait.push_back(actor);
 }
 
@@ -155,15 +157,6 @@ void psh::ObjectManager::RemoveFromMap(const shared_ptr<psh::GameObject>& actor
         {
             for (auto& actor : sector)
             {
-//                if (actor->ObjectGroup() == psh::eCharacterGroup::Player)
-//{
-//    if (static_pointer_cast<Player>(actor)->AccountNumber() == 666)
-//    {
-//        __debugbreak();
-//    }
-//
-//
-//}
 
                 MakeGame_ResDestroyActor(toDestroy,actor->ObjectId(),false,cause);
                 if(toDestroy.CanPushSize() < 111)

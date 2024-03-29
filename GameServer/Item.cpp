@@ -17,5 +17,5 @@ void psh::Item::OnDestroy()
 void psh::Item::Take(psh::ChatCharacter& target)
 {
     _valid = false;
-    _owner.DestroyActor(this);
+    _owner.DestroyActor(shared_from_this());
 }
