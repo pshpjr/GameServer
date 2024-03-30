@@ -178,7 +178,7 @@ namespace psh
             conn->reset();
             {
                 WRITE_LOCK
-                g_dbData.emplace(sessionId
+                auto [_,result] = g_dbData.emplace(sessionId
                     , make_shared<DBData>(sessionId, AccountNo, location , serverType, charType, coins, hp, nick));
                 if (result == false)
                 {
