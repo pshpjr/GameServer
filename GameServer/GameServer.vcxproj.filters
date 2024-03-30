@@ -217,6 +217,7 @@
   <ItemGroup>
     <None Include="..\..\..\..\OneDrive\university\portfolio\packetParser\GenDBData.py" />
     <None Include="..\..\..\..\OneDrive\university\portfolio\packetParser\MyParser.py" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="MyDebug.natvis">

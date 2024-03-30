@@ -240,7 +240,7 @@ void psh::GroupCommon::UpdateContent(int deltaMs)
 
 void psh::GroupCommon::SendMonitor()
 {
-    
+
 
     
     //printf("Players : %zd\n"
@@ -256,8 +256,8 @@ void psh::GroupCommon::SendMonitor()
     }
 
     auto monitor = _dbThread->GetMonitor();
-    printf("DBQueued: %lld, DBEnqueue : %lld, DBDequeue : %lld, DBDelayAvg : %f\n"
-        , monitor.queued, monitor.enqueue, monitor.dequeue, monitor.delaySum / float(monitor.dequeue));
+    //printf("DBQueued: %lld, DBEnqueue : %lld, DBDequeue : %lld, DBDelayAvg : %f\n"
+    //    , monitor.queued, monitor.enqueue, monitor.dequeue, monitor.delaySum / float(monitor.dequeue));
 
     if (_monitorSession == InvalidSessionID())
     {

@@ -80,13 +80,13 @@ namespace psh
         {
             MoveStart(_spawnLocation);
             target = nullptr;
-            moveCooldown += 2000;
+            moveCooldown += 4000;
             return;
         }
 
-        if(dist > 60)
+        if(dist > 200)
         {
-            auto dest = Location() + (target->Location() - Location()).Normalize() * 60;
+            auto dest = Location() + (target->Location() - Location()).Normalize() * 200;
             MoveStart(dest); 
         }
         else
@@ -94,7 +94,7 @@ namespace psh
             MoveStart(target->Location());
         }
         
-        moveCooldown += 300;
+        moveCooldown += 1000;
         
     }
     

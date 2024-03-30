@@ -110,9 +110,24 @@ namespace psh
         ID playerID;
         Password playerPass;
         GetLogin_ReqLogin(buffer, playerID, playerPass);
+        
+        //auto conn = GetGameDbConnection();
+        //conn->Query("select AccountNo, ID, PASS from account where ID = \"%s\"", playerID);
+        //auto loginResult = SendBuffer::Alloc();
+
+        //if (!conn->next()) 
+        //{
+        //    MakeLogin_ResLogin(loginResult, gAccountNo++, playerID, eLoginResult::InvalidId, SessionKey());
+        //}
+        //else
+        //{
+        //    AccountNo accountNo = conn->getInt(0);
+        //    ID trueID(conn->getString(1));
+        //    Password truePass(conn->getString(2));
+
+        //}
 
         auto loginResult = SendBuffer::Alloc();
-
         MakeLogin_ResLogin(loginResult, gAccountNo++, playerID, eLoginResult::LoginSuccess, SessionKey());
         SendPacket(sessionId, loginResult);
     }
@@ -127,6 +142,7 @@ namespace psh
         {
             //로그인은 무조건 성공
             GetGame_ReqLogin(buffer, AccountNo, key);
+
 
             auto loginResult = SendBuffer::Alloc();
 
@@ -162,9 +178,8 @@ namespace psh
             conn->reset();
             {
                 WRITE_LOCK
-                    auto [it, result] = g_dbData.emplace(
-                        sessionId, make_shared<DBData>(sessionId, AccountNo, location
-                            , serverType, charType, coins, hp, nick));
+                g_dbData.emplace(sessionId
+                    , make_shared<DBData>(sessionId, AccountNo, location , serverType, charType, coins, hp, nick));
                 if (result == false)
                 {
                     //플레이어 생성에 실패한 관련 에러 처리. 
@@ -181,23 +196,7 @@ namespace psh
                 _groupManager->MoveSession(sessionId, _groups[static_cast<std::vector<GroupID>::size_type>(serverType)]);
             }
         }
-        else
-            {
-            FVector location = FVector(RandomUtil::Rand(0,6300), RandomUtil::Rand(0,6300));
-            //FVector location = {3000, 3000};
-            WRITE_LOCK
-            auto nickIndex = rand() % gNicks.size();
-            auto [it, result] = g_dbData.emplace(sessionId
-                                                  , make_shared<DBData>(sessionId, AccountNo, location, 1, rand() % 4, 0
-                                                                        , 100,gNicks[nickIndex]));
-            //printf(format("CreatePlayer {:d} \n", AccountNo).c_str());
-            if (result == false)
-            {
-                //플레이어 생성에 실패한 관련 에러 처리. 
-            }
-            _groupManager->MoveSession(sessionId, _groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Easy)]);
-        }
-       
+
     }
 
     DBConnection* Server::GetGameDbConnection()
