@@ -23,7 +23,7 @@ namespace psh
 
         ~ChatCharacter() override = default;
         void MakeCreatePacket(SendBuffer& buffer, bool spawn) const override;
-        void Attack(char type);
+        void Attack(char type, psh::FVector dir);
         void Hit(int damage, const ObjectID attacker);
         bool isDead() const
         {
