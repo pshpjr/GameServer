@@ -214,18 +214,4 @@ namespace psh
         return ( DBConnection* ) tlsValue;
     }
 
-    DBConnection& Server::GetGameDbConnection()
-    {        
-        auto tlsValue = TlsGetValue(DBTLSId);
-
-        if ( tlsValue == nullptr )
-        {
-            {
-                WRITE_LOCK_IDX(1)
-                tlsValue = new DBConnection(_initData.gameDBIP.c_str(),_initData.gameDBPort, _initData.gameDBID.c_str(), _initData.gameDBPwd.c_str(), "mydb");
-            }
-            TlsSetValue(DBTLSId, tlsValue);
-        }
-        return *( DBConnection* ) tlsValue;
-    }
 }

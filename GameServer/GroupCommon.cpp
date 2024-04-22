@@ -31,7 +31,7 @@ psh::GroupCommon::GroupCommon(Server& server
                                                  , data.gameDBPwd.c_str()
                                                  , "mydb");
     
-    }
+    
 }
 
 
@@ -113,9 +113,6 @@ void psh::GroupCommon::OnUpdate(int milli)
     if (std::chrono::steady_clock::now() < _nextDBSend)
     {
         return;
-    }
-    if (!_useDB)
-    {
     }
 
     SendMonitor();
