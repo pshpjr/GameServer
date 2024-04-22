@@ -45,6 +45,8 @@ namespace psh
             PRO_BEGIN("GetClosestTarget")
             _attackManager->GetClosestTarget(_spawnLocation, _target);
             searchCooldown += 2000;
+            searchCooldown += 2000;
+            auto newTarget = _target.lock();
             return;
         }
         

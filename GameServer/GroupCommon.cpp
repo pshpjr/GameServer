@@ -24,13 +24,14 @@ psh::GroupCommon::GroupCommon(Server& server
 
     _useMonitor = _initData.UseMonitorServer;
 
-    _dbThread = make_unique<DBThreadWrapper>(
-                                                data.gameDBIP.c_str()
-                                                , data.gameDBPort
-                                                , data.gameDBID.c_str()
-                                                , data.gameDBPwd.c_str()
-                                                , "mydb");
+        _dbThread = make_unique<DBThreadWrapper>(
+                                                 data.gameDBIP.c_str()
+                                                 , data.gameDBPort
+                                                 , data.gameDBID.c_str()
+                                                 , data.gameDBPwd.c_str()
+                                                 , "mydb");
     
+    }
 }
 
 
@@ -113,6 +114,10 @@ void psh::GroupCommon::OnUpdate(int milli)
     {
         return;
     }
+    if (!_useDB)
+    {
+    }
+
     SendMonitor();
 
     _nextDBSend += 1s;
@@ -156,8 +161,8 @@ void psh::GroupCommon::RecvReqLevelChange(SessionID id, CRecvBuffer& recvBuffer)
 
     if (playerPtr->InMap())
     {
-        _objectManager->RemoveFromMap(playerPtr, playerPtr->Location(), SEND_OFFSETS::BROADCAST, false, false
-            , ObjectManager::removeResult::GroupChange);
+    _objectManager->RemoveFromMap(playerPtr, playerPtr->Location(), SEND_OFFSETS::BROADCAST, false, false
+                                  , ObjectManager::removeResult::GroupChange);
     }
 
 
@@ -282,7 +287,7 @@ void psh::GroupCommon::SendMonitor()
     {
         SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_QUERY_AVG, static_cast<int>(monitor.delaySum / float(monitor.dequeue)));
     }
-
+    
     
 }
 void psh::GroupCommon::SendLogin()

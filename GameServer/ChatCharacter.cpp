@@ -3,7 +3,12 @@
 #include "AttackManager.h"
 #include "ObjectManager.h"
 #include "TableData.h"
-#include "AttackData.h"
+
+void psh::ChatCharacter::MakeCreatePacket(SendBuffer& buffer, bool spawn) const
+{
+    GameObject::MakeCreatePacket(buffer, spawn);
+    MakeGame_ResChracterDetail(buffer,ObjectId(),_hp);
+}
 
 #include "GroupCommon.h"
 

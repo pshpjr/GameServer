@@ -10,6 +10,9 @@
 struct ServerInitData;
 class DBConnection;
 
+struct ServerInitData;
+class DBConnection;
+
 namespace psh
 {
     class DBThreadWrapper;
