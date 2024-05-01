@@ -4,6 +4,7 @@
 #include "Monster.h"
 #include "AttackData.h"
 #include "TableData.h"
+#include <Profiler.h>
 
 bool psh::PvpAttackManager::GetClosestTarget(FVector location, weak_ptr<ChatCharacter>& target)
 {
@@ -35,45 +36,56 @@ bool psh::PvpAttackManager::GetClosestTarget(FVector location, weak_ptr<ChatChar
 
 void psh::PvpAttackManager::OnAttack(const AttackData& attack)
 {
-    auto monsters = _monsterMap.GetSectorsFromRange(*attack.Range);
-    ranges::for_each(monsters, [ this,&attack](
-             flat_unordered_set<shared_ptr<Monster>> sector)
-             {
-                 for (auto& monster : sector)
-                 {
-                     if (monster->isDead())
-                         continue;
+    {
 
-                     if (monster->ObjectId() == attack.Attacker)
-                     {
-                         continue;
-                     }
 
-                     if (attack.Range->Contains(monster->Location()))
-                     {
-                         monster->Hit(attack.Damage, attack.Attacker);
-                     }
-                 }
-             });
+        auto monsters = _monsterMap.GetSectorsFromRange(*attack.Range);
+        ranges::for_each(monsters, [this, &attack](
+            flat_unordered_set<shared_ptr<Monster>> sector)
+            {
+                PRO_BEGIN(L"PVP_VICTIM_MONSTER");
+                for (auto& monster : sector)
+                {
+                    if (monster->isDead())
+                        continue;
 
-    auto players = _playerMap.GetSectorsFromRange(*attack.Range);
-    ranges::for_each(players, [ this,&attack](
-             flat_unordered_set<shared_ptr<Player>> sector)
-             {
-                 for (auto& player : sector)
-                 {
-                     if (player->isDead())
-                         continue;
+                    if (monster->ObjectId() == attack.Attacker)
+                    {
+                        continue;
+                    }
 
-                     if (player->ObjectId() == attack.Attacker)
-                     {
-                         continue;
-                     }
+                    if (attack.Range->Contains(monster->Location()))
+                    {
+                        monster->Hit(attack.Damage, attack.Attacker);
+                    }
+                }
+            });
+    }
 
-                     if (attack.Range->Contains(player->Location()))
-                     {
-                         player->Hit(attack.Damage, attack.Attacker);
-                     }
-                 }
-             });
+    {
+
+
+        auto players = _playerMap.GetSectorsFromRange(*attack.Range);
+        ranges::for_each(players, [this, &attack](
+            flat_unordered_set<shared_ptr<Player>> sector)
+            {
+                for (auto& player : sector)
+                {
+                    PRO_BEGIN(L"PVP_VICTIM_PLAYERS");
+                    if (player->isDead())
+                        continue;
+
+                    if (player->ObjectId() == attack.Attacker)
+                    {
+                        continue;
+                    }
+
+                    if (attack.Range->Contains(player->Location()))
+                    {
+                        player->Hit(attack.Damage, attack.Attacker);
+                    }
+                }
+            });
+    }
+
 }

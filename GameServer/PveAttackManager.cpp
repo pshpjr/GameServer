@@ -5,9 +5,11 @@
 #include "Monster.h"
 #include "AttackData.h"
 #include "TableData.h"
+#include <Profiler.h>
 
 bool psh::PveAttackManager::GetClosestTarget(FVector location, weak_ptr<ChatCharacter>& target)
 {
+
      bool find = false;
     float closest = 99999;
     
@@ -36,13 +38,15 @@ bool psh::PveAttackManager::GetClosestTarget(FVector location, weak_ptr<ChatChar
 
 void psh::PveAttackManager::OnAttack(const AttackData& attack)
 {
+
     if(attack.AttackerType == eCharacterGroup::Player)
     {
+
         auto victims = _monsterMap.GetSectorsFromRange(*attack.Range);
         ranges::for_each(victims, [ this,&attack](
                  flat_unordered_set<shared_ptr<Monster>> sector)
                  {
-
+                PRO_BEGIN(L"PVE_VICTIM_Monster");
                      for (auto& monster : sector)
                      {
                          if (monster->isDead())
@@ -62,10 +66,13 @@ void psh::PveAttackManager::OnAttack(const AttackData& attack)
     }
     else
     {
+
         auto victims = _playerMap.GetSectorsFromRange(*attack.Range);
         ranges::for_each(victims, [ this,&attack](
+
                  flat_unordered_set<shared_ptr<Player>> sector)
                  {
+                PRO_BEGIN(L"PVE_VICTIM_PLAYER");
                      for (auto& player : sector)
                      {
                          if (player->isDead())
@@ -84,6 +91,5 @@ void psh::PveAttackManager::OnAttack(const AttackData& attack)
                  });
     }
 
-    
 
 }

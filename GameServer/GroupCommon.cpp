@@ -1,12 +1,14 @@
 ﻿#include "GroupCommon.h"
 
+#include "CoreGlobal.h"
 #include "Profiler.h"
 #include "ObjectManager.h"
 #include "Player.h"
 #include "Server.h"
 #include "TableData.h"
 #include "DBThreadWrapper.h"
-
+#include "MonitorClient.h"
+#include "MonitorProtocol.h"
 psh::GroupCommon::GroupCommon(Server& server
                               , const ServerInitData& data
                               , ServerType type
@@ -17,6 +19,7 @@ psh::GroupCommon::GroupCommon(Server& server
                                                  , _groupType(type)
                                                  , _nextDBSend(chrono::steady_clock::now())
                                                  , _prevUpdate(std::chrono::steady_clock::now())
+
 
 {
     _playerMap = make_shared<GameMap<shared_ptr<Player>>>(mapSize, sectorSize);
@@ -81,11 +84,22 @@ void psh::GroupCommon::OnEnter(SessionID id)
     _iocp->SetTimeout(id, 30000);
 }
 
-void psh::GroupCommon::OnLeave(SessionID id)
+void psh::GroupCommon::OnLeave(SessionID id, int wsaErrCode)
 {
     auto it = _players.find(id);
     auto& [_,playerPtr] = *it;
 
+
+    if(!
+        (wsaErrCode == -1
+        || wsaErrCode == 10054
+            ||wsaErrCode == 64)
+        )
+    {
+        _logger.Write(L"GroupLeaveError",CLogger::LogLevel::Debug,L"InvalidDisconnect : %lld %d",playerPtr->AccountNumber(),wsaErrCode);
+    }
+    
+ 
     if (playerPtr->InMap())
     {
         //Destroy 쓰면 나가고 맞는 상황이 생김. leaveGroup 이후 값의 변동이 생길 수 있음. 
@@ -106,6 +120,7 @@ void psh::GroupCommon::OnUpdate(int milli)
         milli = 200;
     }
 
+
     UpdateContent(milli);
     _objectManager->CleanupDestroyWait();
     _fps++;
@@ -119,6 +134,12 @@ void psh::GroupCommon::OnUpdate(int milli)
 
     _nextDBSend += 1s;
     _fps = 0;
+}
+
+void psh::GroupCommon::OnCreate()
+{
+    _monitorClient = make_unique<MonitorClient>(&_server, _initData.MonitorServerIP, _initData.MonitorServerPort, GetGroupID());
+
 }
 
 void psh::GroupCommon::OnRecv(SessionID id, CRecvBuffer& recvBuffer)
@@ -193,6 +214,7 @@ void psh::GroupCommon::RecvMove(SessionID sessionId, CRecvBuffer& buffer)
     if (player == nullptr)
     {
         _iocp->DisconnectSession(sessionId);
+        gLogger->Write(L"Disconnect",CLogger::LogLevel::Debug,L"Invalid Move : %lld",player->AccountNumber());
         return;
     }
 
@@ -222,6 +244,7 @@ void psh::GroupCommon::RecvAttack(SessionID sessionId, CRecvBuffer& buffer)
     if (player == nullptr)
     {
         _iocp->DisconnectSession(sessionId);
+        gLogger->Write(L"Disconnect",CLogger::LogLevel::Debug,L"Invalid Attack : %lld",player->AccountNumber());
     }
     player->Attack(type,dir);
 }
@@ -229,6 +252,7 @@ void psh::GroupCommon::RecvAttack(SessionID sessionId, CRecvBuffer& buffer)
 
 void psh::GroupCommon::UpdateContent(int deltaMs)
 {
+
     for (auto& [_,actor] : _players)
     {
         if (actor->NeedUpdate())
@@ -261,45 +285,21 @@ void psh::GroupCommon::SendMonitor()
     //printf("DBQueued: %lld, DBEnqueue : %lld, DBDequeue : %lld, DBDelayAvg : %f\n"
     //    , monitor.queued, monitor.enqueue, monitor.dequeue, monitor.delaySum / float(monitor.dequeue));
 
-    if (_monitorSession == InvalidSessionID())
-    {
-        auto client = _server.GetClientSession(_initData.MonitorServerIP, _initData.MonitorServerPort);
-        if (client.HasError())
-        {
-            return;
-        }
-        _monitorSession = client.Value();
-        SendLogin();
-    }
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_RUN, int(1));
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_WORK_TIME, static_cast<int>(GetWorkTime()));
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_JOB_QUEUE_SIZE, GetQueued());
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_JOB_TPS, static_cast<int>(GetJobTps()));
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SESSIONS, static_cast<int>(Sessions()));
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_PLAYERS, static_cast<int>(_players.size()));
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_TPS, static_cast<int>(monitor.dequeue));
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_QUEUE_SIZE, static_cast<int>(monitor.queued));
+    _monitorClient->SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_RUN, int(1));
+    _monitorClient->SendMonitorData(dfMONITOR_DATA_TYPE_GAME_WORK_TIME, static_cast<int>(GetWorkTime()));
+    _monitorClient->SendMonitorData(dfMONITOR_DATA_TYPE_GAME_JOB_QUEUE_SIZE, GetQueued());
+    _monitorClient->SendMonitorData(dfMONITOR_DATA_TYPE_GAME_JOB_TPS, static_cast<int>(GetJobTps()));
+    _monitorClient->SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SESSIONS, static_cast<int>(Sessions()));
+    _monitorClient->SendMonitorData(dfMONITOR_DATA_TYPE_GAME_PLAYERS, static_cast<int>(_players.size()));
+    _monitorClient->SendMonitorData(dfMONITOR_DATA_TYPE_GAME_ENTER_TPS, static_cast<int>(GetEnterTps()));
+    _monitorClient->SendMonitorData(dfMONITOR_DATA_TYPE_GAME_LEAVE_TPS, static_cast<int>(GetLeaveTps()));
+    _monitorClient->SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_TPS, static_cast<int>(monitor.dequeue));
+    _monitorClient->SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_QUEUE_SIZE, static_cast<int>(monitor.queued));
+    
 
     if (monitor.dequeue != 0) 
     {
-        SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_QUERY_AVG, static_cast<int>(monitor.delaySum / float(monitor.dequeue)));
+        _monitorClient->SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_QUERY_AVG, static_cast<int>(monitor.delaySum / float(monitor.dequeue)));
     }
-    
-    
-}
-void psh::GroupCommon::SendLogin()
-{
-    auto buffer = SendBuffer::Alloc();
 
-    buffer << en_PACKET_SS_MONITOR_LOGIN << WORD(1) << static_cast<char>(GetGroupID());
-    _server.SendPacket(_monitorSession, buffer);
 }
-
-void psh::GroupCommon::SendMonitorData(en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, int value)
-{
-    auto buffer = SendBuffer::Alloc();
-
-    buffer << en_PACKET_SS_MONITOR_DATA_UPDATE << WORD(1) << static_cast<char>(GetGroupID()) << type << value << static_cast<int>( time(nullptr));
-    _server.SendPacket(_monitorSession, buffer);
-}
-;

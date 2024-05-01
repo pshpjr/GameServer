@@ -56,35 +56,10 @@ namespace psh
 
     inline bool SquareRange::Contains(const FVector p) const noexcept
     {
-        ASSERT_CRASH(_points.size() > 2, L"Range Need Points greater then 2");
-
-        // Determine initial direction.
-        bool initialDirection = CCW(_points[0], _points[1], p) >= 0;
-
-        // Use binary search to find the last index maintaining the initial direction.
-        int low = 1;
-
-        int high = static_cast<int>(_points.size()) - 1;
-
-        while (high - low > 1)
-        {
-            int mid = (low + high) / 2;
-            if ((CCW(_points[0], _points[mid], p) >= 0) == initialDirection)
-            {
-                low = mid;
-            }
-            else
-            {
-                high = mid;
-            }
-        }
-
-        auto result1 = (CCW(_points[0], _points[low], p) >= 0) == initialDirection;
-        auto result2 = (CCW(_points[low], _points[high], p) >= 0) == initialDirection;
-        auto result3 = (CCW(_points[high], _points[0], p) >= 0) == initialDirection;
-
-        // Check if point is inside by confirming consistent direction in both sides.
-        return result1 && result2 && result3;
+        return CCW(_points[0], _points[1], p) >= 0
+            && CCW(_points[1], _points[2], p) >= 0
+            && CCW(_points[2], _points[3], p) >= 0
+            && CCW(_points[3], _points[0], p) >= 0;
     }
 
     inline SquareRange& SquareRange::operator+=(const FVector& vector)

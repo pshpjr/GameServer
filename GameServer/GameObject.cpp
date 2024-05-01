@@ -47,6 +47,10 @@ bool psh::GameObject::InRange(const Range& range) const
 
 void psh::GameObject::MoveStart(FVector destination)
 {
+    if (!NeedUpdate())
+    {
+        return;
+    }
 
     auto moveBuffer = SendBuffer::Alloc();
     MakeGame_ResMove(moveBuffer,_objectId,_objectGroup,destination);

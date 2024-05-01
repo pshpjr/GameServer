@@ -3,11 +3,12 @@
 
 #include "ContentTypes.h"
 #include "IOCP.h"
+
 #include "SettingParser.h"
 #include "ServerInitData.h"
 
 class DBConnection;
-
+class MonitorClient;
 namespace psh
 {
     class DBData;
@@ -25,7 +26,7 @@ namespace psh
     public:
         Server();
         void OnConnect(SessionID sessionId, const SockAddr_in& info) override;
-        void OnDisconnect(SessionID sessionId) override;
+        void OnDisconnect(SessionID sessionId, int wsaErrCode) override;
 
         void OnRecvPacket(SessionID sessionId, CRecvBuffer& buffer) override;
         void OnMonitorRun() override;
@@ -60,5 +61,7 @@ namespace psh
     SettingParser serverSettings;
         ServerInitData _initData;
         int DBTLSId;
+
+        unique_ptr<MonitorClient> _client;
     };
 }

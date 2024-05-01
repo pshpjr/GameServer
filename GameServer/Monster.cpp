@@ -20,7 +20,6 @@ namespace psh
 
     void Monster::OnUpdate(int delta)
     {
-        PRO_BEGIN("MonsterOnUpdate")
         if (attackCooldown > 0)
         {
             attackCooldown -= delta;
@@ -41,8 +40,7 @@ namespace psh
         {
             if (searchCooldown > 0)
                 return;
-
-            PRO_BEGIN("GetClosestTarget")
+            
             _attackManager->GetClosestTarget(_spawnLocation, _target);
             searchCooldown += 2000;
             searchCooldown += 2000;

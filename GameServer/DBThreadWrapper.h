@@ -6,7 +6,7 @@
 
 #include "LockFreeFixedQueue.h"
 #include "DBConnection.h"
-
+#include "TLSLockFreeQueue.h"
 
 namespace psh
 {
@@ -26,7 +26,7 @@ namespace psh
         
         DBThreadWrapper(LPCSTR IP, Port port, LPCSTR ID, LPCSTR PWD, LPCSTR Schema) : conn(IP,port,ID,PWD,Schema)
         , dbThread(&DBThreadWrapper::DBWorkerFunc,this)
-        , _queue(make_unique<LockFreeFixedQueue<function<void()>, 1024>>())
+        , _queue(make_unique<TlsLockFreeQueue<function<void()>>>())
         {
         
         }
@@ -44,9 +44,9 @@ namespace psh
         {
             MonitorData data;
             data.queued = _queue->Size();
-            data.enqueue = _oldData.enqueue.exchange(0);
-            data.dequeue = _oldData.dequeue.exchange(0);
-            data.delaySum = _oldData.delaySum.exchange(0);
+            data.enqueue = _oldData.enqueue.exchange(0,memory_order::memory_order_relaxed);
+            data.dequeue = _oldData.dequeue.exchange(0,memory_order::memory_order_relaxed);
+            data.delaySum = _oldData.delaySum.exchange(0,memory_order::memory_order_relaxed);
             return data;
         }
    
@@ -69,7 +69,8 @@ namespace psh
         std::jthread dbThread;
 
         atomic<bool> hasData = false;
-        unique_ptr<LockFreeFixedQueue<function<void()>, 1024>> _queue;
+        //unique_ptr<LockFreeFixedQueue<function<void()>, 1024>> _queue;
+        unique_ptr < TlsLockFreeQueue< function<void()>>>_queue;
     };
 
 }

@@ -158,6 +158,7 @@
     <ClCompile Include="HardMonsterGroup.cpp" />
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MonitorClient.cpp" />
     <ClCompile Include="Monster.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -191,6 +192,7 @@
     <ClInclude Include="Item.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MockData.h" />
+    <ClInclude Include="MonitorClient.h" />
     <ClInclude Include="MonitorProtocol.h" />
     <ClInclude Include="Monster.h" />
     <ClInclude Include="ObjectManager.h" />

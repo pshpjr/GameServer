@@ -2,6 +2,7 @@
 
 #include "FieldObjectManager.h"
 #include "PvpAttackManager.h"
+#include <Profiler.h>
 
 psh::PvpGroup::PvpGroup(Server& server, const ServerInitData& data, ServerType type, short mapSize, short sectorSize)
 : 
@@ -22,25 +23,38 @@ psh::PvpGroup::PvpGroup(Server& server, const ServerInitData& data, ServerType t
 
 void psh::PvpGroup::OnRecv(SessionID id, CRecvBuffer& recvBuffer)
 {
+    PRO_BEGIN(L"PVP_RECV");
     ePacketType type;
     recvBuffer >> type;
     switch (type)
     {
         case eGame_ReqChangeComplete:
+        {
             RecvChangeComp(id, recvBuffer);
             debugData.revChange++;
+        }
+
         break;
         case eGame_ReqMove:
+        {
             RecvMove(id, recvBuffer);
             debugData.move++;
+        }
+
         break;
         case eGame_ReqAttack:
+        {
             RecvAttack(id, recvBuffer);
             debugData.attack++;
+        }
+
         break;
         case eGame_ReqLevelEnter:
+        {
             RecvReqLevelChange(id, recvBuffer);
             debugData.reqLevelChange++;
+        }
+
         break;
         default:
             DebugBreak();
@@ -50,6 +64,7 @@ void psh::PvpGroup::OnRecv(SessionID id, CRecvBuffer& recvBuffer)
 
 void psh::PvpGroup::UpdateContent(int deltaMs)
 {
+    PRO_BEGIN(L"PVP_UPDATE");
     GroupCommon::UpdateContent(deltaMs);
     auto objectManager = static_cast<FieldObjectManager*>(_objectManager.get());
 

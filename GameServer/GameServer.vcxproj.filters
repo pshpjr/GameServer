@@ -90,6 +90,9 @@
     <ClCompile Include="HardMonsterGroup.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="MonitorClient.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AttackData.h">
@@ -195,6 +198,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="HardMonsterGroup.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MonitorClient.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

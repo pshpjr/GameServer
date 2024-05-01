@@ -1,18 +1,21 @@
 #include "stdafx.h"
 #include "Server.h"
 
+#include <codecvt>
+
+#include "CoreGlobal.h"
 #include "DBConnection.h"
 #include "GameMap.h"
 #include "LockGuard.h"
 #include "Player.h"
 #include "PacketGenerated.h"
-#include "ObjectManager.h"
 #include "EasyMonsterGroup.h"
 #include "DBData.h"
-#include "MockData.h"
 #include "PVPGroup.h"
 #include "HardMonsterGroup.h"
-
+#include "Profiler.h"
+#include "MonitorClient.h"
+#include "MonitorProtocol.h"
 namespace psh
 {
     Server::Server() : _groups(static_cast<vector<GroupID>::size_type>(ServerType::End), GroupID::InvalidGroupID()),
@@ -32,7 +35,9 @@ namespace psh
         _groups[static_cast<vector<GroupID>::size_type>(ServerType::Village)] = CreateGroup<GroupCommon>(*this,_initData, ServerType::Village);
         _groups[static_cast<vector<GroupID>::size_type>(ServerType::Easy)] = CreateGroup<EasyMonsterGroup>(*this,_initData,ServerType::Easy);
         _groups[static_cast<vector<GroupID>::size_type>(ServerType::Hard)] = CreateGroup<HardMonsterGroup>(*this,_initData,ServerType::Hard);
-        _groups[static_cast<vector<GroupID>::size_type>(ServerType::Pvp)] = CreateGroup<PvpGroup>(*this,_initData,ServerType::Pvp);
+        _groups[static_cast<vector<GroupID>::size_type>(ServerType::Pvp)] = CreateGroup<HardMonsterGroup>(*this,_initData,ServerType::Pvp);
+
+        _client = make_unique<MonitorClient>(this, _initData.MonitorServerIP, _initData.MonitorServerPort, 0);
     }
 
     void Server::OnConnect(const SessionID sessionId, const SockAddr_in& info)
@@ -40,10 +45,12 @@ namespace psh
         //printf(format("Connect {:d} \n",sessionId.id).c_str());
     }
     
-    void Server::OnDisconnect(const SessionID sessionId)
+    
+    void Server::OnDisconnect(const SessionID sessionId, int wsaErrCode)
     {
         //printf(format("Disconnect {:d} \n",sessionId.id).c_str());
 
+        shared_ptr<DBData> data;
         {
             WRITE_LOCK
             const auto it = g_dbData.find(sessionId);
@@ -51,9 +58,14 @@ namespace psh
             {
                 return;
             }
-            auto& target = it->second;
+            data = it->second;
             g_dbData.erase(it);
         }
+        auto conn = GetGameDbConnection();
+        conn->Query("update account set LoginState = 0 where AccountNo = %d", data->AccountNo());
+            
+
+        
     }
 
     void Server::OnRecvPacket(const SessionID sessionId, CRecvBuffer& buffer)
@@ -88,12 +100,20 @@ namespace psh
         {
         	Stop();
         }
+        if(GetAsyncKeyState(VK_F9))
+        {
+            ProfileManager::Get().DumpAndReset();
+        }
+        _client->SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_DISCONNECT, GetDisconnectPerSec());
+        _client->SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_ACCEPT, GetAcceptTps());
+        _client->SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_SEND, GetSendTps());
+        _client->SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_RECV, GetRecvTps());
     }
 
     shared_ptr<DBData> Server::getDbData(const SessionID id)
     {
         //없으면 알아서 터짐.
-
+        PRO_BEGIN(L"GET_DB_DATA");
         READ_LOCK
         auto& ret = g_dbData.find(id)->second;
 
@@ -111,24 +131,41 @@ namespace psh
         Password playerPass;
         GetLogin_ReqLogin(buffer, playerID, playerPass);
         
-        //auto conn = GetGameDbConnection();
-        //conn->Query("select AccountNo, ID, PASS from account where ID = \"%s\"", playerID);
-        //auto loginResult = SendBuffer::Alloc();
+        auto conn = GetGameDbConnection();
+        
+        std::string id;
+        auto wID = playerID.ToString();
+        id.assign(wID.begin(), wID.end());
 
-        //if (!conn->next()) 
-        //{
-        //    MakeLogin_ResLogin(loginResult, gAccountNo++, playerID, eLoginResult::InvalidId, SessionKey());
-        //}
-        //else
-        //{
-        //    AccountNo accountNo = conn->getInt(0);
-        //    ID trueID(conn->getString(1));
-        //    Password truePass(conn->getString(2));
-
-        //}
-
+        conn->Query("select AccountNo, ID, PASS, LoginState from account where ID = \"%s\"", id.c_str());
         auto loginResult = SendBuffer::Alloc();
-        MakeLogin_ResLogin(loginResult, gAccountNo++, playerID, eLoginResult::LoginSuccess, SessionKey());
+
+        if (!conn->next()) 
+        {
+            MakeLogin_ResLogin(loginResult, gAccountNo++, playerID, eLoginResult::InvalidId, SessionKey());
+        }
+        else
+        {
+            AccountNo accountNo = conn->getInt(0);
+            ID trueID(conn->getString(1));
+            Password truePass(conn->getString(2));
+            bool LoginState = conn->getInt(3);
+
+            if (truePass != playerPass)
+            {
+                MakeLogin_ResLogin(loginResult, accountNo, playerID, eLoginResult::WrongPassword, SessionKey());
+            }
+            else if(LoginState)
+            {
+                MakeLogin_ResLogin(loginResult, accountNo, playerID, eLoginResult::DuplicateLogin, SessionKey());
+            }
+            else
+            {
+                MakeLogin_ResLogin(loginResult, accountNo, playerID, eLoginResult::LoginSuccess, SessionKey());
+            }
+        }
+        conn->reset();
+
         SendPacket(sessionId, loginResult);
     }
 
@@ -151,19 +188,20 @@ namespace psh
         }
 
         //일단 AccounNo가 특정 범위이면 하는걸로
-        if(AccountNo <= 1000)
+        if(AccountNo <= 10000)
         {
             auto conn = GetGameDbConnection();
 
-            conn->Query("select Nick,HP,Coins,CharType,ServerType,LocationX,LocationY,LoginState from mydb.player where AccountNo = %d",AccountNo);
+            conn->Query("select Nick,HP,Coins,CharType,ServerType,LocationX,LocationY from mydb.player where AccountNo = %d",AccountNo);
 
-            if ( !conn->next() )
+           if ( !conn->next() )
             {
                 // InterlockedIncrement(&_dbErrorCount);
                 // gLogger->Write(L"Redis", LogLevel::Debug, L"DBFail : %d ", AccountNo);
                 //
                 // sendFail(AccountNo, sessionId, L"LoginFailRelease",*connectionResult);
                 DisconnectSession(sessionId);
+                gLogger->Write(L"Disconnect",CLogger::LogLevel::Debug,L"Invalid AccountNo : %lld",AccountNo);
                 return;
             }
             
@@ -173,7 +211,6 @@ namespace psh
             char charType = conn->getChar(3);
             char serverType = conn->getChar(4);
             FVector location = {conn->getFloat(5),conn->getFloat(6)};
-            bool loginState = conn->getChar(7);
             
             conn->reset();
             {

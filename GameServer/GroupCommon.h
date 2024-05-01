@@ -1,10 +1,10 @@
 ﻿#pragma once
+#include "CLogger.h"
 #include "ContentTypes.h"
 #include "Group.h"
 #include "Sector.h"
 #include "GameMap.h"
 #include "ServerInitData.h"
-#include "MonitorProtocol.h"
 
 
 struct ServerInitData;
@@ -13,6 +13,7 @@ class DBConnection;
 struct ServerInitData;
 class DBConnection;
 
+class MonitorClient;
 namespace psh
 {
     class DBThreadWrapper;
@@ -25,16 +26,18 @@ namespace psh
     public:
         GroupCommon(Server& server,const ServerInitData& data, ServerType type, short mapSize = 6400, short sectorSize = 400);
 
+        void OnEnter(SessionID id) final;
+        void OnLeave(SessionID id, int wsaErrCode) final;
+        void OnUpdate(int milli) final;
+        void OnCreate() override;
+        void OnRecv(SessionID id, CRecvBuffer& recvBuffer) override;
+
         ~GroupCommon() override;
         void SendInRange(FVector location
-                         , std::span<const Sector> offsets
-                         , SendBuffer& buffer
-                         , const shared_ptr<psh::Player>& exclude = nullptr);
+            , std::span<const Sector> offsets
+            , SendBuffer& buffer
+            , const shared_ptr<psh::Player>& exclude = nullptr);
 
-        void OnEnter(SessionID id) final;
-        void OnLeave(SessionID id) final;
-        void OnUpdate(int milli) final;
-        void OnRecv(SessionID id, CRecvBuffer& recvBuffer) override;
         void RecvReqLevelChange(SessionID id, CRecvBuffer& recvBuffer) const;
         void RecvChangeComp(SessionID id, CRecvBuffer& recvBuffer);
         void RecvMove(SessionID sessionId, CRecvBuffer& buffer);
@@ -63,11 +66,12 @@ namespace psh
         chrono::steady_clock::time_point _prevUpdate{};
 
         //Monitor
-        void SendLogin();
-        void SendMonitorData(en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, int value);
+        unique_ptr<MonitorClient> _monitorClient;
+        //void SendLogin();
+        //void SendMonitorData(en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, int value);
 
 
-
+        CLogger _logger;
         long _groupSessionCount = 0;
         long _fps = 0;
 

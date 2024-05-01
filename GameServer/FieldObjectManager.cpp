@@ -60,7 +60,7 @@ void psh::FieldObjectManager::OnActorMove(const shared_ptr<psh::GameObject>& act
     {
         for (auto& item : sector)
         {
-            if (item->Collision(actor->Location())&& item->isValid())
+            if ( item->isValid() && item->Collision(actor->Location()))
             {
                 static_pointer_cast<Player>(actor)->GetCoin(1);
                 
@@ -73,7 +73,6 @@ void psh::FieldObjectManager::OnActorMove(const shared_ptr<psh::GameObject>& act
 
 void psh::FieldObjectManager::Update(int deltaMs)
 {
-    PRO_BEGIN(L"FieldManagerUpdateMonster");
     for (auto& [_,actor] : _monsters)
     {
         if(actor->NeedUpdate())

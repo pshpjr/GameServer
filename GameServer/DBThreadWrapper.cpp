@@ -2,6 +2,7 @@
 
 #include "Macro.h"
 #include "Player.h"
+#include "Profiler.h"
 #include "Server.h"
 
 namespace psh
@@ -52,7 +53,6 @@ namespace psh
 
         conn.reset();
             });
-
     }
 
     void DBThreadWrapper::LeaveGroup(const shared_ptr<DBData>& dbData,Server* server, SessionID session, GroupID nextGroup)
@@ -76,7 +76,10 @@ namespace psh
 
     void DBThreadWrapper::Enqueue(const function<void()>& func)
     {
+
         _queue->Enqueue(func);
+
+        //while (!_queue->Enqueue(func)) {};
 
         _data.enqueue++;
         if(_data.enqueue >=10)
@@ -92,11 +95,14 @@ namespace psh
     void DBThreadWrapper::DBWorkerFunc()
     {
         while (true) {
+
             hasData.wait(false,memory_order::memory_order_acquire);
+
 
             function<void()> task;
             while(_queue->Dequeue(task))
             {
+
                 task();
 
                 _data.dequeue++;
