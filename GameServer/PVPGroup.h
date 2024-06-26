@@ -17,7 +17,7 @@ namespace psh
         void SendMonitor() override; 
     protected:
 
-    public:
+public:
         ~PvpGroup() override;
 
         struct Debug 

@@ -50,7 +50,7 @@ namespace psh
                     , dbData->ServerType(), dbData->Location().X, dbData->Location().Y, dbData->AccountNo());
                 _data.delaySum += time.count();
 
-                conn.reset();
+        conn.reset();
             });
 
     }
@@ -69,6 +69,7 @@ namespace psh
             _data.delaySum += 1;
             conn.reset();
             server->MoveSession(session,nextGroup);
+
         });
                 //server->MoveSession(session,nextGroup);
     }

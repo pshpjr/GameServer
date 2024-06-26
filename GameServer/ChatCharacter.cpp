@@ -4,7 +4,6 @@
 #include "ObjectManager.h"
 #include "TableData.h"
 #include "AttackData.h"
-
 #include "GroupCommon.h"
 
 void psh::ChatCharacter::MakeCreatePacket(SendBuffer& buffer, bool spawn) const
