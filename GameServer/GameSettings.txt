@@ -10,3 +10,8 @@ MonitorIP : "127.0.0.1"
 MonitorPort : 20229
 useMonitorServer : 1
 }
+
+game:
+{
+useMonsterAI : 1
+}

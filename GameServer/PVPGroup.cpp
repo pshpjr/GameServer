@@ -82,7 +82,6 @@ void psh::PvpGroup::SendMonitor()
 {
     GroupCommon::SendMonitor();
 
-    printf("PvpDebug : comp %d mov : %d att : %d reqChange : %d\n", debugData.revChange, debugData.move, debugData.attack, debugData.reqLevelChange);
     debugData.revChange = 0;
     debugData.move = 0;
     debugData.attack = 0;

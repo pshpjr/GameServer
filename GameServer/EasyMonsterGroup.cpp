@@ -76,24 +76,7 @@ namespace psh
             char type = RandomUtil ::Rand(0,1);
             objectManager->SpawnMonster(location,type);
         }
-        // {
-        //     auto playerData = _playerMap->GetPlayerInfo();
-        //     int rows= playerData.size();
-        //     int cols = playerData[0].size();
-        //     for(int i = 0; i<rows;i++)
-        //     {
-        //         for(int j = 0; j<cols; j++)
-        //         {
-        //             if(playerData[i][j] < 5)
-        //             {
-        //                 FVector location= {i * 800 + 50.0f,j * 800 + 50.0f};
-        //                 char type = RandomUtil ::Rand(0,3);
-        //                 objectManager->SpawnMonster(location,type);
-        //                 toSpawn--;
-        //             }
-        //         }
-        //     }
-        // }
+
     }
     
 

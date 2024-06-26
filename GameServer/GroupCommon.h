@@ -9,7 +9,7 @@
 
 struct ServerInitData;
 class DBConnection;
-
+class CLogger;
 namespace psh
 {
     class DBThreadWrapper;
@@ -29,14 +29,15 @@ namespace psh
                          , const shared_ptr<psh::Player>& exclude = nullptr);
 
         void OnEnter(SessionID id) final;
-        void OnLeave(SessionID id) final;
+        void OnLeave(SessionID id, int wsaErrCode) final;
         void OnUpdate(int milli) final;
         void OnRecv(SessionID id, CRecvBuffer& recvBuffer) override;
         void RecvReqLevelChange(SessionID id, CRecvBuffer& recvBuffer) const;
         void RecvChangeComp(SessionID id, CRecvBuffer& recvBuffer);
         void RecvMove(SessionID sessionId, CRecvBuffer& buffer);
         virtual void RecvAttack(SessionID sessionId, CRecvBuffer& buffer);
-        
+        virtual void OnCreate() override;
+
     protected:
         virtual void UpdateContent(int deltaMs);
         virtual void SendMonitor();
@@ -62,7 +63,7 @@ namespace psh
         //Monitor
         void SendLogin();
         void SendMonitorData(en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, int value);
-
+        unique_ptr<CLogger> _logger = nullptr;
 
 
         long _groupSessionCount = 0;

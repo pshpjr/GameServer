@@ -28,6 +28,7 @@ namespace psh
         serverSettings.GetValue(L"db.MonitorPort",_initData.MonitorServerPort);
         
         serverSettings.GetValue(L"db.useMonitorServer", _initData.UseMonitorServer);
+        serverSettings.GetValue(L"game.useMonsterAI", _initData.useMonsterAI);
 
         _groups[static_cast<vector<GroupID>::size_type>(ServerType::Village)] = CreateGroup<GroupCommon>(*this,_initData, ServerType::Village);
         _groups[static_cast<vector<GroupID>::size_type>(ServerType::Easy)] = CreateGroup<EasyMonsterGroup>(*this,_initData,ServerType::Easy);
@@ -40,7 +41,7 @@ namespace psh
         //printf(format("Connect {:d} \n",sessionId.id).c_str());
     }
     
-    void Server::OnDisconnect(const SessionID sessionId)
+    void Server::OnDisconnect(const SessionID sessionId, int wsaErrCode)
     {
         //printf(format("Disconnect {:d} \n",sessionId.id).c_str());
 
@@ -51,7 +52,13 @@ namespace psh
             {
                 return;
             }
+
             auto& target = it->second;
+
+            auto conn = GetGameDbConnection();
+            conn->Query("Update account set LoginState = 0 where (AccountNo = %d)", target->AccountNo());
+            conn->reset();
+
             g_dbData.erase(it);
         }
     }
@@ -110,25 +117,41 @@ namespace psh
         ID playerID;
         Password playerPass;
         GetLogin_ReqLogin(buffer, playerID, playerPass);
-        
-        //auto conn = GetGameDbConnection();
-        //conn->Query("select AccountNo, ID, PASS from account where ID = \"%s\"", playerID);
-        //auto loginResult = SendBuffer::Alloc();
+        String id = playerID.ToString();
+        std::string cid;
+        cid.assign(id.begin(), id.end());
 
-        //if (!conn->next()) 
-        //{
-        //    MakeLogin_ResLogin(loginResult, gAccountNo++, playerID, eLoginResult::InvalidId, SessionKey());
-        //}
-        //else
-        //{
-        //    AccountNo accountNo = conn->getInt(0);
-        //    ID trueID(conn->getString(1));
-        //    Password truePass(conn->getString(2));
 
-        //}
-
+        auto conn = GetGameDbConnection();
+        conn->Query("select AccountNo, ID, PASS,LoginState from account where ID = '%s'", cid.c_str());
         auto loginResult = SendBuffer::Alloc();
-        MakeLogin_ResLogin(loginResult, gAccountNo++, playerID, eLoginResult::LoginSuccess, SessionKey());
+
+        if (!conn->next()) 
+        {
+            MakeLogin_ResLogin(loginResult, 0, playerID, eLoginResult::InvalidId, SessionKey());
+        }
+        else
+        {
+            AccountNo accountNo = conn->getInt(0);
+            ID trueID(conn->getString(1));
+            Password truePass(conn->getString(2));
+            bool loginState(conn->getChar(3));
+            conn->reset();
+
+
+            if (truePass != playerPass)
+            {
+                MakeLogin_ResLogin(loginResult, 0, playerID, eLoginResult::WrongPassword, SessionKey());
+            }
+            else if (loginState == true)
+            {
+                MakeLogin_ResLogin(loginResult, 0, playerID, eLoginResult::DuplicateLogin, SessionKey());
+            }
+            else
+            {
+                MakeLogin_ResLogin(loginResult, accountNo, playerID, eLoginResult::LoginSuccess, SessionKey());
+            }
+        }
         SendPacket(sessionId, loginResult);
     }
 
@@ -140,7 +163,7 @@ namespace psh
         SessionKey key;
         
         {
-            //로그인은 무조건 성공
+            //게임 로그인은 무조건 성공
             GetGame_ReqLogin(buffer, AccountNo, key);
 
 
@@ -150,52 +173,55 @@ namespace psh
             SendPacket(sessionId, loginResult);
         }
 
-        //일단 AccounNo가 특정 범위이면 하는걸로
-        if(AccountNo <= 1000)
+
+        auto conn = GetGameDbConnection();
+
+        conn->Query("select Nick,HP,Coins,CharType,ServerType,LocationX,LocationY from mydb.player where AccountNo = %d",AccountNo);
+
+        if ( !conn->next() )
         {
-            auto conn = GetGameDbConnection();
-
-            conn->Query("select Nick,HP,Coins,CharType,ServerType,LocationX,LocationY,LoginState from mydb.player where AccountNo = %d",AccountNo);
-
-            if ( !conn->next() )
-            {
-                // InterlockedIncrement(&_dbErrorCount);
-                // gLogger->Write(L"Redis", LogLevel::Debug, L"DBFail : %d ", AccountNo);
-                //
-                // sendFail(AccountNo, sessionId, L"LoginFailRelease",*connectionResult);
-                DisconnectSession(sessionId);
-                return;
-            }
+            // InterlockedIncrement(&_dbErrorCount);
+            // gLogger->Write(L"Redis", LogLevel::Debug, L"DBFail : %d ", AccountNo);
+            //
+            // sendFail(AccountNo, sessionId, L"LoginFailRelease",*connectionResult);
+            DisconnectSession(sessionId);
+            return;
+        }
             
-            Nickname nick(conn->getString(0));
-            int hp = conn->getInt(1);
-            int coins = conn->getInt(2);
-            char charType = conn->getChar(3);
-            char serverType = conn->getChar(4);
-            FVector location = {conn->getFloat(5),conn->getFloat(6)};
-            bool loginState = conn->getChar(7);
+        Nickname nick(conn->getString(0));
+        int hp = conn->getInt(1);
+        int coins = conn->getInt(2);
+        char charType = conn->getChar(3);
+        char serverType = conn->getChar(4);
+        FVector location = {conn->getFloat(5),conn->getFloat(6)};
+        bool loginState = conn->getChar(7);
             
-            conn->reset();
+        conn->reset();
+        {
+            WRITE_LOCK
+            auto [_,result] = g_dbData.emplace(sessionId
+                , make_shared<DBData>(sessionId, AccountNo, location , serverType, charType, coins, hp, nick));
+            if (result == false)
             {
-                WRITE_LOCK
-                auto [_,result] = g_dbData.emplace(sessionId
-                    , make_shared<DBData>(sessionId, AccountNo, location , serverType, charType, coins, hp, nick));
-                if (result == false)
-                {
-                    //플레이어 생성에 실패한 관련 에러 처리. 
-                }
-            }
-
-            if(hp <=0)
-            {
-                //마을로 보낸다.
-                _groupManager->MoveSession(sessionId, _groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Village)]);
+                //플레이어 생성에 실패한 관련 에러 처리. 
             }
             else
             {
-                _groupManager->MoveSession(sessionId, _groups[static_cast<std::vector<GroupID>::size_type>(serverType)]);
+                conn->Query("Update account set LoginState = 1 where (AccountNo = %d)", AccountNo);
+                conn->reset();
             }
         }
+
+        if(hp <=0)
+        {
+            //마을로 보낸다.
+            _groupManager->MoveSession(sessionId, _groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Village)]);
+        }
+        else
+        {
+            _groupManager->MoveSession(sessionId, _groups[static_cast<std::vector<GroupID>::size_type>(serverType)]);
+        }
+        
 
     }
 

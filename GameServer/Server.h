@@ -5,6 +5,7 @@
 #include "IOCP.h"
 #include "SettingParser.h"
 #include "ServerInitData.h"
+#include "CLogger.h"
 
 class DBConnection;
 
@@ -25,7 +26,7 @@ namespace psh
     public:
         Server();
         void OnConnect(SessionID sessionId, const SockAddr_in& info) override;
-        void OnDisconnect(SessionID sessionId) override;
+        void OnDisconnect(SessionID sessionId, int wsaErrCode) override;
 
         void OnRecvPacket(SessionID sessionId, CRecvBuffer& buffer) override;
         void OnMonitorRun() override;
@@ -50,8 +51,9 @@ namespace psh
         
     private:
         //1 : dbData, 2 : dbConnection
-        USE_MANY_LOCKS(2)
-
+        USE_MANY_LOCKS(2);
+            
+        CLogger ConnectionLogger;
         SessionMap<shared_ptr<DBData>> g_dbData;
 
         vector<GroupID> _groups;

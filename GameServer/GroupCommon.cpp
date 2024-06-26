@@ -80,7 +80,7 @@ void psh::GroupCommon::OnEnter(SessionID id)
     _iocp->SetTimeout(id, 30000);
 }
 
-void psh::GroupCommon::OnLeave(SessionID id)
+void psh::GroupCommon::OnLeave(SessionID id, int wsaErrCode)
 {
     auto it = _players.find(id);
     auto& [_,playerPtr] = *it;
@@ -100,10 +100,6 @@ void psh::GroupCommon::OnLeave(SessionID id)
 
 void psh::GroupCommon::OnUpdate(int milli)
 {
-    if (milli > 200)
-    {
-        milli = 200;
-    }
 
     UpdateContent(milli);
     _objectManager->CleanupDestroyWait();
@@ -186,10 +182,10 @@ void psh::GroupCommon::RecvMove(SessionID sessionId, CRecvBuffer& buffer)
     auto& [_,player] = *_players.find(sessionId);
     FVector location;
     GetGame_ReqMove(buffer, location);
-    //printf("%f %f %f %f\n", _location.X, _location.Y, destination.X, destination.Y);
 
     if (player == nullptr)
     {
+        _logger->Write(L"Disconnect", CLogger::LogLevel::Invalid, L"recvMove. Not Found Player. SessionID : %d", sessionId);
         _iocp->DisconnectSession(sessionId);
         return;
     }
@@ -219,9 +215,22 @@ void psh::GroupCommon::RecvAttack(SessionID sessionId, CRecvBuffer& buffer)
 
     if (player == nullptr)
     {
+        _logger->Write(L"Disconnect", CLogger::LogLevel::Invalid, L"recvAttack. Not Found Player. SessionID : %d", sessionId);
         _iocp->DisconnectSession(sessionId);
     }
+    if (player->isDead())
+    {
+        return;
+    }
+
     player->Attack(type,dir);
+}
+
+void psh::GroupCommon::OnCreate()
+{
+    String extraName = L"Group";
+    extraName += static_cast<int>(GetGroupID());
+    _logger = make_unique<CLogger>(extraName.c_str());
 }
 
 
@@ -267,8 +276,16 @@ void psh::GroupCommon::SendMonitor()
             return;
         }
         _monitorSession = client.Value();
+        _iocp->SetSessionStaticKey(_monitorSession, 0);
         SendLogin();
     }
+    else if (_server.IsValidSession(_monitorSession) == false)
+    {
+        _monitorSession = InvalidSessionID();
+        return;
+    }
+
+
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_RUN, int(1));
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_WORK_TIME, static_cast<int>(GetWorkTime()));
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_JOB_QUEUE_SIZE, GetQueued());

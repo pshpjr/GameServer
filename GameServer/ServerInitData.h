@@ -14,4 +14,5 @@ struct ServerInitData
     String MonitorServerIP;
     Port MonitorServerPort;
 
+    bool useMonsterAI;
 };
