@@ -34,6 +34,7 @@ namespace psh
         void OnRecv(SessionID id, CRecvBuffer& recvBuffer) override;
         void RecvReqLevelChange(SessionID id, CRecvBuffer& recvBuffer) const;
         void RecvChangeComp(SessionID id, CRecvBuffer& recvBuffer);
+        void RecvChat(SessionID id, CRecvBuffer& recvByffer);
         void RecvMove(SessionID sessionId, CRecvBuffer& buffer);
         virtual void RecvAttack(SessionID sessionId, CRecvBuffer& buffer);
         virtual void OnCreate() override;

@@ -15,6 +15,13 @@ namespace psh
         void OnRecv(SessionID id, CRecvBuffer& recvBuffer) override;
         void UpdateContent(int deltaMs) override;
         void SendMonitor() override; 
+        //디버깅 내용 추가용. pvp에서만 확인할 게 있음. 
+        //ResAttack과 동일. 
+        void PvpResAttack(SessionID sessionId, CRecvBuffer& buffer); 
+        void PvpSendInRange(FVector location
+            , std::span<const Sector> offsets
+            , SendBuffer& buffer
+            , const shared_ptr<psh::Player>& exclude = nullptr);
     protected:
 
 public:

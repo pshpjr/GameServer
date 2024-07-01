@@ -2,7 +2,8 @@
 
 #include "FieldObjectManager.h"
 #include "PvpAttackManager.h"
-
+#include "IOCP.h"
+#include "Player.h"
 psh::PvpGroup::PvpGroup(Server& server, const ServerInitData& data, ServerType type, short mapSize, short sectorSize)
 : 
                                                             GroupCommon(server
@@ -42,6 +43,9 @@ void psh::PvpGroup::OnRecv(SessionID id, CRecvBuffer& recvBuffer)
             RecvReqLevelChange(id, recvBuffer);
             debugData.reqLevelChange++;
         break;
+        case eGame_reqChat:
+            RecvChat(id, recvBuffer);
+            break;
         default:
             DebugBreak();
         break;
@@ -87,6 +91,47 @@ void psh::PvpGroup::SendMonitor()
     debugData.attack = 0;
     debugData.reqLevelChange = 0;
 
+}
+
+void psh::PvpGroup::PvpResAttack(SessionID sessionId, CRecvBuffer& buffer)
+{
+    auto& [_, player] = *_players.find(sessionId);
+    char type;
+    psh::FVector dir;
+    GetGame_ReqAttack(buffer, type, dir);
+
+    if (player == nullptr)
+    {
+        printf("InvalidPlayer\n");
+        _iocp->DisconnectSession(sessionId);
+    }
+    if (player->isDead())
+    {
+        printf("ResAttack playerDead, Account : %d\n", player->AccountNumber());
+        return;
+    }
+    player->pvpAttackDebug(type, dir);
+}
+
+void psh::PvpGroup::PvpSendInRange(FVector location, std::span<const Sector> offsets, SendBuffer& buffer, const shared_ptr<psh::Player>& exclude)
+{
+    auto broadcastSectors = _playerMap->GetSectorsFromOffset(_playerMap->GetSector(location), offsets);
+
+
+
+    ranges::for_each(broadcastSectors, [this, &buffer, &exclude](flat_unordered_set<shared_ptr<Player>>& sector)
+        {
+            for (auto& player : sector)
+            {
+                if (player == exclude)
+                {
+                    printf("continue\n");
+                    continue;
+                }
+                printf("SendTo pvp Player : objid : %d\n", player->ObjectId());
+                SendPacket(player->SessionId(), buffer);
+            }
+        });
 }
 
 psh::PvpGroup::~PvpGroup() = default;

@@ -43,6 +43,9 @@ namespace psh
             case eGame_ReqLevelEnter:
                 RecvReqLevelChange(id, recvBuffer);
                 break;
+            case eGame_reqChat:
+                RecvChat(id, recvBuffer);
+                break;
             default:
                 DebugBreak();
                 break;

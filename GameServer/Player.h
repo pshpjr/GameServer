@@ -6,8 +6,8 @@
 #include "DBData.h"
 
 
-//player�� � ���� �ùٸ��� �𸣴ϱ� �ܺο��� �ùٸ� ������ �־���� �ϴ°�?
-//player�� map������ �����ϴ°�?
+//player는 어떤 값이 올바른지 모르니까 외부에서 보장해서 넣어야 하는가?
+//player는 map에서만 생성?
 
 namespace psh
 {

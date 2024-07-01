@@ -99,7 +99,7 @@ namespace psh
 
     shared_ptr<DBData> Server::getDbData(const SessionID id)
     {
-        //¾øÀ¸¸é ¾Ë¾Æ¼­ ÅÍÁü.
+        //ì—†ìœ¼ë©´ ì•Œì•„ì„œ í„°ì§.
 
         READ_LOCK
         auto& ret = g_dbData.find(id)->second;
@@ -107,7 +107,7 @@ namespace psh
         return ret;
     }
 
-    //·Î±×ÀÎ ¼­¹ö °â¿ëÀ¸·Î ¾²´Ù°¡ ³ªÁß¿¡ Á¦°Å. 
+    //ë¡œê·¸ì¸ ì„œë²„ ê²¸ìš©ìœ¼ë¡œ ì“°ë‹¤ê°€ ë‚˜ì¤‘ì— ì œê±°. 
     void Server::OnLoginLogin(SessionID sessionId, CRecvBuffer& buffer)
     {
         //printf(format("Login to LoginServer {:d} \n", sessionId.id).c_str());
@@ -163,7 +163,7 @@ namespace psh
         SessionKey key;
         
         {
-            //°ÔÀÓ ·Î±×ÀÎÀº ¹«Á¶°Ç ¼º°ø
+            //ê²Œì„ ë¡œê·¸ì¸ì€ ë¬´ì¡°ê±´ ì„±ê³µ
             GetGame_ReqLogin(buffer, AccountNo, key);
 
 
@@ -203,7 +203,7 @@ namespace psh
                 , make_shared<DBData>(sessionId, AccountNo, location , serverType, charType, coins, hp, nick));
             if (result == false)
             {
-                //ÇÃ·¹ÀÌ¾î »ı¼º¿¡ ½ÇÆĞÇÑ °ü·Ã ¿¡·¯ Ã³¸®. 
+                //í”Œë ˆì´ì–´ ìƒì„±ì— ì‹¤íŒ¨í•œ ê´€ë ¨ ì—ëŸ¬ ì²˜ë¦¬. 
             }
             else
             {
@@ -214,7 +214,7 @@ namespace psh
 
         if(hp <=0)
         {
-            //¸¶À»·Î º¸³½´Ù.
+            //ë§ˆì„ë¡œ ë³´ë‚¸ë‹¤.
             _groupManager->MoveSession(sessionId, _groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Village)]);
         }
         else

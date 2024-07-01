@@ -51,7 +51,7 @@ void psh::GroupCommon::SendInRange(FVector location
             {
                 continue;
             }
-
+            //printf("SendTo Player : objid : %d\n", player->ObjectId());
             SendPacket(player->SessionId(), buffer);
         }
     });
@@ -136,6 +136,9 @@ void psh::GroupCommon::OnRecv(SessionID id, CRecvBuffer& recvBuffer)
         case eGame_ReqLevelEnter:
             RecvReqLevelChange(id, recvBuffer);
             break;
+        case eGame_ReqChat:
+            RecvChat(id, recvBuffer);
+            break;
         default:
             DebugBreak();
             break;
@@ -179,6 +182,24 @@ void psh::GroupCommon::RecvChangeComp(SessionID id, CRecvBuffer& recvBuffer)
     _objectManager->SpawnActor(playerPtr, _attackManager.get());
 }
 
+void psh::GroupCommon::RecvChat(SessionID id, CRecvBuffer& recvByffer) 
+{
+    auto& [_, player] = *_players.find(id);
+    String chatData;
+    GetGame_ReqChat(recvByffer, chatData);
+    if (player == nullptr)
+    {
+        _logger->Write(L"Disconnect", CLogger::LogLevel::Invalid, L"recvChat. Not Found Player. SessionID : %d", id);
+        _iocp->DisconnectSession(id);
+        return;
+    }
+
+    auto chatBuffer = SendBuffer::Alloc();
+    MakeGame_ResChat(chatBuffer, player->ObjectId(), chatData);
+
+    SendInRange(player->Location(), SEND_OFFSETS::BROADCAST, chatBuffer);
+}
+
 void psh::GroupCommon::RecvMove(SessionID sessionId, CRecvBuffer& buffer)
 {
     auto& [_,player] = *_players.find(sessionId);
@@ -203,7 +224,6 @@ void psh::GroupCommon::RecvMove(SessionID sessionId, CRecvBuffer& buffer)
         printf("InvalidLocation. objID : %d, AccountNo : %lld\n", player->ObjectGroup(), player->AccountNumber());
         return;
     }
-
     player->MoveStart(location);
 
 }
@@ -222,6 +242,7 @@ void psh::GroupCommon::RecvAttack(SessionID sessionId, CRecvBuffer& buffer)
     }
     if (player->isDead())
     {
+        //printf("ResAttack playerDead, Account : %d\n", player->AccountNumber() );
         return;
     }
 
