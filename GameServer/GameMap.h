@@ -179,6 +179,13 @@ namespace psh
             return sectors | GetDataViewFromSectors();
         }
 
+        decltype(auto) GetSectorsFromOffset(const FVector& location, std::span<const Sector> offsets)
+        {
+            auto target = GetSector(location);
+            auto sectors = SectorsView(target, offsets);
+            return sectors | GetDataViewFromSectors();
+        }
+
         void Insert(const T& target, FVector location)
         {
             const auto targetSector = GetSector(location);
