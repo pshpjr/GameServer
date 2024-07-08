@@ -4,7 +4,7 @@
 
 namespace psh
 {
-    //sectorÀÇ À¯È¿ °Ë»ç´Â Map¿¡¼­
+    //sectorì˜ ìœ íš¨ ê²€ì‚¬ëŠ” Mapì—ì„œ
     struct Sector
     {
         bool operator==(const Sector& other) const

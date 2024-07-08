@@ -4,7 +4,6 @@
 #include <vector>
 #include <random>
 #include "Sector.h"
-#include "flat_unordered_set.h"
 #include "Rand.h"
 #include "Item.h"
 
@@ -28,19 +27,20 @@ namespace psh
         const short GRID_SIZE = 100;
 
     private:
-        decltype(auto) GetValidSectorView()
+        decltype(auto) GetDataViewFromSectors()
         {
             return std::views::filter([this](Sector sector)
                    {
                        return IsValidSector(sector);
                    })
-                   | std::views::transform([this](Sector sector) -> container&
-                   {
-                       return _map[sector.x][sector.y];
-                   });
+                | std::views::transform([this](Sector sector)
+                    {
+                        return std::views::all(_map[sector.y][sector.x]);
+                    })
+                | std::views::join;
         }
 
-        decltype(auto) FlatRange(Sector begin, Sector end)
+        decltype(auto) GetFlatSectorsView(Sector begin, Sector end)
         {
             return std::views::iota(begin.x, end.x + 1)
                    | std::views::transform([=](auto x)
@@ -59,7 +59,7 @@ namespace psh
             const auto p1Sector = GetSector(point1);
             const auto p2Sector = GetSector(point2);
 
-            return FlatRange(p1Sector, p2Sector);
+            return GetFlatSectorsView(p1Sector, p2Sector);
         }
 
         decltype(auto) SectorsView(const Sector& target, std::span<const Sector> offsets) const
@@ -80,7 +80,8 @@ namespace psh
             return {RandomUtil::Rand(0, MAP_SIZE - 100) + 50.0f, RandomUtil::Rand(0, MAP_SIZE - 100) + 50.0f};
         }
 
-        using container = flat_unordered_set<T>;
+        using container = std::unordered_set<T>;
+        //using container = std::flat_unordered_set<T>;
 //        using container = vector<T>;
         GameMap(short mapSize, short sectorSize)
             : SECTOR_SIZE(sectorSize)
@@ -162,20 +163,20 @@ namespace psh
         decltype(auto) GetSectorsFromRange(const Range& attackRange)
         {
             auto objectMapPtr = reinterpret_cast<GameMap<GameObject>*>(this);
-            auto view = std::views::all(attackRange.getSectors(*objectMapPtr)) | GetValidSectorView();
+            auto view = std::views::all(attackRange.getSectors(*objectMapPtr)) | GetDataViewFromSectors();
             return view;
         }
 
         decltype(auto) GetSectorsFromPoint(const FVector& p1, const FVector& p2)
         {
             auto sectors = SectorsView(p1, p2);
-            return sectors | GetValidSectorView();
+            return sectors | GetDataViewFromSectors();
         }
 
         decltype(auto) GetSectorsFromOffset(const Sector& target, std::span<const Sector> offsets)
         {
             auto sectors = SectorsView(target, offsets);
-            return sectors | GetValidSectorView();
+            return sectors | GetDataViewFromSectors();
         }
 
         void Insert(const T& target, FVector location)

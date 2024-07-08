@@ -43,7 +43,7 @@ void psh::GroupCommon::SendInRange(FVector location
                                    , const shared_ptr<Player>& exclude)
 {
     auto broadcastSectors = _playerMap->GetSectorsFromOffset(_playerMap->GetSector(location), offsets);
-    ranges::for_each(broadcastSectors, [ this,&buffer,&exclude](flat_unordered_set<shared_ptr<Player>>& sector)
+    ranges::for_each(broadcastSectors, [ this,&buffer,&exclude](auto& sector)
     {
         for (auto& player : sector)
         {

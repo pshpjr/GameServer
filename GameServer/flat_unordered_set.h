@@ -192,10 +192,10 @@ public:
         return _size;
     }
 
-    // auto GetView()
-    // {
-    //     return views::all(this);
-    // }
+     auto GetView()
+     {
+         return std::ranges::subrange<iterator>(begin(), end());
+     }
 private:
     std::vector<T>& GetBucket(const T& data)
     {
@@ -207,13 +207,3 @@ private:
     int _size = 0;
 };
 
-template<class V>
-struct flat_unordered_set_view : std::ranges::view_interface<flat_unordered_set_view<V>>
-{
-    //auto begin() const { return std::ranges::begin(v); }
-    auto begin() const { return flat_unordered_set_iterator<V>(); }
-
-    auto end() const { return std::ranges::end(v); }
-
-    V v;
-};
