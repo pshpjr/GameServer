@@ -8,7 +8,7 @@ namespace psh
 
     class EasyMonsterGroup : public psh::GroupCommon
     {
-        static constexpr int MAX_MONSTER = 30;
+        static constexpr int MAX_MONSTER = 5;
 
     public:
         EasyMonsterGroup(Server& server, const ServerInitData& data,ServerType type, short mapSize = 6400, short sectorSize = 400);

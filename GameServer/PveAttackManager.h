@@ -15,7 +15,7 @@ namespace psh
         {
         }
 
-        bool GetClosestTarget(FVector location, weak_ptr<ChatCharacter>& target) override;
+        bool GetClosestTarget(FVector location, weak_ptr<ChatCharacter>& target, float maxDist) override;
         void OnAttack(const AttackData& attack) override;
         GameMap<shared_ptr<Monster>>& _monsterMap;
         GameMap<shared_ptr<Player>>& _playerMap;

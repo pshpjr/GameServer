@@ -43,7 +43,7 @@ void psh::PvpGroup::OnRecv(SessionID id, CRecvBuffer& recvBuffer)
             RecvReqLevelChange(id, recvBuffer);
             debugData.reqLevelChange++;
         break;
-        case eGame_reqChat:
+        case eGame_ReqChat:
             RecvChat(id, recvBuffer);
             break;
         default:

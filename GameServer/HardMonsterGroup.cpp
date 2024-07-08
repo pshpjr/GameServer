@@ -72,7 +72,7 @@ void psh::HardMonsterGroup::OnRecv(SessionID id, CRecvBuffer& recvBuffer)
         case eGame_ReqLevelEnter:
             RecvReqLevelChange(id, recvBuffer);
         break;
-        case eGame_reqChat:
+        case eGame_ReqChat:
             RecvChat(id, recvBuffer);
             break;
         default:

@@ -6,10 +6,10 @@
 #include "AttackData.h"
 #include "TableData.h"
 
-bool psh::PveAttackManager::GetClosestTarget(FVector location, weak_ptr<ChatCharacter>& target)
+bool psh::PveAttackManager::GetClosestTarget(FVector location, weak_ptr<ChatCharacter>& target, float maxDist)
 {
-     bool find = false;
-    float closest = 99999;
+    bool find = false;
+    float closest = maxDist;
     
     auto nearbySectors = _playerMap.GetSectorsFromOffset(_playerMap.GetSector(location),SEND_OFFSETS::BROADCAST);
     ranges::for_each(nearbySectors,[ this,&target,&closest,&find,location](flat_unordered_set<shared_ptr<Player>> sector)
@@ -25,12 +25,7 @@ bool psh::PveAttackManager::GetClosestTarget(FVector location, weak_ptr<ChatChar
             }
         }
     });
-    
-    if (closest > 700)
-    {
-        find = false;
-        target.reset();
-    }
+
     return find;
 }
 
