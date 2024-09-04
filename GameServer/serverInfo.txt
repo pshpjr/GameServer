@@ -1,8 +1,0 @@
-server:
-{
-chatServerIP :"127.0.0.1"
-chatServerPort:11778
-gameServerIP:"10.0.1.1"
-gameServerPort:11779
-}
-
