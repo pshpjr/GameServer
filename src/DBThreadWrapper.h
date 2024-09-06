@@ -3,10 +3,13 @@
 #include <future>
 #include <memory>
 #include <memory>
+#include "SessionTypes.h"
 
 #include "LockFreeFixedQueue.h"
 
 #include "DBConnection.h"
+#include "GroupTypes.h"
+#include "SocketTypes.h"
 
 namespace psh
 {

@@ -9,6 +9,3 @@ set(CMAKE_TOOLCHAIN_FILE "C:/Users/$ENV{USERNAME}/.vcpkg-clion/vcpkg/scripts/bui
 add_subdirectory(NetLib)
 add_subdirectory(src)
 
-
-
-

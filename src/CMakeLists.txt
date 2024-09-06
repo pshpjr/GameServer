@@ -13,44 +13,18 @@ add_executable(CMakeServer
         GameObject.cpp
         Field.cpp
         Server.cpp
-        DBThreadWrapper.h
-        Player.h
-        Rand.h
-        ChatCharacter.h
-        GameObject.h
-        flat_unordered_set.h
-        Server.h
-        Monster.h
-        Range.h
         DBThreadWrapper.cpp
-        TableData.h
-        TextFileReader.h
-        FieldData.h
-        MockData.h
         IVictimSelect.cpp
         DBData.cpp
         Sector.cpp
-        Sector.h
-        ServerInitData.h
         Monster.cpp
         main.cpp
-        IVictimSelect.h
         ChatCharacter.cpp
-        MonitorProtocol.h
         GameDataLoader.cpp
-        Timer.h
-        Field.h
         TextFileReader.cpp
-        DBData.h
-        AttackData.h
-        GameDataLoader.h
         flat_unordered_set.cpp
-        GameMap.h
-        RangeObject.h
         AttackData.cpp
         AttackData.cpp
-        Range.h
-        TableData.h
 )
 
 target_include_directories(CMakeServer PRIVATE ../../packetParser)

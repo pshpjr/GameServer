@@ -46,9 +46,9 @@ namespace psh
     {
         void Init();
 
-        SkillInfo GetSkillInfoById(const SkillID skillId);
+        SkillInfo GetSkillInfoById(SkillID skillId);
 
-        std::vector<SkillID>& GetSkillsByTemplate(const TemplateID id);
+        std::vector<SkillID>& GetSkillsByTemplate(TemplateID id);
         int GetAIRangeByTemplate(TemplateID id);
 
         void attack(ReqAttack attack);

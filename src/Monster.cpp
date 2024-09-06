@@ -15,7 +15,7 @@ namespace psh
     constexpr auto SEARCH_DELAY_MS = 2000;
     constexpr auto ATTACK_DELAY_MS = 1000;
 
-    Monster::Monster(Field& group, GameObjectData& initData)
+    Monster::Monster(Field& group, const GameObjectData& initData)
         : ChatCharacter(group, initData),attackRange{ATTACK::GetAIRangeByTemplate(initData.templateId)}
     {
 
@@ -61,7 +61,7 @@ namespace psh
             _target.reset();
             return;
         }
-        auto dist = Distance(target->Location(), Location());
+        const auto dist = Distance(target->Location(), Location());
         // if ((dist < _skills[0].first.Y))
         // {
         //     if (attackCooldown > 0)
@@ -120,7 +120,7 @@ namespace psh
 
         GameObjectData itemData{Location(),{0,0},0,eObjectType::Item,100};
 
-        auto obj = std::make_shared<Item>(_field,itemData,ATTACK::GetRangeByItemID(100));
+        const auto obj = std::make_shared<Item>(_field,itemData,ATTACK::GetRangeByItemID(100));
 
         _field.AddActor(obj);
     }

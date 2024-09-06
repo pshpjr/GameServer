@@ -164,9 +164,9 @@ namespace psh
 
         void BroadcastSectorChange(int sectorIndex) const;
 
-        ObjectID _objectId;
-        FVector _location;
-        FVector _direction;
+        ObjectID _objectId{};
+        FVector _location{};
+        FVector _direction{};
         eObjectType _objectType = eObjectType::Object;
         char _objectIndex = 0;
 
@@ -176,7 +176,7 @@ namespace psh
         }
 
         Field& _field;
-        GameMap<shared<GameObject>>* _map;
+        GameMap<shared<GameObject>>* _map{nullptr};
 
     private:
         float _moveSpeedPerSec;

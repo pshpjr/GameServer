@@ -1,7 +1,8 @@
 ﻿// ReSharper disable CppInconsistentNaming
 // ReSharper disable IdentifierTypo
+// ReSharper disable CppTabsAreDisallowed
 #pragma once
-
+#include "Types.h"
 // 섹터 50 x 50
 enum en_Server_TYPE : BYTE
 {

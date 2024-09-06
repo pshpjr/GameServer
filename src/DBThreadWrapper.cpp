@@ -7,7 +7,7 @@ namespace psh
 {
     void DBThreadWrapper::UpdateCoin(const std::shared_ptr<DBData>& dbData)
     {
-        Enqueue([this, dbData]()
+        Enqueue([this, dbData]
         {
             const auto time = conn.Query(
                                          "UPDATE `mydb`.`player` SET `Coins` = '%d' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
@@ -19,7 +19,7 @@ namespace psh
 
     void DBThreadWrapper::UpdateLocation(const std::shared_ptr<DBData>& dbData)
     {
-        Enqueue([this, dbData]()
+        Enqueue([this, dbData]
         {
             const auto time = conn.Query(
                                          "UPDATE `mydb`.`player` SET `LocationX` = '%f', `LocationY` = '%f' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
@@ -32,7 +32,7 @@ namespace psh
 
     void DBThreadWrapper::UpdateHP(const std::shared_ptr<DBData>& dbData)
     {
-        Enqueue([dbData,this]()
+        Enqueue([dbData,this]
         {
             const auto time = conn.Query(
                                          "UPDATE `mydb`.`player` SET `HP` = '%d' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
@@ -44,7 +44,7 @@ namespace psh
 
     void DBThreadWrapper::EnterGroup(const std::shared_ptr<DBData>& dbData)
     {
-        Enqueue([dbData, this]()
+        Enqueue([dbData, this]
         {
             const auto time = conn.Query(
                                          "UPDATE `mydb`.`player` SET `ServerType` = '%d', `LocationX` = '%f', `LocationY` = '%f' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
@@ -60,7 +60,7 @@ namespace psh
         , SessionID session
         , GroupID nextGroup)
     {
-        Enqueue([dbData,this,server,session,nextGroup]()
+        Enqueue([dbData,this,server,session,nextGroup]
         {
             const auto time = conn.Query(
                                          "UPDATE `mydb`.`player` SET `HP` = '%d', `ServerType` = '%d', `LocationX` = '%f', `LocationY` = '%f' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"

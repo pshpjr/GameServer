@@ -15,7 +15,7 @@ namespace psh
     class RangeObject : public GameObject
     {
     public:
-        RangeObject(Field& group, const GameObjectData& initData, const float radius);
+        RangeObject(Field& group, const GameObjectData& initData, float radius);
 
         virtual void OnEnter(shared<GameObject>& obj) = 0;
         virtual void OnLeave(shared<GameObject>& obj) = 0;
@@ -44,7 +44,6 @@ namespace psh
     private:
         void OnUpdate(int delta) final;
 
-    private:
         PoolPtr<Range> _range;
     };
 

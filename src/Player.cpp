@@ -2,6 +2,8 @@
 
 #include <PacketGenerated.h>
 
+#include <utility>
+
 #include "DBThreadWrapper.h"
 #include "Field.h"
 #include "TableData.h"
@@ -15,7 +17,7 @@ namespace psh
         , std::shared_ptr<DBData> dbData
         , DBThreadWrapper* dbThread)
         : ChatCharacter(group, initData)
-        , _data(dbData)
+        , _data(std::move(dbData))
         , _dbThread(dbThread)
     {
         //_skills = ATTACK::playerAttack[dbData->CharacterType()];

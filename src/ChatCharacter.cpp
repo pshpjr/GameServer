@@ -2,7 +2,6 @@
 #include "AttackData.h"
 #include "Field.h"
 #include "Player.h"
-#include "Range.h"
 #include "TableData.h"
 
 void psh::ChatCharacter::MakeCreatePacket(SendBuffer& buffer, const bool spawn) const

@@ -48,7 +48,7 @@ namespace psh
         auto point = p;
         for(auto& [rotate,origin] : _rotations)
         {
-            point = psh::ReverseRotate(point,rotate,origin);
+            point = ReverseRotate(point,rotate,origin);
         }
 
         return (_p1.X < point.X && point.X <= _p2.X)

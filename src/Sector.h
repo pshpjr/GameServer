@@ -24,14 +24,11 @@ namespace psh
             {
                 return true;
             }
-            else if (x == other.x)
+            if (x == other.x)
             {
                 return y < other.y;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         Sector operator-(const Sector& other) const

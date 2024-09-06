@@ -9,9 +9,8 @@ void psh::PveVictim::GetVictim(const AttackInfo &attackInfo) const
     switch (attackInfo.type) {
         case eObjectType::Player:
         {
-            auto view = _field->GetItemViewByList(attackInfo.range->GetCoordinates());
-
-            for(auto& obj : view)
+            for(auto view = _field->GetItemViewByList(attackInfo.range->GetCoordinates());
+                auto& obj : view)
             {
                 if(attackInfo.range->Contains(obj->Location()))
                 {

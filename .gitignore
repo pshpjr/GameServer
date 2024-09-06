@@ -17,3 +17,4 @@ out
 cmake-build-debug
 cmake-build-release
 vcpkg_installed
+/NetLib.i

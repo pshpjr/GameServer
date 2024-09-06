@@ -1,7 +1,8 @@
 ﻿#pragma once
+#include "SessionTypes.h"
+
 #include "ContentTypes.h"
 #include "FVector.h"
-#include "Types.h"
 
 namespace psh
 {

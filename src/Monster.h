@@ -8,7 +8,7 @@ namespace psh
     class Monster final : public ChatCharacter
     {
     public:
-        Monster(Field& group, GameObjectData& initData);
+        Monster(Field& group, const GameObjectData& initData);
         ~Monster() override = default;
 
         void OnUpdate(int delta) override;

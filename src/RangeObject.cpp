@@ -4,7 +4,7 @@
 #include "TableData.h"
 
 psh::RangeObject::RangeObject(Field &group, const GameObjectData &initData, const float radius): GameObject(group, initData)
-  , _range(std::make_shared<CircleRange>(initData.location, radius)),_containObjects{}
+  , _range(std::make_shared<CircleRange>(initData.location, radius))
 {
 }
 
@@ -36,9 +36,9 @@ void psh::RangeObject::OnUpdate([[maybe_unused]] int delta)
     // 그렇지 않다면
     // OnEnter를 호출한다.
 
-    std::set<psh::Sector> sectors;
+    std::set<Sector> sectors;
 
-    for(auto point : _range->GetCoordinates())
+    for(const auto point : _range->GetCoordinates())
     {
         sectors.insert(_map->GetSector(point));
     }
@@ -88,9 +88,9 @@ void psh::SingleInteractionObject::Enter(shared<GameObject> obj)
 
 void psh::SingleInteractionObject::OnUpdate(int delta)
 {
-    std::set<psh::Sector> sectors;
+    std::set<Sector> sectors;
 
-    for(auto point : _range->GetCoordinates())
+    for(const auto point : _range->GetCoordinates())
     {
         sectors.insert(_map->GetSector(point));
     }

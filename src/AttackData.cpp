@@ -3,23 +3,23 @@
 //
 #include "AttackData.h"
 
-#include "Player.h"
-#include "TableData.h"
 #include "Field.h"
 #include "IVictimSelect.h"
 #include "ModernObjectPool.h"
+#include "Player.h"
 #include "Range.h"
+#include "TableData.h"
 
 namespace psh
 {
     namespace
     {
-        inline static HashMap<SkillID,SkillInfo> skillsMap;
-        inline static HashMap<TemplateID,std::vector<SkillID>> templateSkillsMap;
+        inline HashMap<SkillID,SkillInfo> skillsMap;
+        inline HashMap<TemplateID,std::vector<SkillID>> templateSkillsMap;
 
-        inline static std::vector<std::vector<std::pair<FVector, int>>> playerAttack;
+        inline std::vector<std::vector<std::pair<FVector, int>>> playerAttack;
 
-        inline static std::vector<std::vector<std::pair<FVector, int>>> monsterAttack;
+        inline std::vector<std::vector<std::pair<FVector, int>>> monsterAttack;
     }
 }
 
@@ -126,13 +126,13 @@ int psh::ATTACK::GetAIRangeByTemplate(TemplateID id)
 void psh::ATTACK::attack(ReqAttack attack)
 {
     //공격패킷과 이펙트 패킷을 전송하기.
-    const auto& skill = ATTACK::GetSkillInfoById(attack.skillId);
+    const auto&[id, skillSize, damage] = GetSkillInfoById(attack.skillId);
 
     auto& attacker = attack.attacker;
 
     auto attackPacket = SendBuffer::Alloc();
     MakeGame_ResAttack(attackPacket, attacker.ObjectId(), attack.skillId, attack.direction);
-    
+
     auto draw = SendBuffer::Alloc();
     attack.range->DrawRangeIntoBuffer(draw);
 
@@ -143,7 +143,7 @@ void psh::ATTACK::attack(ReqAttack attack)
         std::static_pointer_cast<Player>(player)->SendPacket(draw);
     }
 
-    AttackInfo info{attacker.ObjectType(),nullptr,attack.skillId,attacker.ObjectId(),skill.damage};
+    AttackInfo info{attacker.ObjectType(),nullptr,attack.skillId,attacker.ObjectId(),damage};
 
     info.range = std::move(attack.range);
     attacker.GetField().GetVictimSelect()->GetVictim(info);
@@ -164,10 +164,10 @@ namespace rangePool{
 psh::RangeUnique psh::ATTACK::GetRangeBySkillID(FVector location, FVector dir, SkillID id)
 {
 
-    const auto& skill = ATTACK::GetSkillInfoById(id);
+    const auto&[_, skillSize, damage] = GetSkillInfoById(id);
 
-    auto range = rangePool::squarePool.Alloc(FVector{location.X - skill.skillSize.X / 2, location.Y}
-        , FVector{location.X + skill.skillSize.X / 2, location.Y + skill.skillSize.Y});
+    auto range = rangePool::squarePool.Alloc(FVector{location.X - skillSize.X / 2, location.Y}
+        , FVector{location.X + skillSize.X / 2, location.Y + skillSize.Y});
 
     range->Rotate(dir, location);
 

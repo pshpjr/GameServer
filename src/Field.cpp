@@ -31,11 +31,11 @@ psh::Field::Field(Server& server
     , _playerMap{std::make_unique<map_type>(mapSize,sectorSize)}
     , _monsterMap{std::make_unique<map_type>(mapSize,sectorSize)}
     ,_itemMap{std::make_unique<map_type>(mapSize,sectorSize)}
+    ,_victimSelect{victim_select::GetVictimByServerType(type,*this)}
     ,_useMonitor{_initData.UseMonitorServer}
     ,_nextDBSend(std::chrono::steady_clock::now())
     ,_prevUpdate(std::chrono::steady_clock::now())
     ,_fieldSize(mapSize)
-    ,_victimSelect{victim_select::GetVictimByServerType(type,*this)}
 {
 
 }
@@ -367,7 +367,7 @@ void psh::Field::SendMonitor()
         "Group : %ld, Work : %lld, Queue: %d, Handled : %lld\n"
 
         ,_players.size()
-           , long(GetGroupID()), GetWorkTime(), GetQueued(), GetJobTps()
+           , static_cast<long>(GetGroupID()), GetWorkTime(), GetQueued(), GetJobTps()
            );
 
     if (!_useMonitor)

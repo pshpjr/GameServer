@@ -115,8 +115,8 @@ namespace psh
         ID playerID;
         Password playerPass;
         GetLogin_ReqLogin(buffer, playerID, playerPass);
-        String id = playerID.ToString();
-        std::string cid = util::WToS(id);
+        const String id = playerID.ToString();
+        const std::string cid = util::WToS(id);
 
 
         auto& conn = GetGameDbConnection();

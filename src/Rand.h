@@ -5,7 +5,8 @@ namespace psh
 {
     struct RandomUtil
     {
-        inline static thread_local auto gen = std::mt19937(0);
+        //fix seed for debug
+        inline static thread_local auto gen = std::mt19937(0); // NOLINT(*-msc51-cpp)
 
         static void SRand(const int seed)
         {

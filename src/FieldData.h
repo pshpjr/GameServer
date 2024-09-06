@@ -29,7 +29,7 @@ static FieldData GetFieldDataByType(const psh::ServerType type)
     case psh::ServerType::Hard:
         break;
     case psh::ServerType::Pvp:
-        ret.attackStrategy = std::make_unique<psh::PveVictim>();
+        //ret.attackStrategy = std::make_unique<psh::PveVictim>();
         break;
     case psh::ServerType::End:
         ASSERT_CRASH(false, "Invalid State");

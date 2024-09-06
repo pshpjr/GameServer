@@ -1,19 +1,20 @@
 ﻿#define PROFILE
-#include <Profiler.h>
 
 #include "AttackData.h"
 #include "DBConnection.h"
 #include "ModernObjectPool.h"
 #include "Server.h"
-#include "Range.h"
 #include "TableData.h"
 
 // auto& manager = ProfileManager::Get();
 
 
 
+
 int main()
 {
+
+
     try
     {
         DBConnection::LibInit();
@@ -31,7 +32,6 @@ int main()
 
         std::cin.get();
     }
-
 
     return 0;
 }
