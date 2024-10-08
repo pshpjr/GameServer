@@ -42,7 +42,15 @@ namespace psh
             _hp = 100;
         }
 
-        virtual void Die();
+        void Die();
+
+        /**
+         * 주로 아이템 생성할 때 사용.
+         * 죽은 이유 저장하기.
+         */
+        virtual void DieImpl()
+        {
+        };
 
     protected:
         int _hp = 100;

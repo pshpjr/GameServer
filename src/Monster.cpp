@@ -108,21 +108,17 @@ namespace psh
         moveCooldown += 1000;
     }
 
-    void Monster::OnDestroy()
+    void Monster::OnDestroyImpl()
     {
-        ChatCharacter::OnDestroy();
+    }
 
-        auto destroyThis = SendBuffer::Alloc();
-        MakeGame_ResDestroyActor(destroyThis, ObjectId(), isDead(), 0);
-        for (auto &p: _field.GetPlayerView(Location(), SEND_OFFSETS::BROADCAST))
-        {
-            std::static_pointer_cast<Player>(p)->SendPacket(destroyThis);
-        }
-
+    void Monster::DieImpl()
+    {
         GameObjectData itemData{Location(), {0, 0}, 0, eObjectType::Item, 100};
 
         const auto obj = std::make_shared<Item>(_field, itemData, ATTACK::GetRangeByItemID(100));
 
         _field.SpawnItem(obj);
+        _removeReason = removeResult::Die;
     }
 }

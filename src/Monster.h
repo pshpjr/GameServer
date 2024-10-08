@@ -14,7 +14,9 @@ namespace psh
 
         void OnUpdate(int delta) override;
 
-        void OnDestroy() override;
+        void OnDestroyImpl() override;
+
+        void DieImpl() override;
 
         FVector _spawnLocation = {0, 0};
         int attackCooldown = 0;

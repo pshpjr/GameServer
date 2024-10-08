@@ -63,7 +63,7 @@ bool psh::RangeObject::Collision(const FVector point) const
     return _range->Contains(point);
 }
 
-void psh::RangeObject::OnDestroy()
+void psh::RangeObject::OnDestroyImpl()
 {
     for (auto it = _containObjects.begin(); it != _containObjects.end(); ++it)
     {

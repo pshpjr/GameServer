@@ -95,15 +95,6 @@ void psh::Field::OnLeave(const SessionID id, int wsaErrCode)
         playerPtr->_data->SetLocation(playerPtr->Location());
 
         _dbThread->LeaveGroup(playerPtr->_data, &_server, id, GroupManager::BaseGroupID());
-
-        //객체 자신이 모르는 삭제이기 때문에 알려줘야 함.
-        auto destroyBuf = SendBuffer::Alloc();
-        MakeGame_ResDestroyActor(destroyBuf, playerPtr->ObjectId(), false, GroupChange);
-        for (auto view = GetPlayerView(playerPtr->Location(), SEND_OFFSETS::BROADCAST);
-             auto &player: view)
-        {
-            std::static_pointer_cast<Player>(player)->SendPacket(destroyBuf);
-        }
     }
 
     _players.erase(it);
@@ -163,6 +154,17 @@ void psh::Field::OnRecv(const SessionID id, CRecvBuffer &recvBuffer)
     }
 }
 
+void psh::Field::BroadcastPlayerLeave(const PlayerRef &playerPtr)
+{
+    auto destroyBuf = SendBuffer::Alloc();
+    MakeGame_ResDestroyActor(destroyBuf, playerPtr->ObjectId(), false, GroupChange);
+    for (auto view = GetPlayerView(playerPtr->Location(), SEND_OFFSETS::BROADCAST);
+         auto &player: view)
+    {
+        std::static_pointer_cast<Player>(player)->SendPacket(destroyBuf);
+    }
+}
+
 void psh::Field::RecvReqLevelChange(const SessionID id, CRecvBuffer &recvBuffer)
 {
     AccountNo accountNo;
@@ -193,6 +195,7 @@ void psh::Field::RecvChangeComp(const SessionID id, CRecvBuffer &recvBuffer)
     {
         playerPtr->Revive();
     }
+
     _dbThread->EnterGroup(playerPtr->_data);
     AddActor(static_pointer_cast<GameObject>(playerPtr));
 }
@@ -305,7 +308,7 @@ void psh::Field::OnCreate()
     _logger = std::make_unique<CLogger>(extraName.c_str());
 }
 
-void psh::Field::ProcessAttack(AttackInfo info)
+psh::victim_select::AttackResult psh::Field::ProcessAttack(AttackInfo info)
 {
     return _victimSelect(*this, info);
 }
@@ -351,16 +354,6 @@ void psh::Field::InsertWaitObjectInMap()
         }
 
 
-        auto createThisBuffer = SendBuffer::Alloc();
-        obj->MakeCreatePacket(createThisBuffer, true);
-
-        for (auto view = GetPlayerView(obj->Location(), SEND_OFFSETS::BROADCAST);
-             auto &player: view)
-        {
-            std::static_pointer_cast<Player>(player)->SendPacket(createThisBuffer);
-        }
-
-
         obj->OnCreate();
     }
 }
@@ -389,13 +382,11 @@ void psh::Field::CleanupDeleteWait()
         _delWaits.pop_front();
         obj->OnDestroy();
 
-
         if (const auto map = obj->GetMap();
             map != nullptr)
         {
             map->Delete(obj, obj->Location());
         }
-
 
         _objects.erase(obj);
     }

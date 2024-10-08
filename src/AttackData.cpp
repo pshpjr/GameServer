@@ -125,24 +125,21 @@ int psh::ATTACK::GetAIRangeByTemplate(TemplateID id)
 
 void psh::ATTACK::ExecuteAttack(ReqAttack attack)
 {
-    //공격패킷과 이펙트 패킷을 전송하기.
-    const auto &[id, skillSize, damage] = GetSkillInfoById(attack.skillId);
-
     auto &attacker = attack.attacker;
+    const auto &[id, skillSize, damage] = GetSkillInfoById(attack.skillId);
+    auto range = CalculateSkillRange(attacker.Location(), attack.direction, attack.skillId);
+    AttackInfo info{attacker.ObjectType(), std::move(range), attack.skillId, attacker.ObjectId(), damage};
 
-    auto attackPacket = SendBuffer::Alloc();
-    MakeGame_ResAttack(attackPacket, attacker.ObjectId(), attack.skillId, attack.direction);
+    //공격패킷과 이펙트 패킷을 전송하기
+    //나중에 miss등의 이펙트도 생길 수 있음.
+    if (auto result = attacker.GetField().ProcessAttack(std::move(info));
+        result == victim_select::AttackResult::Success)
+    {
+        auto attackPacket = SendBuffer::Alloc();
+        MakeGame_ResAttack(attackPacket, attacker.ObjectId(), attack.skillId, attack.direction);
 
-    // auto draw = SendBuffer::Alloc();
-    // attack.range->DrawRangeIntoBuffer(draw);
-    attacker.GetField().BroadcastToPlayer(attacker.Location(), {attackPacket});
-
-    AttackInfo info{attacker.ObjectType(), nullptr, attack.skillId, attacker.ObjectId(), damage};
-
-    info.range = std::move(attack.range);
-    attacker.GetField().ProcessAttack(std::move(info));
-
-    //_attackStrategy->Attack(AttackInfo{&attackRange, _skills[type].second,ObjectId(),ObjectType()});
+        attacker.GetField().BroadcastToPlayer(attacker.Location(), {attackPacket});
+    }
 }
 
 namespace rangePool

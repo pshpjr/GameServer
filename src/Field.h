@@ -8,6 +8,7 @@
 #include <range/v3/all.hpp>
 
 #include "IVictimSelect.h"
+#include "Player.h"
 
 namespace psh
 {
@@ -49,16 +50,16 @@ namespace psh
 
         void OnCreate() override;
 
-        void ProcessAttack(AttackInfo info);
+        victim_select::AttackResult ProcessAttack(AttackInfo info);
 
         decltype(auto) GetPlayerView(const FVector &location, const std::span<const Sector> offsets)
         {
-            return _playerMap->GetSectorsFromOffset(location, offsets) | ranges::to<std::vector>;
+            return _playerMap->GetSectorsFromOffset(location, offsets);
         }
 
         decltype(auto) GetPlayerViewByCoordinate(const std::list<FVector> &locations)
         {
-            return _playerMap->GetSectorsByList(locations) | ranges::to<std::vector>;
+            return _playerMap->GetSectorsByList(locations);
         }
 
         decltype(auto) GetPlayerView(const Sector &sector, const std::span<const Sector> offsets)
@@ -144,6 +145,8 @@ namespace psh
         victim_select::VictimSelectFunction _victimSelect;
 
     private:
+        void BroadcastPlayerLeave(const PlayerRef &playerPtr);
+
         void RecvReqLevelChange(SessionID id, CRecvBuffer &recvBuffer);
 
         void RecvChangeComp(SessionID id, CRecvBuffer &recvBuffer);

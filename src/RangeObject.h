@@ -23,7 +23,7 @@ namespace psh
         bool Collision(FVector point) const;
 
     protected:
-        void OnDestroy() override;
+        void OnDestroyImpl() override;
         void OnUpdate(int delta) final;
 
     private:

@@ -23,6 +23,8 @@ namespace psh
 
         const short GRID_SIZE = 100;
 
+
+
         decltype(auto) GetDataViewFromSectors()
         {
             return ranges::views::filter([this](const Sector sector) {
@@ -158,7 +160,8 @@ namespace psh
             //offset을 span으로 받으므로 offsets의 수명은 이 view가 실행될 때 까지 살아있어야 함.
             //target도 살아있어야 함. 지역변수 target을 대상으로 생성한 뷰는 리턴할 때 사라짐.
             const Sector target = GetSector(location);
-            return GetSectorsFromOffset(target, offsets);
+            return GetSectorsFromOffset(target, offsets)
+                   | ranges::to<std::vector>;
         }
 
         //결과를 벡터로 변환할 것.
@@ -173,7 +176,8 @@ namespace psh
             unique_list.unique();
 
             return unique_list
-                   | GetDataViewFromSectors();
+                   | GetDataViewFromSectors()
+                   | ranges::to<std::vector>;
         }
 
 

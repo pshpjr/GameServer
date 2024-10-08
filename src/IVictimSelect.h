@@ -8,8 +8,12 @@
 
 namespace psh::victim_select
 {
+    enum class AttackResult {
+        Success, Invalid, Miss,
+    };
+
     //bind해서 첫 인자 고정해서 사용할 것.
-    using VictimSelectFunction = std::function<void(psh::Field &field, const psh::AttackInfo &)>;
+    using VictimSelectFunction = std::function<AttackResult(psh::Field &field, const psh::AttackInfo &)>;
 
     VictimSelectFunction GetVictimByServerType(psh::ServerType type);
 }

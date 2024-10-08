@@ -46,14 +46,20 @@ namespace psh
         virtual void Update(int delta);
 
         //생성, 소멸시 주변에 알리는 것은 field에서 한다.
-        virtual void OnCreate()
-        {
+        void OnCreate();
 
+
+        virtual void OnCreateImpl()
+        {
         }
 
+
+        void OnDestroy();
+
+
         //생성, 소멸시 주변에 알리는 것은 field에서 한다.
-        //사망 후 아이템 드롭 등을 요청만 함.
-        virtual void OnDestroy()
+        //소멸 이유 설정하기
+        virtual void OnDestroyImpl()
         {
         }
 
@@ -179,6 +185,7 @@ namespace psh
 
         Field &_field;
         GameMap<shared<GameObject> > *_map{nullptr};
+        removeResult _removeReason;
 
     private:
         float _moveSpeedPerSec;
