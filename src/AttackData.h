@@ -22,7 +22,6 @@ namespace psh
         const GameObject &attacker;
         FVector direction{};
         SkillID skillId{};
-        PoolPtr<Range> range{};
     };
 
     struct AttackInfo {

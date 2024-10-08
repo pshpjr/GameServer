@@ -3,8 +3,9 @@
 #include "Range.h"
 #include "TableData.h"
 
-psh::RangeObject::RangeObject(Field &group, const GameObjectData &initData, const float radius): GameObject(group, initData)
-  , _range(std::make_shared<CircleRange>(initData.location, radius))
+psh::RangeObject::RangeObject(Field &group, const GameObjectData &initData
+                            , const float radius): GameObject(group, initData)
+                                               , _range(std::make_shared<CircleRange>(initData.location, radius))
 {
 }
 
@@ -38,17 +39,17 @@ void psh::RangeObject::OnUpdate([[maybe_unused]] int delta)
 
     std::set<Sector> sectors;
 
-    for(const auto point : _range->GetCoordinates())
+    for (const auto point: _range->GetCoordinates())
     {
         sectors.insert(_map->GetSector(point));
     }
 
     //자기에게 맞는 적절한 객체만 선택하는 함수가 있어야 함.
-    for(auto sector: sectors)
+    for (auto sector: sectors)
     {
-        for(auto& p : _field.GetPlayerView(sector,SEND_OFFSETS::Single))
+        for (auto &p: _field.GetPlayerView(sector, SEND_OFFSETS::Single))
         {
-            if(_range->Contains(p->Location()) && ranges::find(_containObjects,p) == _containObjects.end())
+            if (_range->Contains(p->Location()) && ranges::find(_containObjects, p) == _containObjects.end())
             {
                 OnEnter(p);
                 _containObjects.push_back(p);
@@ -63,7 +64,7 @@ bool psh::RangeObject::Collision(const FVector point) const
     return _range->Contains(point);
 }
 
-void psh::RangeObject::OnDestroy()
+void psh::RangeObject::OnDestroyImpl()
 {
     for (auto it = _containObjects.begin(); it != _containObjects.end(); ++it)
     {
@@ -75,10 +76,10 @@ void psh::RangeObject::OnDestroy()
     }
 }
 
-psh::SingleInteractionObject::SingleInteractionObject(Field &group, const GameObjectData &initData, PoolPtr<Range> range): GameObject(group, initData)
-  , _range(move(range))
+psh::SingleInteractionObject::SingleInteractionObject(Field &group, const GameObjectData &initData
+                                                    , PoolPtr<Range> range): GameObject(group, initData)
+                                                                         , _range(move(range))
 {
-
 }
 
 void psh::SingleInteractionObject::Enter(shared<GameObject> obj)
@@ -90,17 +91,17 @@ void psh::SingleInteractionObject::OnUpdate(int delta)
 {
     std::set<Sector> sectors;
 
-    for(const auto point : _range->GetCoordinates())
+    for (const auto point: _range->GetCoordinates())
     {
         sectors.insert(_map->GetSector(point));
     }
 
     //자기에게 맞는 적절한 객체만 선택하는 함수가 있어야 함.
-    for(auto sector: sectors)
+    for (auto sector: sectors)
     {
-        for(auto& p : _field.GetPlayerView(sector,SEND_OFFSETS::Single))
+        for (const auto &p: _field.GetPlayerView(sector, SEND_OFFSETS::Single))
         {
-            if(_range->Contains(p->Location()))
+            if (_range->Contains(p->Location()))
             {
                 OnEnter(p);
                 _field.DestroyActor(shared_from_this());
@@ -110,13 +111,13 @@ void psh::SingleInteractionObject::OnUpdate(int delta)
     }
 }
 
-psh::Item::Item(Field &group, const GameObjectData &initData, PoolPtr<Range> range): SingleInteractionObject{group,initData,move(range)}
+psh::Item::Item(Field &group, const GameObjectData &initData, PoolPtr<Range> range): SingleInteractionObject{
+        group, initData, move(range)
+    }
 {
-
 }
 
-void psh::Item::OnEnter(shared<GameObject> &obj)
+void psh::Item::OnEnter(const shared<GameObject> &obj)
 {
-
 }
 

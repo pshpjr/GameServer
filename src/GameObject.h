@@ -13,7 +13,7 @@ namespace psh
         GroupChange, Move, Die
     };
 
-    template<typename T>
+    template<typename Key, typename T>
     class GameMap;
     class GameObject;
 
@@ -46,14 +46,20 @@ namespace psh
         virtual void Update(int delta);
 
         //생성, 소멸시 주변에 알리는 것은 field에서 한다.
-        virtual void OnCreate()
-        {
+        void OnCreate();
 
+
+        virtual void OnCreateImpl()
+        {
         }
 
+
+        void OnDestroy();
+
+
         //생성, 소멸시 주변에 알리는 것은 field에서 한다.
-        //사망 후 아이템 드롭 등을 요청만 함.
-        virtual void OnDestroy()
+        //소멸 이유 설정하기
+        virtual void OnDestroyImpl()
         {
         }
 
@@ -144,12 +150,12 @@ namespace psh
             _inMap = inMap;
         }
 
-        GameMap<shared<GameObject> > *GetMap() const
+        GameMap<ObjectID, shared<GameObject> > *GetMap() const
         {
             return _map;
         }
 
-        void SetMap(GameMap<shared<GameObject> > *map)
+        void SetMap(GameMap<ObjectID, shared<GameObject> > *map)
         {
             _map = map;
         }
@@ -178,7 +184,8 @@ namespace psh
         }
 
         Field &_field;
-        GameMap<shared<GameObject> > *_map{nullptr};
+        GameMap<ObjectID, shared<GameObject> > *_map{nullptr};
+        removeResult _removeReason;
 
     private:
         float _moveSpeedPerSec;

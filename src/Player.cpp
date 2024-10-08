@@ -12,13 +12,13 @@ namespace psh
 {
     constexpr float PLAYER_MOVE_SPEED = 200;
 
-    Player::Player(Field& group
-        , const GameObjectData &initData
-        , std::shared_ptr<DBData> dbData
-        , DBThreadWrapper* dbThread)
+    Player::Player(Field &group
+                 , const GameObjectData &initData
+                 , std::shared_ptr<DBData> dbData
+                 , DBThreadWrapper *dbThread)
         : ChatCharacter(group, initData)
-        , _data(std::move(dbData))
-        , _dbThread(dbThread)
+      , _data(std::move(dbData))
+      , _dbThread(dbThread)
     {
         //_skills = ATTACK::playerAttack[dbData->CharacterType()];
     }
@@ -38,39 +38,33 @@ namespace psh
         _field.SendPacket(SessionId(), getCoin);
     }
 
-    void Player::MakeCreatePacket(SendBuffer& buffer, const bool spawn) const
+    void Player::MakeCreatePacket(SendBuffer &buffer, const bool spawn) const
     {
         ChatCharacter::MakeCreatePacket(buffer, spawn);
         MakeGame_ResPlayerDetail(buffer, ObjectId(), _data->Nick());
     }
 
-    void Player::SendPacket(const SendBuffer& buffer) const
+    void Player::SendPacket(const SendBuffer &buffer) const
     {
         _field.SendPacket(SessionId(), buffer);
     }
 
-    void Player::Die()
+    void Player::DieImpl()
     {
-        ChatCharacter::Die();
-
-        auto die = SendBuffer::Alloc();
-        MakeGame_ResDestroyActor(die, ObjectId(), true, 1);
-        _field.SendPacket(SessionId(), die);
     }
 
-    inline void Player::OnCreate()
+    inline void Player::OnCreateImpl()
     {
         for (auto otherObjects = _field.GetObjectView(Location(), SEND_OFFSETS::BROADCAST);
-             auto& obj : otherObjects)
+             auto &obj: otherObjects)
         {
             if (obj.get() == this)
             {
                 continue;
             }
             auto otherObjectPacket = SendBuffer::Alloc();
-
             obj->MakeCreatePacket(otherObjectPacket, false);
-            _field.SendPacket(SessionId(), otherObjectPacket);
+            SendPacket(otherObjectPacket);
         }
 
         SendCoinInfo();

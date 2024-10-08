@@ -28,7 +28,7 @@ namespace psh::victim_select
             break;
             case eObjectType::Monster:
             {
-                auto view = field.GetPlayerView(attackInfo.range->GetCoordinates().front(), SEND_OFFSETS::Single);
+                auto view = field.GetPlayerViewByCoordinate(attackInfo.range->GetCoordinates());
 
                 for (auto &obj: view)
                 {
@@ -46,13 +46,14 @@ namespace psh::victim_select
             default:
                 ASSERT_CRASH(false, "InvalidType");
         }
+        return AttackResult::Success;
     };
 
 
     VictimSelectFunction pvpVictimSelector;
 
     VictimSelectFunction invalidSelector = [](psh::Field &field, const psh::AttackInfo &attackInfo) {
-        ASSERT_CRASH("InvalidType");
+        return AttackResult::Invalid;
     };
 
     VictimSelectFunction psh::victim_select::GetVictimByServerType(ServerType type)

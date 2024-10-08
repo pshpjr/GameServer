@@ -37,7 +37,7 @@ namespace psh
             return _data->SessionId();
         }
 
-        void Die() override;
+        void DieImpl() override;
 
 
         [[nodiscard]] AccountNo AccountNumber() const
@@ -46,7 +46,7 @@ namespace psh
         }
 
         std::shared_ptr<DBData> _data;
-        void OnCreate() override;
+        void OnCreateImpl() override;
 
     private:
         DBThreadWrapper* _dbThread = nullptr;
