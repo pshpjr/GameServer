@@ -44,7 +44,7 @@ namespace psh
         MakeGame_ResPlayerDetail(buffer, ObjectId(), _data->Nick());
     }
 
-    void Player::SendPacket(SendBuffer& buffer)
+    void Player::SendPacket(const SendBuffer& buffer) const
     {
         _field.SendPacket(SessionId(), buffer);
     }

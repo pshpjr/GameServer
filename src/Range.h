@@ -1,11 +1,13 @@
 ﻿#pragma once
+#include <fstream>
 #include <functional>
 #include <memory>
 
 #include "FVector.h"
 #include "Macro.h"
 
-namespace psh {
+namespace psh
+{
     struct Sector;
 
     class Range {
@@ -21,7 +23,19 @@ namespace psh {
 
         [[nodiscard]] virtual Range &operator+=(FVector vector) = 0;
 
-        virtual void DrawRangeIntoBuffer(SendBuffer &buffer) const {}
+        virtual void DrawRangeIntoBuffer(SendBuffer &buffer) const
+        {
+        }
+
+        virtual void printInfo(std::ostream &os) const
+        {
+        };
+
+        friend std::ostream &operator<<(std::ostream &stream, const Range &range)
+        {
+            range.printInfo(stream);
+            return stream;
+        }
     };
 
 
@@ -34,8 +48,8 @@ namespace psh {
         void Rotate(FVector rotation, FVector origin = {0, 0}) noexcept;
 
         [[nodiscard]] bool Contains(FVector p) const noexcept override;
-        [[nodiscard]] [[deprecated]] bool oldContaion(FVector p) const noexcept;
 
+        [[nodiscard]] [[deprecated]] bool oldContaion(FVector p) const noexcept;
 
 
         [[nodiscard]] std::list<FVector> GetCoordinates() const override;
@@ -44,9 +58,10 @@ namespace psh {
 
         void DrawRangeIntoBuffer(SendBuffer &buffer) const override;
 
+        void printInfo(std::ostream &os) const override;
+
     private:
-        struct Rotation
-        {
+        struct Rotation {
             FVector rotation;
             FVector origin;
         };
@@ -75,5 +90,5 @@ namespace psh {
         std::list<FVector> _keyPoints;
     };
 
-    using RangeUnique =  std::unique_ptr<Range, std::function<void(Range*)>>;
+    using RangeUnique = std::unique_ptr<Range, std::function<void(Range *)> >;
 }

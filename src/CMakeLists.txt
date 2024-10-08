@@ -25,6 +25,10 @@ add_executable(CMakeServer
         flat_unordered_set.cpp
         AttackData.cpp
         AttackData.cpp
+        MonsterSpawner.cpp
+        MonsterSpawner.h
+        MonsterAi.cpp
+        MonsterAi.h
 )
 
 target_include_directories(CMakeServer PRIVATE ../../packetParser)

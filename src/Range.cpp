@@ -1,17 +1,22 @@
 ﻿#include "Range.h"
+
+#include <format>
+#include <fstream>
+
 #include "Macro.h"
 #include "PacketGenerated.h"
+
 namespace psh
 {
-    SquareRange::SquareRange(const FVector p1) : SquareRange{{0,0},p1}
+    SquareRange::SquareRange(const FVector p1) : SquareRange{{0, 0}, p1}
     {
-
     }
 
     SquareRange::SquareRange(FVector p1, FVector p2)
         : Range()
     {
         //p1 < p2;
+        //p1은 좌하단, p2는 우상단
         if (p1 > p2)
         {
             std::swap(p1, p2);
@@ -23,9 +28,9 @@ namespace psh
         _points = {_p1, {_p1.X, _p2.Y}, _p2, {_p2.X, _p1.Y}};
         _midPoints = {
             {_p1.X, (_p1.Y + _p2.Y) / 2}
-            , {(_p1.X + _p2.X) / 2, _p2.Y}
-            , {_p2.X, (_p1.Y + _p2.Y) / 2}
-            , {(_p1.X + _p2.X) / 2, _p1.Y}
+          , {(_p1.X + _p2.X) / 2, _p2.Y}
+          , {_p2.X, (_p1.Y + _p2.Y) / 2}
+          , {(_p1.X + _p2.X) / 2, _p1.Y}
         };
     }
 
@@ -35,9 +40,8 @@ namespace psh
         // {
         //     return psh::Rotate(point, rotation, origin);
         // });
-        _rotations.push_back({rotation,origin});
-        std::ranges::transform(_midPoints, _midPoints.begin(), [rotation,origin](const FVector point)
-        {
+        _rotations.push_back({rotation, origin});
+        std::ranges::transform(_midPoints, _midPoints.begin(), [rotation,origin](const FVector point) {
             return psh::Rotate(point, rotation, origin);
         });
     }
@@ -46,13 +50,13 @@ namespace psh
     bool SquareRange::Contains(const FVector p) const noexcept
     {
         auto point = p;
-        for(auto& [rotate,origin] : _rotations)
+        for (auto &[rotate,origin]: _rotations)
         {
-            point = ReverseRotate(point,rotate,origin);
+            point = ReverseRotate(point, rotate, origin);
         }
 
         return (_p1.X < point.X && point.X <= _p2.X)
-        && (_p2.Y < point.Y && point.Y <=_p2.Y);
+               && (_p1.Y < point.Y && point.Y <= _p2.Y);
     }
 
     //TODO: 이진 ccw 최적화. 점 4개면 그냥 시계, 반시계 돌아서 비교하면 끝.
@@ -89,40 +93,57 @@ namespace psh
         return result1 && result2 && result3;
     }
 
+
     std::list<FVector> SquareRange::GetCoordinates() const
     {
         return _midPoints;
     }
 
-    SquareRange& SquareRange::operator+=(const FVector vector)
+    SquareRange &SquareRange::operator+=(const FVector vector)
     {
         _p1 += vector;
         _p2 += vector;
 
-        for (auto& p : _points)
+        for (auto &p: _points)
         {
             p += vector;
         }
         return *this;
     }
 
-    void SquareRange::DrawRangeIntoBuffer(SendBuffer& buffer) const
+    void SquareRange::DrawRangeIntoBuffer(SendBuffer &buffer) const
     {
-        for (const auto& point : _points)
+        auto drawPoint = _points;
+
+        for (auto [rotation,origin]: _rotations)
+        {
+            std::ranges::transform(drawPoint, drawPoint.begin(), [rotation,origin](const FVector point) {
+                return psh::Rotate(point, rotation, origin);
+            });
+        }
+
+
+        for (const auto &point: drawPoint)
         {
             MakeGame_ResDraw(buffer, point);
         }
     }
-    CircleRange::CircleRange(const FVector& point, const float radius)
+
+    void SquareRange::printInfo(std::ostream &os) const
+    {
+        os << '[' << _points[0] << ',' << _points[1] << ',' << _points[2] << ',' << _points[3] << ']';
+    }
+
+    CircleRange::CircleRange(const FVector &point, const float radius)
         : Range()
-        , _point(point)
-        , _radius(radius)
-        , _keyPoints({
-            {point.X, point.Y + radius}
-            , {point.X + radius, point.Y + radius}
-            , {point.X, point.Y - radius}
-            , {point.X - radius, point.Y - radius}
-        })
+      , _point(point)
+      , _radius(radius)
+      , _keyPoints({
+                       {point.X, point.Y + radius}
+                     , {point.X + radius, point.Y + radius}
+                     , {point.X, point.Y - radius}
+                     , {point.X - radius, point.Y - radius}
+                   })
     {
     }
 
@@ -137,11 +158,10 @@ namespace psh
         return _keyPoints;
     }
 
-    Range& CircleRange::operator+=(const FVector vector)
+    Range &CircleRange::operator+=(const FVector vector)
     {
         _point += vector;
-        std::ranges::transform(_keyPoints, _keyPoints.begin(), [vector](const FVector key)
-        {
+        std::ranges::transform(_keyPoints, _keyPoints.begin(), [vector](const FVector key) {
             return key + vector;
         });
         return *this;

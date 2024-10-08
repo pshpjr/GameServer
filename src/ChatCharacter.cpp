@@ -4,7 +4,7 @@
 #include "Player.h"
 #include "TableData.h"
 
-void psh::ChatCharacter::MakeCreatePacket(SendBuffer& buffer, const bool spawn) const
+void psh::ChatCharacter::MakeCreatePacket(SendBuffer &buffer, const bool spawn) const
 {
     GameObject::MakeCreatePacket(buffer, spawn);
     MakeGame_ResChracterDetail(buffer, ObjectId(), _hp);
@@ -12,22 +12,17 @@ void psh::ChatCharacter::MakeCreatePacket(SendBuffer& buffer, const bool spawn) 
 
 void psh::ChatCharacter::Attack(const SkillID type, const FVector dir)
 {
-    if (_attackStrategy == nullptr)
-    {
-        return;
-    }
-
-    auto& [_,skill] = *_skills.find(type);
+    auto &[_,skill] = *_skills.find(type);
     //만료 확인
-    if(skill.timer.IsExpired() == false)
+    if (skill.timer.IsExpired() == false)
     {
         return;
     }
 
-    ATTACK::attack({*this,dir,type,ATTACK::GetRangeBySkillID(Location(),Direction(),type)});
+    ATTACK::ExecuteAttack({*this, dir, type, ATTACK::CalculateSkillRange(Location(), dir, type)});
 
     //쿨타임 추가.
-    skill.timer.Reset(Timer::ms{1000});
+    skill.timer.Reset(Timer::ms{0});
 }
 
 void psh::ChatCharacter::Hit(const DamageInfo info)
@@ -39,7 +34,7 @@ void psh::ChatCharacter::Hit(const DamageInfo info)
     MakeGame_ResHit(hitPacket, ObjectId(), info.attacker, _hp);
 
     for (const auto view = _field.GetPlayerView(Location(), SEND_OFFSETS::BROADCAST);
-         auto& player : view)
+         auto &player: view)
     {
         std::static_pointer_cast<Player>(player)->SendPacket(hitPacket);
     }
@@ -57,7 +52,7 @@ void psh::ChatCharacter::Die()
     MakeGame_ResDestroyActor(buf, ObjectId(), true, removeResult::Die);
 
     auto view = _field.GetPlayerView(Location(), SEND_OFFSETS::BROADCAST);
-    for (auto& player : _field.GetPlayerView(Location(), SEND_OFFSETS::BROADCAST))
+    for (auto &player: _field.GetPlayerView(Location(), SEND_OFFSETS::BROADCAST))
     {
         std::static_pointer_cast<Player>(player)->SendPacket(buf);
     }

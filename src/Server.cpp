@@ -12,7 +12,7 @@ namespace psh
 {
     Server::Server()
         : _groups(static_cast<std::vector<GroupID>::size_type>(ServerType::End), GroupID::InvalidGroupID())
-        , _dbTlsId(TlsAlloc())
+      , _dbTlsId(TlsAlloc())
     {
         _serverSettings.Init(L"GameSettings.txt");
         _serverSettings.GetValue(L"db.GameDBIP", _initData.gameDBIP);
@@ -25,17 +25,16 @@ namespace psh
         _serverSettings.GetValue(L"db.useMonitorServer", _initData.UseMonitorServer);
         _serverSettings.GetValue(L"game.useMonsterAI", _initData.useMonsterAI);
         _groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Village)] = CreateGroup<Field>(*this, _initData
-            , ServerType::Village);
-        // _groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Easy)] = CreateGroup<Field>(*this, _initData
-        //     , ServerType::Easy);
+               , ServerType::Village);
+        _groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Easy)] = CreateGroup<Field>(*this, _initData
+               , ServerType::Easy);
         // _groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Hard)] = CreateGroup<Field>(*this, _initData
-        //     , ServerType::Hard);
+        //        , ServerType::Hard);
         // _groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Pvp)] = CreateGroup<Field>(*this, _initData
-        //     , ServerType::Pvp);
-
+        //        , ServerType::Pvp);
     }
 
-    void Server::OnConnect(SessionID sessionId, const SockAddr_in& info)
+    void Server::OnConnect(SessionID sessionId, const SockAddr_in &info)
     {
         //printf(format("Connect {:d} \n",sessionId.id).c_str());
     }
@@ -52,9 +51,9 @@ namespace psh
                 return;
             }
 
-            const auto& target = it->second;
+            const auto &target = it->second;
 
-            auto& conn = GetGameDbConnection();
+            auto &conn = GetGameDbConnection();
             conn.Query("Update account set LoginState = 0 where (AccountNo = %d)", target->AccountNo());
             conn.reset();
 
@@ -62,27 +61,27 @@ namespace psh
         }
     }
 
-    void Server::OnRecvPacket(SessionID sessionId, CRecvBuffer& buffer)
+    void Server::OnRecvPacket(SessionID sessionId, CRecvBuffer &buffer)
     {
         ePacketType type;
         buffer >> type;
 
         switch (type)
         {
-        case None:
-            DebugBreak();
-            break;
-        case eLogin_ReqLogin:
-            OnLoginLogin(sessionId, buffer);
-            break;
-        case eLogin_ReqRegister:
-            break;
-        case eGame_ReqLogin:
-            OnLogin(sessionId, buffer);
-            break;
-        default:
-            __debugbreak();
-            break;
+            case None:
+                DebugBreak();
+                break;
+            case eLogin_ReqLogin:
+                OnLoginLogin(sessionId, buffer);
+                break;
+            case eLogin_ReqRegister:
+                break;
+            case eGame_ReqLogin:
+                OnLogin(sessionId, buffer);
+                break;
+            default:
+                __debugbreak();
+                break;
         }
     }
 
@@ -96,18 +95,18 @@ namespace psh
         }
     }
 
-    std::shared_ptr<DBData> Server::GetDbData( SessionID id)
+    std::shared_ptr<DBData> Server::GetDbData(SessionID id)
     {
         //없으면 알아서 터짐.
 
         READ_LOCK;
-        auto& ret = _dbData.find(id)->second;
+        auto &ret = _dbData.find(id)->second;
 
         return ret;
     }
 
-    //로그인 서버 겸용으로 쓰다가 나중에 제거. 
-    void Server::OnLoginLogin( SessionID sessionId, CRecvBuffer& buffer)
+    //로그인 서버 겸용으로 쓰다가 나중에 제거.
+    void Server::OnLoginLogin(SessionID sessionId, CRecvBuffer &buffer)
     {
         //printf(format("Login to LoginServer {:d} \n", sessionId.id).c_str());
         using namespace psh;
@@ -119,7 +118,7 @@ namespace psh
         const std::string cid = util::WToS(id);
 
 
-        auto& conn = GetGameDbConnection();
+        auto &conn = GetGameDbConnection();
         conn.Query("select AccountNo, ID, PASS,LoginState from account where ID = '%s'", cid.c_str());
         auto loginResult = SendBuffer::Alloc();
 
@@ -140,10 +139,10 @@ namespace psh
             {
                 MakeLogin_ResLogin(loginResult, 0, playerID, eLoginResult::WrongPassword, SessionKey());
             }
-            else if (loginState == true)
-            {
-                MakeLogin_ResLogin(loginResult, 0, playerID, eLoginResult::DuplicateLogin, SessionKey());
-            }
+            // else if (loginState == true)
+            // {
+            //     MakeLogin_ResLogin(loginResult, 0, playerID, eLoginResult::DuplicateLogin, SessionKey());
+            // }
             else
             {
                 MakeLogin_ResLogin(loginResult, accountNo, playerID, eLoginResult::LoginSuccess, SessionKey());
@@ -152,12 +151,11 @@ namespace psh
         SendPacket(sessionId, loginResult);
     }
 
-    void Server::OnLogin(SessionID sessionId, CRecvBuffer& buffer)
+    void Server::OnLogin(SessionID sessionId, CRecvBuffer &buffer)
     {
         //printf(format("Login to GameServer {:d} \n", sessionId.id).c_str());
         using namespace psh;
-        AccountNo AccountNo;
-        {
+        AccountNo AccountNo; {
             SessionKey key;
             //게임 로그인은 무조건 성공
             GetGame_ReqLogin(buffer, AccountNo, key);
@@ -170,10 +168,10 @@ namespace psh
         }
 
 
-        auto& conn = GetGameDbConnection();
+        auto &conn = GetGameDbConnection();
 
         conn.Query("select Nick,HP,Coins,CharType,ServerType,LocationX,LocationY from mydb.player where AccountNo = %d"
-            , AccountNo);
+                 , AccountNo);
 
         if (!conn.next())
         {
@@ -192,12 +190,11 @@ namespace psh
         char serverType = conn.getChar(4);
         FVector location = {conn.getFloat(5), conn.getFloat(6)};
 
-        conn.reset();
-        {
+        conn.reset(); {
             WRITE_LOCK;
             if (auto [_,result] = _dbData.emplace(sessionId
-                                                 , std::make_shared<DBData>(sessionId, AccountNo, location
-                                                     , serverType, charType, coins, hp, nick));
+                                                , std::make_shared<DBData>(sessionId, AccountNo, location
+                                                                         , serverType, charType, coins, hp, nick));
                 result == false)
             {
                 //플레이어 생성에 실패한 관련 에러 처리.
@@ -210,7 +207,7 @@ namespace psh
         }
 
         _groupManager->MoveSession(sessionId
-            , _groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Village)]);
+                                 , _groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Easy)]);
         //if(hp <=0)
         //{
         //    //마을로 보낸다.
@@ -223,20 +220,20 @@ namespace psh
         //
     }
 
-    DBConnection& Server::GetGameDbConnection()
+    DBConnection &Server::GetGameDbConnection()
     {
-        void* tlsValue = TlsGetValue(_dbTlsId);
+        void *tlsValue = TlsGetValue(_dbTlsId);
 
         if (tlsValue == nullptr)
         {
             {
                 WRITE_LOCK_IDX(1);
-                tlsValue = static_cast<void*>(new DBConnection(_initData.gameDBIP.c_str(), _initData.gameDBPort
-                    , _initData.gameDBID.c_str()
-                    , _initData.gameDBPwd.c_str(), "mydb"));
+                tlsValue = static_cast<void *>(new DBConnection(_initData.gameDBIP.c_str(), _initData.gameDBPort
+                                                              , _initData.gameDBID.c_str()
+                                                              , _initData.gameDBPwd.c_str(), "mydb"));
             }
             TlsSetValue(_dbTlsId, tlsValue);
         }
-        return *static_cast<DBConnection*>(tlsValue);
+        return *static_cast<DBConnection *>(tlsValue);
     }
 }

@@ -14,12 +14,12 @@ namespace psh
 {
     namespace
     {
-        inline HashMap<SkillID,SkillInfo> skillsMap;
-        inline HashMap<TemplateID,std::vector<SkillID>> templateSkillsMap;
+        inline HashMap<SkillID, SkillInfo> skillsMap;
+        inline HashMap<TemplateID, std::vector<SkillID> > templateSkillsMap;
 
-        inline std::vector<std::vector<std::pair<FVector, int>>> playerAttack;
+        inline std::vector<std::vector<std::pair<FVector, int> > > playerAttack;
 
-        inline std::vector<std::vector<std::pair<FVector, int>>> monsterAttack;
+        inline std::vector<std::vector<std::pair<FVector, int> > > monsterAttack;
     }
 }
 
@@ -80,29 +80,29 @@ void psh::ATTACK::Init()
     };
     char skillNum = 0;
     char templateNum = 0;
-    for(auto& player: playerAttack)
+    for (auto &player: playerAttack)
     {
-        for(auto&[size, damage] : player)
+        for (auto &[size, damage]: player)
         {
             templateSkillsMap[templateNum].push_back(skillNum);
-            skillsMap.emplace(skillNum,SkillInfo{skillNum,size,damage});
+            skillsMap.emplace(skillNum, SkillInfo{skillNum, size, damage});
             ++skillNum;
         }
         ++templateNum;
     }
 
-    for(auto& player: monsterAttack)
+    for (auto &player: monsterAttack)
     {
-        for(auto& [size, damage]  : player)
+        for (auto &[size, damage]: player)
         {
             templateSkillsMap[templateNum].push_back(skillNum);
-            skillsMap.emplace(skillNum,SkillInfo{skillNum,size,damage});
+            skillsMap.emplace(skillNum, SkillInfo{skillNum, size, damage});
             ++skillNum;
         }
         ++templateNum;
     }
     //빈 스킬. 공격 없는 애들 용.
-    templateSkillsMap.insert({127,{}});
+    templateSkillsMap.insert({127, {}});
 }
 
 psh::SkillInfo psh::ATTACK::GetSkillInfoById(const SkillID skillId)
@@ -111,63 +111,53 @@ psh::SkillInfo psh::ATTACK::GetSkillInfoById(const SkillID skillId)
     return skillsMap.find(skillId)->second;
 }
 
-std::vector<psh::SkillID> & psh::ATTACK::GetSkillsByTemplate(const TemplateID id)
+std::vector<psh::SkillID> &psh::ATTACK::GetSkillsByTemplate(const TemplateID id)
 {
     return templateSkillsMap[id];
 }
 
 int psh::ATTACK::GetAIRangeByTemplate(TemplateID id)
 {
-
     //TODO: 테스트용
     return 60;
 }
 
-void psh::ATTACK::attack(ReqAttack attack)
+
+void psh::ATTACK::ExecuteAttack(ReqAttack attack)
 {
     //공격패킷과 이펙트 패킷을 전송하기.
-    const auto&[id, skillSize, damage] = GetSkillInfoById(attack.skillId);
+    const auto &[id, skillSize, damage] = GetSkillInfoById(attack.skillId);
 
-    auto& attacker = attack.attacker;
+    auto &attacker = attack.attacker;
 
     auto attackPacket = SendBuffer::Alloc();
     MakeGame_ResAttack(attackPacket, attacker.ObjectId(), attack.skillId, attack.direction);
 
-    auto draw = SendBuffer::Alloc();
-    attack.range->DrawRangeIntoBuffer(draw);
+    // auto draw = SendBuffer::Alloc();
+    // attack.range->DrawRangeIntoBuffer(draw);
+    attacker.GetField().BroadcastToPlayer(attacker.Location(), {attackPacket});
 
-    for (const auto view = attacker.GetField().GetPlayerView(attacker.Location(), SEND_OFFSETS::BROADCAST);
-         auto& player : view)
-    {
-        std::static_pointer_cast<Player>(player)->SendPacket(attackPacket);
-        std::static_pointer_cast<Player>(player)->SendPacket(draw);
-    }
-
-    AttackInfo info{attacker.ObjectType(),nullptr,attack.skillId,attacker.ObjectId(),damage};
+    AttackInfo info{attacker.ObjectType(), nullptr, attack.skillId, attacker.ObjectId(), damage};
 
     info.range = std::move(attack.range);
-    attacker.GetField().GetVictimSelect()->GetVictim(info);
-
-
-
+    attacker.GetField().ProcessAttack(std::move(info));
 
     //_attackStrategy->Attack(AttackInfo{&attackRange, _skills[type].second,ObjectId(),ObjectType()});
 }
 
-namespace rangePool{
+namespace rangePool
+{
     ModernObjectPool<psh::SquareRange> squarePool(100);
     ModernObjectPool<psh::CircleRange> circlePool(100);
-
 }
 
 
-psh::RangeUnique psh::ATTACK::GetRangeBySkillID(FVector location, FVector dir, SkillID id)
+psh::RangeUnique psh::ATTACK::CalculateSkillRange(FVector location, FVector dir, SkillID id)
 {
-
-    const auto&[_, skillSize, damage] = GetSkillInfoById(id);
+    const auto &[_, skillSize, damage] = GetSkillInfoById(id);
 
     auto range = rangePool::squarePool.Alloc(FVector{location.X - skillSize.X / 2, location.Y}
-        , FVector{location.X + skillSize.X / 2, location.Y + skillSize.Y});
+                                           , FVector{location.X + skillSize.X / 2, location.Y + skillSize.Y});
 
     range->Rotate(dir, location);
 
@@ -176,7 +166,7 @@ psh::RangeUnique psh::ATTACK::GetRangeBySkillID(FVector location, FVector dir, S
 
 psh::RangeUnique psh::ATTACK::GetRangeByItemID(TemplateID id)
 {
-    auto range = rangePool::circlePool.Alloc(FVector{0,0},30.0f);
+    auto range = rangePool::circlePool.Alloc(FVector{0, 0}, 30.0f);
 
     return rangePool::circlePool.Cast<Range>(std::move(range));
 }

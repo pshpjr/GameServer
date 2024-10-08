@@ -4,6 +4,7 @@
 
 #include "Profiler.h"
 
+#include "CLogger.h"
 #include "DBData.h"
 #include "DBThreadWrapper.h"
 #include "GameObject.h"
@@ -12,32 +13,39 @@
 #include "Player.h"
 #include "Server.h"
 #include "TableData.h"
+#include "Monster.h"
+#include "MonsterSpawner.h"
+#include "Rand.h"
 
 
-psh::Field::Field(Server& server
-    , const ServerInitData& data
-    , const ServerType type
-    , short mapSize
-    , short sectorSize)
-    : _dbThread{std::make_unique<DBThreadWrapper>(
-                                                  data.gameDBIP.c_str()
-                                                , data.gameDBPort
-                                                , data.gameDBID.c_str()
-                                                , data.gameDBPwd.c_str()
-                                                , "mydb")}
-    , _server(server)
-    , _initData(data)
-    , _groupType(type)
-    , _playerMap{std::make_unique<map_type>(mapSize,sectorSize)}
-    , _monsterMap{std::make_unique<map_type>(mapSize,sectorSize)}
-    ,_itemMap{std::make_unique<map_type>(mapSize,sectorSize)}
-    ,_victimSelect{victim_select::GetVictimByServerType(type,*this)}
-    ,_useMonitor{_initData.UseMonitorServer}
-    ,_nextDBSend(std::chrono::steady_clock::now())
-    ,_prevUpdate(std::chrono::steady_clock::now())
-    ,_fieldSize(mapSize)
+psh::Field::Field(Server &server
+                , const ServerInitData &data
+                , const ServerType type
+                , short mapSize
+                , short sectorSize)
+    : _dbThread{
+        std::make_unique<DBThreadWrapper>(
+                                          data.gameDBIP.c_str()
+                                        , data.gameDBPort
+                                        , data.gameDBID.c_str()
+                                        , data.gameDBPwd.c_str()
+                                        , "mydb")
+    }
+  , _server(server)
+  , _initData(data)
+  , _groupType(type)
+  , _playerMap{std::make_unique<map_type>(mapSize, sectorSize)}
+  , _monsterMap{std::make_unique<map_type>(mapSize, sectorSize)}
+  , _itemMap{std::make_unique<map_type>(mapSize, sectorSize)}
+  , _victimSelect{victim_select::GetVictimByServerType(type)}
+  , _useMonitor{_initData.UseMonitorServer}
+  , _nextDBSend(std::chrono::steady_clock::now())
+  , _prevUpdate(std::chrono::steady_clock::now())
+  , _logger{std::make_unique<CLogger>(std::format(L"field_{}", static_cast<int>(type)).c_str())}
+  , _fieldSize(mapSize)
 {
-
+    if (_groupType == ServerType::Easy)
+        _spawner = std::make_unique<MonsterSpawner>(ServerType::Easy, *this);
 }
 
 psh::Field::~Field() = default;
@@ -54,17 +62,16 @@ void psh::Field::OnEnter(SessionID id)
     }
 
     //플레이어 객체 생성 리스트에 추가. 맵에는 클라에서 이동 완료 패킷 받았을 때
-
     GameObjectData initData{
         dataPtr->Location()
-        , {0, 0}
-        , 200.0
-        , eObjectType::Player
-        , dataPtr->CharacterType()
+      , {0, 0}
+      , 200.0
+      , eObjectType::Player
+      , dataPtr->CharacterType()
     };
 
     auto playerPtr = std::make_shared<Player>(*this, initData,
-        dataPtr, _dbThread.get());
+                                              dataPtr, _dbThread.get());
     playerPtr->SetMap(nullptr);
     playerPtr->ObjectId(NextObjectId());
 
@@ -88,6 +95,15 @@ void psh::Field::OnLeave(const SessionID id, int wsaErrCode)
         playerPtr->_data->SetLocation(playerPtr->Location());
 
         _dbThread->LeaveGroup(playerPtr->_data, &_server, id, GroupManager::BaseGroupID());
+
+        //객체 자신이 모르는 삭제이기 때문에 알려줘야 함.
+        auto destroyBuf = SendBuffer::Alloc();
+        MakeGame_ResDestroyActor(destroyBuf, playerPtr->ObjectId(), false, GroupChange);
+        for (auto view = GetPlayerView(playerPtr->Location(), SEND_OFFSETS::BROADCAST);
+             auto &player: view)
+        {
+            std::static_pointer_cast<Player>(player)->SendPacket(destroyBuf);
+        }
     }
 
     _players.erase(it);
@@ -103,6 +119,11 @@ void psh::Field::OnUpdate(const int milli)
     CleanupDeleteWait();
     _fps++;
 
+    if (_spawner)
+    {
+        _spawner->Update(milli);
+    }
+
     if (steady_clock::now() < _nextDBSend)
     {
         return;
@@ -114,35 +135,35 @@ void psh::Field::OnUpdate(const int milli)
     _fps = 0;
 }
 
-void psh::Field::OnRecv(const SessionID id, CRecvBuffer& recvBuffer)
+void psh::Field::OnRecv(const SessionID id, CRecvBuffer &recvBuffer)
 {
     ePacketType type;
     recvBuffer >> type;
-    auto& [_,playerPtr] = *_players.find(id);
+    auto &[_,playerPtr] = *_players.find(id);
     switch (type)
     {
-    case eGame_ReqChangeComplete:
-        RecvChangeComp(id, recvBuffer);
-        break;
-    case eGame_ReqMove:
-        RecvMove(id, recvBuffer);
-        break;
-    case eGame_ReqAttack:
-        RecvAttack(id, recvBuffer);
-        break;
-    case eGame_ReqLevelEnter:
-        RecvReqLevelChange(id, recvBuffer);
-        break;
-    case eGame_ReqChat:
-        RecvChat(id, recvBuffer);
-        break;
-    default:
-        DebugBreak();
-        break;
+        case eGame_ReqChangeComplete:
+            RecvChangeComp(id, recvBuffer);
+            break;
+        case eGame_ReqMove:
+            RecvMove(id, recvBuffer);
+            break;
+        case eGame_ReqAttack:
+            RecvAttack(id, recvBuffer);
+            break;
+        case eGame_ReqLevelEnter:
+            RecvReqLevelChange(id, recvBuffer);
+            break;
+        case eGame_ReqChat:
+            RecvChat(id, recvBuffer);
+            break;
+        default:
+            DebugBreak();
+            break;
     }
 }
 
-void psh::Field::RecvReqLevelChange(const SessionID id, CRecvBuffer& recvBuffer)
+void psh::Field::RecvReqLevelChange(const SessionID id, CRecvBuffer &recvBuffer)
 {
     AccountNo accountNo;
     ServerType type;
@@ -161,12 +182,12 @@ void psh::Field::RecvReqLevelChange(const SessionID id, CRecvBuffer& recvBuffer)
     _dbThread->LeaveGroup(playerPtr->_data, &_server, id, _server.GetGroupId(type));
 }
 
-void psh::Field::RecvChangeComp(const SessionID id, CRecvBuffer& recvBuffer)
+void psh::Field::RecvChangeComp(const SessionID id, CRecvBuffer &recvBuffer)
 {
     AccountNo accountNo;
     GetGame_ReqChangeComplete(recvBuffer, accountNo);
 
-    auto& [_,playerPtr] = *_players.find(id);
+    auto &[_,playerPtr] = *_players.find(id);
 
     if (playerPtr->isDead())
     {
@@ -176,9 +197,9 @@ void psh::Field::RecvChangeComp(const SessionID id, CRecvBuffer& recvBuffer)
     AddActor(static_pointer_cast<GameObject>(playerPtr));
 }
 
-void psh::Field::RecvChat(const SessionID id, CRecvBuffer& recvByffer)
+void psh::Field::RecvChat(const SessionID id, CRecvBuffer &recvByffer)
 {
-    auto& [_, player] = *_players.find(id);
+    auto &[_, player] = *_players.find(id);
     String chatData;
     GetGame_ReqChat(recvByffer, chatData);
     if (player == nullptr)
@@ -191,22 +212,22 @@ void psh::Field::RecvChat(const SessionID id, CRecvBuffer& recvByffer)
     auto chatBuffer = SendBuffer::Alloc();
     MakeGame_ResChat(chatBuffer, player->ObjectId(), chatData);
     for (const auto view = GetPlayerView(player->Location(), SEND_OFFSETS::BROADCAST);
-         auto& p : view)
+         auto &p: view)
     {
         std::static_pointer_cast<Player>(p)->SendPacket(chatBuffer);
     }
 }
 
-void psh::Field::RecvMove(const SessionID sessionId, CRecvBuffer& buffer)
+void psh::Field::RecvMove(const SessionID sessionId, CRecvBuffer &buffer)
 {
-    auto& [_,player] = *_players.find(sessionId);
+    auto &[_,player] = *_players.find(sessionId);
     FVector location{};
     GetGame_ReqMove(buffer, location);
 
     if (player == nullptr)
     {
         _logger->Write(L"Disconnect", CLogger::LogLevel::Invalid, L"recvMove. Not Found Player. SessionID : %d"
-            , sessionId);
+                     , sessionId);
         _iocp->DisconnectSession(sessionId);
         return;
     }
@@ -225,17 +246,17 @@ void psh::Field::RecvMove(const SessionID sessionId, CRecvBuffer& buffer)
     player->MoveStart(location);
 }
 
-void psh::Field::RecvAttack(const SessionID sessionId, CRecvBuffer& buffer)
+void psh::Field::RecvAttack(const SessionID sessionId, CRecvBuffer &buffer)
 {
-    auto& [_,player] = *_players.find(sessionId);
+    auto &[_,player] = *_players.find(sessionId);
     char type;
     FVector dir{};
     GetGame_ReqAttack(buffer, type, dir);
-
+    std::cout << dir;
     if (player == nullptr)
     {
         _logger->Write(L"Disconnect", CLogger::LogLevel::Invalid, L"recvAttack. Not Found Player. SessionID : %d"
-            , sessionId);
+                     , sessionId);
         _iocp->DisconnectSession(sessionId);
     }
     if (player->isDead())
@@ -247,6 +268,36 @@ void psh::Field::RecvAttack(const SessionID sessionId, CRecvBuffer& buffer)
     player->Attack(type, dir);
 }
 
+void psh::Field::BroadcastToPlayer(FVector targetLocation, const std::vector<SendBuffer> &packets)
+{
+    for (const auto view = GetPlayerView(targetLocation, SEND_OFFSETS::BROADCAST);
+         auto &player: view)
+    {
+        for (const SendBuffer &packet: packets)
+        {
+            std::static_pointer_cast<psh::Player>(player)->SendPacket(packet);
+        }
+    }
+}
+
+void psh::Field::SpawnMonster(const shared<Monster> &obj)
+{
+    AddActor(std::static_pointer_cast<GameObject>(obj));
+}
+
+psh::FVector psh::Field::GetRandomLocation()
+{
+    return {
+        static_cast<float>(RandomUtil::Rand(0, _fieldSize))
+      , static_cast<float>(RandomUtil::Rand(0, _fieldSize))
+    };
+}
+
+size_t psh::Field::GetMonsterCount()
+{
+    return _monsterMap->Objects();
+}
+
 void psh::Field::OnCreate()
 {
     String extraName = L"Group";
@@ -254,25 +305,25 @@ void psh::Field::OnCreate()
     _logger = std::make_unique<CLogger>(extraName.c_str());
 }
 
-psh::IVictimSelect * psh::Field::GetVictimSelect() const
+void psh::Field::ProcessAttack(AttackInfo info)
 {
-    return _victimSelect.get();
+    return _victimSelect(*this, info);
 }
 
 
-void psh::Field::AddActor(const shared<GameObject>& obj)
+void psh::Field::AddActor(const shared<GameObject> &obj)
 {
     _createWaits.push_back(obj);
 }
 
-void psh::Field::DestroyActor(shared<GameObject>& obj)
+void psh::Field::DestroyActor(shared<GameObject> &obj)
 {
     obj->Valid(false);
 
     _delWaits.emplace_back(obj);
 }
 
-void psh::Field::DestroyActor(shared<GameObject>&& obj)
+void psh::Field::DestroyActor(shared<GameObject> &&obj)
 {
     DestroyActor(obj);
 }
@@ -291,13 +342,20 @@ void psh::Field::InsertWaitObjectInMap()
         map->Insert(obj, obj->Location());
         obj->Valid(true);
         obj->SetMap(map);
-        obj->ObjectId(NextObjectId());
+
+        //플레이어의 경우 요청하기 전에 미리 설정함.
+        //좋은 코드인가
+        if (obj->ObjectType() != eObjectType::Player)
+        {
+            obj->ObjectId(NextObjectId());
+        }
+
 
         auto createThisBuffer = SendBuffer::Alloc();
         obj->MakeCreatePacket(createThisBuffer, true);
 
         for (auto view = GetPlayerView(obj->Location(), SEND_OFFSETS::BROADCAST);
-             auto& player : view)
+             auto &player: view)
         {
             std::static_pointer_cast<Player>(player)->SendPacket(createThisBuffer);
         }
@@ -307,19 +365,19 @@ void psh::Field::InsertWaitObjectInMap()
     }
 }
 
-psh::GameMap<psh::shared<psh::GameObject>>* psh::Field::FindObjectMap(const shared<GameObject>& obj) const
+psh::GameMap<psh::shared<psh::GameObject> > *psh::Field::FindObjectMap(const shared<GameObject> &obj) const
 {
     switch (obj->ObjectType())
     {
-    case eObjectType::Player:
-        return _playerMap.get();
-    case eObjectType::Monster:
-        return _monsterMap.get();
-    case eObjectType::Item:
-        return _itemMap.get();
-    default:
-        ASSERT_CRASH(false, L"InvalidType");
-        return nullptr;
+        case eObjectType::Player:
+            return _playerMap.get();
+        case eObjectType::Monster:
+            return _monsterMap.get();
+        case eObjectType::Item:
+            return _itemMap.get();
+        default:
+            ASSERT_CRASH(false, L"InvalidType");
+            return nullptr;
     }
 }
 
@@ -329,21 +387,16 @@ void psh::Field::CleanupDeleteWait()
     {
         auto obj = _delWaits.front();
         _delWaits.pop_front();
-
-
-        auto destroyBuf = SendBuffer::Alloc();
-        MakeGame_ResDestroyActor(destroyBuf, obj->ObjectId(), false, GroupChange);
-
-        for (auto view = GetPlayerView(obj->Location(), SEND_OFFSETS::BROADCAST);
-             auto& player : view)
-        {
-            std::static_pointer_cast<Player>(player)->SendPacket(destroyBuf);
-        }
-
         obj->OnDestroy();
 
-        const auto map = obj->GetMap();
-        map->Delete(obj, obj->Location());
+
+        if (const auto map = obj->GetMap();
+            map != nullptr)
+        {
+            map->Delete(obj, obj->Location());
+        }
+
+
         _objects.erase(obj);
     }
 }
@@ -355,7 +408,7 @@ psh::ObjectID psh::Field::NextObjectId()
 
 void psh::Field::UpdateContent(const int deltaMs)
 {
-    for (auto& obj : _objects)
+    for (auto &obj: _objects)
     {
         obj->Update(deltaMs);
     }
@@ -364,11 +417,11 @@ void psh::Field::UpdateContent(const int deltaMs)
 void psh::Field::SendMonitor()
 {
     printf("Players : %zd\n"
-        "Group : %ld, Work : %lld, Queue: %d, Handled : %lld\n"
+           "Group : %ld, Work : %lld, Queue: %d, Handled : %lld\n"
 
-        ,_players.size()
-           , static_cast<long>(GetGroupID()), GetWorkTime(), GetQueued(), GetJobTps()
-           );
+         , _players.size()
+         , static_cast<long>(GetGroupID()), GetWorkTime(), GetQueued(), GetJobTps()
+          );
 
     if (!_useMonitor)
     {
@@ -409,7 +462,7 @@ void psh::Field::SendMonitor()
     if (dequeue != 0)
     {
         SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_QUERY_AVG
-            , static_cast<int>(delaySum / static_cast<float>(dequeue)));
+                      , static_cast<int>(delaySum / static_cast<float>(dequeue)));
     }
 }
 
@@ -425,7 +478,8 @@ void psh::Field::SendMonitorData(const en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE typ
 {
     auto buffer = SendBuffer::Alloc();
 
-    buffer << en_PACKET_SS_MONITOR_DATA_UPDATE << static_cast<WORD>(1) << static_cast<char>(static_cast<long>(GetGroupID())) << type <<
-        value << static_cast<int>(time(nullptr));
+    buffer << en_PACKET_SS_MONITOR_DATA_UPDATE << static_cast<WORD>(1) << static_cast<char>(static_cast<long>(
+                GetGroupID())) << type <<
+            value << static_cast<int>(time(nullptr));
     _server.SendPacket(_monitorSession, buffer);
 }

@@ -30,7 +30,7 @@ namespace psh
         void SendCoinInfo() const;
 
         void MakeCreatePacket(SendBuffer& buffer, bool spawn) const override;
-        void SendPacket(SendBuffer& buffer);
+        void SendPacket(const SendBuffer &buffer) const;
 
         [[nodiscard]] SessionID SessionId() const
         {

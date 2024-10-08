@@ -9,44 +9,46 @@ namespace psh
     class AttackManager;
     class Field;
 
-    enum removeResult : char
-    {
+    enum removeResult : char {
         GroupChange, Move, Die
     };
 
-    template <typename T>
+    template<typename T>
     class GameMap;
     class GameObject;
 
     //0~25 : 플레이어 50~75: 몬스터. 100~ 아이템
     using TemplateID = char;
-    struct GameObjectData
-    {
-        FVector location{};
-        FVector direction{};
+
+    struct GameObjectData {
+        FVector location{0, 0};
+        FVector direction{0, 0};
 
         //templateID 같은 이름으로 뺄 수 있을듯.
-        float moveSpeedPerSec{};
+        float moveSpeedPerSec{200};
         eObjectType objectType = eObjectType::Object;
         TemplateID templateId = 127;
     };
 
     //오브젝트 소멸 조건 되면 자기가 죽었다고 주변에 알아서 알리기.
-    class GameObject : public std::enable_shared_from_this<GameObject>
-    {
+    class GameObject : public std::enable_shared_from_this<GameObject> {
     public:
-        GameObject(Field& group, const GameObjectData& initData);
+        GameObject(Field &group, const GameObjectData &initData);
 
         virtual ~GameObject();
-        virtual void MakeCreatePacket(SendBuffer& buffer, bool spawn) const;
+
+        virtual void MakeCreatePacket(SendBuffer &buffer, bool spawn) const;
 
         void MoveStart(FVector destination);
+
         void MoveStop();
+
         virtual void Update(int delta);
 
         //생성, 소멸시 주변에 알리는 것은 field에서 한다.
         virtual void OnCreate()
         {
+
         }
 
         //생성, 소멸시 주변에 알리는 것은 field에서 한다.
@@ -69,10 +71,10 @@ namespace psh
         // {
         //     debug[(index++) & size] = { before,after };
         // }
-        friend std::ostream& operator<<(std::ostream& out, const GameObject& obj)
+        friend std::ostream &operator<<(std::ostream &out, const GameObject &obj)
         {
             out << std::format("(GameObj: type:{}, Oid:{}, Loc:({},{})", static_cast<char>(obj.ObjectType())
-                , obj.ObjectId(), obj.Location().X, obj.Location().Y);
+                             , obj.ObjectId(), obj.Location().X, obj.Location().Y);
 
             return out;
         }
@@ -142,17 +144,17 @@ namespace psh
             _inMap = inMap;
         }
 
-        GameMap<shared<GameObject>>* GetMap() const
+        GameMap<shared<GameObject> > *GetMap() const
         {
             return _map;
         }
 
-        void SetMap(GameMap<shared<GameObject>>* map)
+        void SetMap(GameMap<shared<GameObject> > *map)
         {
             _map = map;
         }
 
-        [[nodiscard]] Field& GetField() const
+        [[nodiscard]] Field &GetField() const
         {
             return _field;
         }
@@ -175,8 +177,8 @@ namespace psh
         {
         }
 
-        Field& _field;
-        GameMap<shared<GameObject>>* _map{nullptr};
+        Field &_field;
+        GameMap<shared<GameObject> > *_map{nullptr};
 
     private:
         float _moveSpeedPerSec;

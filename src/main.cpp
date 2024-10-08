@@ -9,10 +9,21 @@
 // auto& manager = ProfileManager::Get();
 
 
-
-
 int main()
 {
+    psh::SquareRange s{{-30, 0}, {30, 60}};
+    //s.Rotate({1, 0}, {0, 0});
+
+    bool result = s.Contains({15, -15});
+
+    if (result)
+    {
+        std::cout << "YES" << std::endl;
+    }
+    else
+    {
+        std::cout << "NO" << std::endl;
+    }
 
 
     try
@@ -22,13 +33,14 @@ int main()
         psh::ATTACK::Init();
 
         const auto server = std::make_unique<psh::Server>();
-        server->SetDisableClickAndClose();
+        psh::Server::SetDisableClickAndClose();
         server->Start();
+
         server->Wait();
     }
-    catch (const std::exception& e)
+    catch (const std::exception &e)
     {
-        std::cout <<"Unhandled Exception : "<< e.what() <<'\n';
+        std::cout << "Unhandled Exception : " << e.what() << '\n';
 
         std::cin.get();
     }
