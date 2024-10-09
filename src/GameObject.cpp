@@ -40,7 +40,7 @@ void psh::GameObject::MoveStart(const FVector destination)
     MakeGame_ResMove(moveBuffer, _objectId, _objectType, destination);
 
     for (auto view = _field.GetPlayerView(Location(), SEND_OFFSETS::BROADCAST);
-         auto &player: view)
+         const auto &player: view)
     {
         std::static_pointer_cast<Player>(player)->SendPacket(moveBuffer);
     }
@@ -83,7 +83,7 @@ void psh::GameObject::OnCreate()
     MakeCreatePacket(createThisBuffer, true);
 
     for (auto view = _field.GetPlayerView(Location(), SEND_OFFSETS::BROADCAST);
-         auto &player: view)
+         const auto &player: view)
     {
         std::static_pointer_cast<Player>(player)->SendPacket(createThisBuffer);
     }
@@ -97,7 +97,7 @@ void psh::GameObject::OnDestroy()
     MakeGame_ResDestroyActor(buf, ObjectId(), true, _removeReason);
 
     auto view = _field.GetPlayerView(Location(), SEND_OFFSETS::BROADCAST);
-    for (auto &player: _field.GetPlayerView(Location(), SEND_OFFSETS::BROADCAST))
+    for (const auto &player: _field.GetPlayerView(Location(), SEND_OFFSETS::BROADCAST))
     {
         std::static_pointer_cast<Player>(player)->SendPacket(buf);
     }
