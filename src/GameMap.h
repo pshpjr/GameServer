@@ -120,7 +120,7 @@ namespace psh
             }
 
             //중복된 섹터를 넣을 경우 중복해서 탐색함.
-            SectorView(std::initializer_list<SectorView> views)
+            explicit SectorView(const std::vector<SectorView> &views)
             {
                 for (auto &view: views)
                 {

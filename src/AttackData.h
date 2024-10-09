@@ -1,9 +1,11 @@
 ﻿#pragma once
+
 #include <vector>
 #include "FVector.h"
 #include "GameObject.h"
 #include "Range.h"
 
+// 전방 선언
 namespace psh
 {
     class Range;
@@ -11,6 +13,7 @@ namespace psh
 
 namespace psh
 {
+    // 클래스 내부의 타입 정의 및 상수
     using SkillID = char;
 
     struct DamageInfo {
@@ -33,8 +36,8 @@ namespace psh
     };
 
     /**
-     * 어떤 스킬의 범위, 데미지, id
-     * skillSize는 0,0방향을 바라본 것을 기준으로 한다.
+     * 어떤 스킬의 범위, 데미지, ID
+     * skillSize는 0,1 방향을 바라본 것을 기준으로 한다.
      */
     struct SkillInfo {
         SkillID id;
@@ -44,30 +47,53 @@ namespace psh
 
     namespace ATTACK
     {
+        // 공용(public) 멤버 함수
+        /**
+         * 공격 시스템 초기화
+         */
         void Init();
 
+        /**
+         * 스킬 ID를 통해 스킬 정보를 가져옴
+         * @param skillId 스킬 ID
+         * @return 해당 스킬의 정보
+         */
         SkillInfo GetSkillInfoById(SkillID skillId);
 
         /**
-         * id를 바탕으로 가지고 있는 스킬들을 리턴
-         * @param id 객체 템플릿 id
-         * @return
+         * 객체 템플릿 ID를 바탕으로 스킬 목록을 반환
+         * @param id 객체 템플릿 ID
+         * @return 스킬 ID 목록
          */
         std::vector<SkillID> &GetSkillsByTemplate(TemplateID id);
 
+        /**
+         * 템플릿 ID를 통해 AI 공격 범위를 가져옴
+         * @param id 템플릿 ID
+         * @return 범위
+         */
         int GetAIRangeByTemplate(TemplateID id);
 
+        /**
+         * 공격 실행 함수
+         * @param attack 공격 요청 정보
+         */
         void ExecuteAttack(ReqAttack attack);
 
         /**
-         * 해당 위치에서 방향으로 스킬 썼을 때 맞는 범위를 리턴함. 다형성 위해 unique_ptr 리턴.
-         * @param location
-         * @param dir
-         * @param id
-         * @return
+         * 스킬 사용시 해당 위치와 방향에 맞는 범위를 계산
+         * @param location 위치
+         * @param dir 방향
+         * @param id 스킬 ID
+         * @return 스킬 범위
          */
         RangeUnique CalculateSkillRange(FVector location, FVector dir, SkillID id);
 
+        /**
+         * 아이템 ID를 통해 범위 객체를 가져옴
+         * @param id 아이템 ID
+         * @return 범위 객체
+         */
         RangeUnique GetRangeByItemID(TemplateID id);
     }
 }

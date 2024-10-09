@@ -1,205 +1,102 @@
-﻿#include "GameObject.h"
+﻿// GameObject.cpp
+// 이 파일은 게임 객체 (GameObject) 클래스의 구현을 포함합니다.
 
+#include "GameObject.h"
 #include "Field.h"
+#include "MoveComponent.h"
 #include "Player.h"
 #include "TableData.h"
 
+// 전역 상수 및 전역 변수는 없음
 
-psh::Sector TableIndexFromDiff(const psh::Sector sectorDiff)
+namespace psh
 {
-    return psh::Sector(sectorDiff.x + 1, sectorDiff.y + 1);
-}
-
-psh::GameObject::GameObject(Field &group, const GameObjectData &initData):
-                                                                         _location(initData.location)
-                                                                       , _direction(initData.direction)
-                                                                       , _objectType(initData.objectType)
-                                                                       , _objectIndex(initData.templateId)
-                                                                       , _field(group)
-                                                                       , _moveSpeedPerSec(initData.moveSpeedPerSec)
-                                                                       , _oldLocation(initData.location)
-                                                                       , _destination(initData.location)
-{
-}
-
-psh::GameObject::~GameObject() = default;
-
-void psh::GameObject::MakeCreatePacket(SendBuffer &buffer, const bool spawn) const
-{
-    MakeGame_ResCreateActor(buffer, _objectId, _objectType, _objectIndex, _location, _direction, spawn);
-
-    if (isMove())
+    // GameObject 클래스 생성자
+    GameObject::GameObject(Field &group, const GameObjectData &initData)
+        : _location(initData.location)
+      , _viewDirection(initData.direction)
+      , _objectType(initData.objectType)
+      , _templateId(initData.templateId)
+      , _field(group)
+      , _oldLocation(initData.location)
+      , _movementComponent{std::make_unique<MoveComponent>(*this, initData.moveSpeedPerSec / 1000.0f)}
     {
-        MakeGame_ResMove(buffer, _objectId, _objectType, _destination);
-    }
-}
-
-void psh::GameObject::MoveStart(const FVector destination)
-{
-    auto moveBuffer = SendBuffer::Alloc();
-    MakeGame_ResMove(moveBuffer, _objectId, _objectType, destination);
-
-    for (auto view = _field.GetPlayerView(Location(), SEND_OFFSETS::BROADCAST);
-         const auto &player: view)
-    {
-        std::static_pointer_cast<Player>(player)->SendPacket(moveBuffer);
     }
 
-    _move = true;
-    _destination = destination;
-    _direction = (destination - Location()).Normalize();
+    GameObject::~GameObject() = default;
 
-    ASSERT_CRASH(!isnan(_direction.X), "InvalidDestination");
-}
-
-void psh::GameObject::MoveStop()
-{
-    _move = false;
-    auto moveStop = SendBuffer::Alloc();
-    MakeGame_ResMoveStop(moveStop, ObjectId(), Location());
-
-
-    for (auto view = _field.GetPlayerView(Location(), SEND_OFFSETS::BROADCAST);
-         const auto& player: view)
+    // 생성 패킷을 구성하는 함수
+    void GameObject::MakeCreatePacket(SendBuffer &buffer, const bool spawn) const
     {
-        std::static_pointer_cast<Player>(player)->SendPacket(moveStop);
-    }
-}
-
-void psh::GameObject::Update(const int delta)
-{
-    if (!Valid())
-    {
-        return;
-    }
-
-    HandleMove(delta);
-    OnUpdate(delta);
-}
-
-void psh::GameObject::OnCreate()
-{
-    auto createThisBuffer = SendBuffer::Alloc();
-    MakeCreatePacket(createThisBuffer, true);
-
-    for (auto view = _field.GetPlayerView(Location(), SEND_OFFSETS::BROADCAST);
-         const auto &player: view)
-    {
-        std::static_pointer_cast<Player>(player)->SendPacket(createThisBuffer);
-    }
-    OnCreateImpl();
-}
-
-void psh::GameObject::OnDestroy()
-{
-    auto buf = SendBuffer::Alloc();
-
-    MakeGame_ResDestroyActor(buf, ObjectId(), true, _removeReason);
-
-    auto view = _field.GetPlayerView(Location(), SEND_OFFSETS::BROADCAST);
-    for (const auto &player: _field.GetPlayerView(Location(), SEND_OFFSETS::BROADCAST))
-    {
-        std::static_pointer_cast<Player>(player)->SendPacket(buf);
-    }
-
-    OnDestroyImpl();
-}
-
-void psh::GameObject::BroadcastSectorChange(const int sectorIndex) const
-{
-    auto deletePlayers = _field.GetPlayerView(OldLocation(), SEND_OFFSETS::DeleteTable[sectorIndex]);
-    auto newPlayers = _field.GetPlayerView(Location(), SEND_OFFSETS::CreateTable[sectorIndex]);
-    {
-        auto deleteThisBuffer = SendBuffer::Alloc();
-        MakeGame_ResDestroyActor(deleteThisBuffer, ObjectId(), false, Move);
-        for (auto &player: deletePlayers)
+        MakeGame_ResCreateActor(buffer, _objectId, _objectType, _templateId, _location, _viewDirection, spawn);
+        if (_movementComponent == nullptr)
         {
-            std::static_pointer_cast<Player>(player)->SendPacket(deleteThisBuffer);
+            return;
         }
 
+        if (_movementComponent->IsMoving())
+        {
+            MakeGame_ResMove(buffer, _objectId, _objectType, _movementComponent->Destination());
+        }
+    }
 
+    // 이동 시작 함수
+    void GameObject::MoveStart(const FVector destination) const
+    {
+        _movementComponent->MoveStart(destination);
+    }
+
+    // 이동 멈춤 함수
+    void GameObject::MoveStop() const
+    {
+        _movementComponent->MoveStop();
+    }
+
+    bool GameObject::IsMoving() const
+    {
+        return _movementComponent->IsMoving();
+    }
+
+    // 업데이트 함수
+    void GameObject::Update(const int delta)
+    {
+        if (!Valid())
+        {
+            return;
+        }
+
+        if (_movementComponent != nullptr)
+        {
+            _movementComponent->Update(delta);
+        }
+    }
+
+    // 생성 시 호출되는 함수
+    void GameObject::OnCreate()
+    {
         auto createThisBuffer = SendBuffer::Alloc();
-        MakeCreatePacket(createThisBuffer, false);
-        for (auto &player: newPlayers)
-        {
-            std::static_pointer_cast<Player>(player)->SendPacket(createThisBuffer);
-        }
-    }
-}
+        MakeCreatePacket(createThisBuffer, true);
 
-void psh::GameObject::HandleMove(const int delta)
-{
-    if (!_move)
+        _field.BroadcastToPlayer(Location(), {createThisBuffer});
+        // 플레이어에게 생성 패킷 전송
+        OnCreateImpl();
+    }
+
+    // 소멸 시 호출되는 함수
+    void GameObject::OnDestroy()
     {
-        return;
+        auto destroyed = SendBuffer::Alloc();
+        MakeGame_ResDestroyActor(destroyed, ObjectId(), true, static_cast<char>(_removeReason));
+
+        _field.BroadcastToPlayer(Location(), {destroyed});
+        // 플레이어에게 소멸 패킷 전송
+        OnDestroyImpl();
     }
 
-    UpdateLocation(delta);
-
-    const auto oldSector = _map->GetSector(OldLocation());
-    const auto newSector = _map->GetSector(Location());
-
-    if (oldSector == newSector)
+    std::ostream &operator<<(std::ostream &out, const GameObject &obj)
     {
-        return;
+        out << std::format("(GameObj: type:{}, Oid:{}, Loc:({},{})", static_cast<char>(obj.ObjectType())
+                         , obj.ObjectId(), obj.Location().X, obj.Location().Y);
+        return out;
     }
-
-    _map->Insert(ObjectId(), shared_from_this(), Location());
-    _map->Delete(ObjectId(), OldLocation());
-
-    const auto [x, y] = Clamp(newSector - oldSector, -1, 1);
-    const auto sectorIndex = SEND_OFFSETS::getDirectionIndex(x, y);
-
-    BroadcastSectorChange(sectorIndex);
-
-    if (ObjectType() != eObjectType::Player)
-    {
-        return;
-    }
-
-    auto delObjects = _field.GetObjectView(OldLocation(), SEND_OFFSETS::DeleteTable[sectorIndex]);
-    auto deleteObjectsBuffer = SendBuffer::Alloc();
-    for (auto &obj: delObjects)
-    {
-        MakeGame_ResDestroyActor(deleteObjectsBuffer, obj->ObjectId(), false, Move);
-    }
-    if (deleteObjectsBuffer.Size() != 0)
-    {
-        static_cast<Player*>(this)->SendPacket(deleteObjectsBuffer);
-    }
-
-
-    auto createObjects = _field.GetObjectView(Location(), SEND_OFFSETS::CreateTable[sectorIndex]);
-    auto createObjectsBuffer = SendBuffer::Alloc();
-
-    for (auto &obj: createObjects)
-    {
-        obj->MakeCreatePacket(createObjectsBuffer, false);
-    }
-
-    if (createObjectsBuffer.Size() != 0)
-    {
-        static_cast<Player *>(this)->SendPacket(createObjectsBuffer);
-    }
-}
-
-void psh::GameObject::UpdateLocation(const int delta)
-{
-    const float DistanceToDestination = (_destination - _location).Size();
-
-    if (const FVector moveDelta = _direction * static_cast<float>(delta) * MoveSpeedPerMs;
-        DistanceToDestination <= moveDelta.Size())
-    {
-        _map->ClampToMap(_destination);
-        OldLocation(Location());
-        Location(_destination);
-        MoveStop();
-    }
-    else
-    {
-        auto destination = _location + moveDelta;
-        _map->ClampToMap(destination);
-        OldLocation(Location());
-        Location(destination);
-    }
-}
+} // namespace psh

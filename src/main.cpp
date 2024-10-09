@@ -2,7 +2,6 @@
 
 #include "AttackData.h"
 #include "DBConnection.h"
-#include "ModernObjectPool.h"
 #include "Server.h"
 #include "TableData.h"
 
@@ -11,21 +10,6 @@
 
 int main()
 {
-    psh::SquareRange s{{-30, 0}, {30, 60}};
-    //s.Rotate({1, 0}, {0, 0});
-
-    bool result = s.Contains({15, -15});
-
-    if (result)
-    {
-        std::cout << "YES" << std::endl;
-    }
-    else
-    {
-        std::cout << "NO" << std::endl;
-    }
-
-
     try
     {
         DBConnection::LibInit();

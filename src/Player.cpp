@@ -55,8 +55,8 @@ namespace psh
 
     inline void Player::OnCreateImpl()
     {
-        for (auto otherObjects = _field.GetObjectView(Location(), SEND_OFFSETS::BROADCAST);
-             auto &obj: otherObjects)
+        auto view = _field.GetObjectView(Field::ViewObjectType::All, Location(), SEND_OFFSETS::BROADCAST);
+        for (const auto &obj: view)
         {
             if (obj.get() == this)
             {

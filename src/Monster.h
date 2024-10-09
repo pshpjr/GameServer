@@ -12,7 +12,7 @@ namespace psh
 
         ~Monster() override = default;
 
-        void OnUpdate(int delta) override;
+        void Update(int delta) override;
 
         void OnDestroyImpl() override;
 

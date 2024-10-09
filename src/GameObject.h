@@ -1,21 +1,18 @@
 ﻿#pragma once
+
 #include <format>
 #include <memory>
 #include <PacketGenerated.h>
 #include "ContentTypes.h"
+#include "Updatable.h"
 
 namespace psh
 {
-    class AttackManager;
+    // 전방 선언 (Forward Declarations)
     class Field;
-
-    enum removeResult : char {
-        GroupChange, Move, Die
-    };
-
     template<typename Key, typename T>
     class GameMap;
-    class GameObject;
+    class MoveComponent;
 
     //0~25 : 플레이어 50~75: 몬스터. 100~ 아이템
     using TemplateID = char;
@@ -23,81 +20,63 @@ namespace psh
     struct GameObjectData {
         FVector location{0, 0};
         FVector direction{0, 0};
-
-        //templateID 같은 이름으로 뺄 수 있을듯.
         float moveSpeedPerSec{200};
         eObjectType objectType = eObjectType::Object;
-        TemplateID templateId = 127;
+        TemplateID templateId = -1;
     };
 
-    //오브젝트 소멸 조건 되면 자기가 죽었다고 주변에 알아서 알리기.
-    class GameObject : public std::enable_shared_from_this<GameObject> {
+    enum class removeResult : char {
+        None
+      , GroupChange
+      , Move
+      , Die
+    };
+
+    /**
+     * 생성 소멸 알림은 외부에서 알아서 함.
+     */
+    class GameObject :
+            public std::enable_shared_from_this<GameObject>
+          , public Updatable {
+        //컴포넌트만 객체 setter에 접근
+        friend class MoveComponent;
+
     public:
+        // 생성자와 소멸자 (Constructors and Destructor)
         GameObject(Field &group, const GameObjectData &initData);
 
-        virtual ~GameObject();
+        ~GameObject() override;
 
+        // 공용 멤버 함수 (Public Member Functions)
         virtual void MakeCreatePacket(SendBuffer &buffer, bool spawn) const;
 
-        void MoveStart(FVector destination);
+        //이동 관련
+        void MoveStart(FVector destination) const;
 
-        void MoveStop();
+        void MoveStop() const;
 
-        virtual void Update(int delta);
+        bool IsMoving() const;
 
-        //생성, 소멸시 주변에 알리는 것은 field에서 한다.
+
+        void Update(int delta) override;
+
+        //객체 생성, 소멸 관련
         void OnCreate();
-
 
         virtual void OnCreateImpl()
         {
         }
 
-
         void OnDestroy();
 
-
-        //생성, 소멸시 주변에 알리는 것은 field에서 한다.
-        //소멸 이유 설정하기
         virtual void OnDestroyImpl()
         {
         }
 
-
-        // struct MoveDebug
-        // {
-        //     psh::Sector before;
-        //     psh::Sector after;
-        // };
-        // static const int size = 1024;
-        // MoveDebug debug[size];
-        // int index = 0;
-
-        // void WriteMoveLog(Sector before, Sector after)
-        // {
-        //     debug[(index++) & size] = { before,after };
-        // }
-        friend std::ostream &operator<<(std::ostream &out, const GameObject &obj)
+        //게터
+        [[nodiscard]] FVector Location() const
         {
-            out << std::format("(GameObj: type:{}, Oid:{}, Loc:({},{})", static_cast<char>(obj.ObjectType())
-                             , obj.ObjectId(), obj.Location().X, obj.Location().Y);
-
-            return out;
-        }
-
-        [[nodiscard]] FVector OldLocation() const
-        {
-            return _oldLocation;
-        }
-
-        void OldLocation(const FVector location)
-        {
-            _oldLocation = location;
-        }
-
-        void ObjectId(const ObjectID id)
-        {
-            _objectId = id;
+            return _location;
         }
 
         [[nodiscard]] ObjectID ObjectId() const
@@ -105,34 +84,14 @@ namespace psh
             return _objectId;
         }
 
-        [[nodiscard]] FVector Location() const
+        [[nodiscard]] FVector ViewDirection() const
         {
-            return _location;
-        }
-
-        void Location(const FVector loc)
-        {
-            _location = loc;
-        }
-
-        [[nodiscard]] bool isMove() const
-        {
-            return _move;
-        }
-
-        [[nodiscard]] FVector Direction() const
-        {
-            return _direction;
-        }
-
-        [[nodiscard]] FVector Destination() const
-        {
-            return _destination;
+            return _viewDirection;
         }
 
         [[nodiscard]] char objectIndex() const
         {
-            return _objectIndex;
+            return _templateId;
         }
 
         [[nodiscard]] eObjectType ObjectType() const
@@ -145,19 +104,9 @@ namespace psh
             return _inMap;
         }
 
-        void Valid(const bool inMap)
-        {
-            _inMap = inMap;
-        }
-
-        GameMap<ObjectID, shared<GameObject> > *GetMap() const
+        [[nodiscard]] GameMap<ObjectID, std::shared_ptr<GameObject> > *GetMap() const
         {
             return _map;
-        }
-
-        void SetMap(GameMap<ObjectID, shared<GameObject> > *map)
-        {
-            _map = map;
         }
 
         [[nodiscard]] Field &GetField() const
@@ -165,34 +114,67 @@ namespace psh
             return _field;
         }
 
-    private:
-        void HandleMove(int delta);
-
-        void UpdateLocation(int delta);
-
-        void BroadcastSectorChange(int sectorIndex) const;
-
-        ObjectID _objectId{};
-        FVector _location{};
-        FVector _direction{};
-        eObjectType _objectType = eObjectType::Object;
-        char _objectIndex = 0;
-
-    protected:
-        virtual void OnUpdate(int delta)
+        [[nodiscard]] MoveComponent &GetMovable() const
         {
+            return *_movementComponent;
         }
 
+        //필드만 접근하는 setter 함수들. 얘도 빼낼 수 있을 것 같은데
+        void Valid(const bool inMap)
+        {
+            _inMap = inMap;
+        }
+
+        void SetMap(GameMap<ObjectID, std::shared_ptr<GameObject> > *map)
+        {
+            _map = map;
+        }
+
+        void ObjectId(const ObjectID id)
+        {
+            _objectId = id;
+        }
+
+        //디버깅용
+        friend std::ostream &operator<<(std::ostream &out, const GameObject &obj);
+
+    protected:
+        //멤버
         Field &_field;
-        GameMap<ObjectID, shared<GameObject> > *_map{nullptr};
-        removeResult _removeReason;
+        GameMap<ObjectID, std::shared_ptr<GameObject> > *_map{nullptr};
+        removeResult _removeReason{None};
 
     private:
-        float _moveSpeedPerSec;
-        float MoveSpeedPerMs = _moveSpeedPerSec / 1000.0f;
+        [[nodiscard]] FVector OldLocation() const
+        {
+            return _oldLocation;
+        }
+
+        void OldLocation(const FVector location)
+        {
+            _oldLocation = location;
+        }
+
+        void Location(const FVector loc)
+        {
+            _location = loc;
+        }
+
+        void ViewDirection(FVector dir)
+        {
+            _viewDirection = dir;
+        }
+
+        // 멤버 변수 (Member Variables)
+        ObjectID _objectId{};
+        FVector _location{};
         FVector _oldLocation;
-        FVector _destination;
-        bool _move = false;
+        FVector _viewDirection{};
+        eObjectType _objectType = eObjectType::Object;
+        TemplateID _templateId = 0;
+
         bool _inMap = false;
+
+        unique<MoveComponent> _movementComponent;
     };
 }

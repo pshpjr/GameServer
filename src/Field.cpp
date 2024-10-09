@@ -1,9 +1,17 @@
-﻿#include "Field.h"
+﻿/*
+ * Field.cpp
+ *
+ * 서버 내에서 필드(맵) 로직을 담당하는 클래스 구현
+ *
+ * 파일: Field.cpp
+ * 설명: 게임 내 플레이어, 몬스터, 아이템 등 필드 상의 오브젝트 관리 및 처리
+ * 작성자: [작성자명]
+ * 날짜: [작성일]
+ */
 
-#include <Memory>
-
+#include "Field.h"
+#include <memory>
 #include "Profiler.h"
-
 #include "CLogger.h"
 #include "DBData.h"
 #include "DBThreadWrapper.h"
@@ -17,19 +25,11 @@
 #include "MonsterSpawner.h"
 #include "Rand.h"
 
-
-psh::Field::Field(Server &server
-                , const ServerInitData &data
-                , const ServerType type
-                , short mapSize
-                , short sectorSize)
+// 필드 클래스 생성자 및 소멸자
+psh::Field::Field(Server &server, const ServerInitData &data, const ServerType type, short mapSize, short sectorSize)
     : _dbThread{
-        std::make_unique<DBThreadWrapper>(
-                                          data.gameDBIP.c_str()
-                                        , data.gameDBPort
-                                        , data.gameDBID.c_str()
-                                        , data.gameDBPwd.c_str()
-                                        , "mydb")
+        std::make_unique<DBThreadWrapper>(data.gameDBIP.c_str(), data.gameDBPort, data.gameDBID.c_str()
+                                        , data.gameDBPwd.c_str(), "mydb")
     }
   , _server(server)
   , _initData(data)
@@ -44,56 +44,46 @@ psh::Field::Field(Server &server
   , _logger{std::make_unique<CLogger>(std::format(L"field_{}", static_cast<int>(type)).c_str())}
   , _fieldSize(mapSize)
 {
-    if (_groupType == ServerType::Easy)
-        _spawner = std::make_unique<MonsterSpawner>(ServerType::Easy, *this);
 }
 
 psh::Field::~Field() = default;
 
+// 클라이언트가 필드에 입장할 때 호출
 void psh::Field::OnEnter(SessionID id)
 {
     auto dataPtr = _server.GetDbData(id);
-
-    //접속한 유저의 정보 받아옴. 다른 곳에서 왔다면 무작위 위치 지정.
     if (static_cast<ServerType>(dataPtr->ServerType()) != _groupType)
     {
         dataPtr->SetServerType(static_cast<char>(_groupType));
-        dataPtr->SetLocation(FVector(std::rand() % _fieldSize, std::rand() % _fieldSize));
+
+        const auto fieldSize = static_cast<float>(_fieldSize);
+        dataPtr->SetLocation({RandomUtil::Rand(0.0, fieldSize), RandomUtil::Rand(0.0, fieldSize)});
     }
 
-    //플레이어 객체 생성 리스트에 추가. 맵에는 클라에서 이동 완료 패킷 받았을 때
-    GameObjectData initData{
-        dataPtr->Location()
-      , {0, 0}
-      , 200.0
-      , eObjectType::Player
-      , dataPtr->CharacterType()
-    };
-
-    auto playerPtr = std::make_shared<Player>(*this, initData,
-                                              dataPtr, _dbThread.get());
+    // 플레이어 객체 생성 및 필드에 등록
+    GameObjectData initData{dataPtr->Location(), {0, 0}, 200.0, eObjectType::Player, dataPtr->CharacterType()};
+    auto playerPtr = std::make_shared<Player>(*this, initData, dataPtr, _dbThread.get());
     playerPtr->SetMap(nullptr);
     playerPtr->ObjectId(NextObjectId());
 
+    // 플레이어 레벨 진입 패킷 생성 및 전송
     auto levelInfoPacket = SendBuffer::Alloc();
     MakeGame_ResLevelEnter(levelInfoPacket, playerPtr->AccountNumber(), playerPtr->ObjectId(), _groupType);
     SendPacket(playerPtr->SessionId(), levelInfoPacket);
-
     _players.insert({id, std::move(playerPtr)});
 
     _iocp->SetTimeout(id, 30000);
 }
 
+// 클라이언트가 필드에서 퇴장할 때 호출
 void psh::Field::OnLeave(const SessionID id, int wsaErrCode)
 {
     const auto it = _players.find(id);
     const PlayerRef playerPtr = it->second;
 
-    //살아있는 상태로 종료/필드 이동
     if (playerPtr->Valid())
     {
         playerPtr->_data->SetLocation(playerPtr->Location());
-
         _dbThread->LeaveGroup(playerPtr->_data, &_server, id, GroupManager::BaseGroupID());
     }
 
@@ -101,7 +91,7 @@ void psh::Field::OnLeave(const SessionID id, int wsaErrCode)
     DestroyActor(playerPtr);
 }
 
-
+// 필드 내 상태 업데이트
 void psh::Field::OnUpdate(const int milli)
 {
     using namespace std::chrono;
@@ -121,16 +111,17 @@ void psh::Field::OnUpdate(const int milli)
     }
 
     SendMonitor();
-
     _nextDBSend += 1s;
     _fps = 0;
 }
 
+// 클라이언트로부터 받은 패킷 처리
 void psh::Field::OnRecv(const SessionID id, CRecvBuffer &recvBuffer)
 {
     ePacketType type;
     recvBuffer >> type;
-    auto &[_,playerPtr] = *_players.find(id);
+    auto &[_, playerPtr] = *_players.find(id);
+
     switch (type)
     {
         case eGame_ReqChangeComplete:
@@ -154,56 +145,58 @@ void psh::Field::OnRecv(const SessionID id, CRecvBuffer &recvBuffer)
     }
 }
 
+// 특정 클라이언트가 떠날 때 이를 다른 플레이어에게 브로드캐스트
 void psh::Field::BroadcastPlayerLeave(const PlayerRef &playerPtr)
 {
     auto destroyBuf = SendBuffer::Alloc();
-    MakeGame_ResDestroyActor(destroyBuf, playerPtr->ObjectId(), false, GroupChange);
-    for (auto view = GetPlayerView(playerPtr->Location(), SEND_OFFSETS::BROADCAST);
+    MakeGame_ResDestroyActor(destroyBuf, playerPtr->ObjectId(), false, static_cast<char>(removeResult::GroupChange));
+    for (auto view = GetObjectView(ViewObjectType::Player, playerPtr->Location(), SEND_OFFSETS::BROADCAST);
          auto &player: view)
     {
         std::static_pointer_cast<Player>(player)->SendPacket(destroyBuf);
     }
 }
 
+// 클라이언트의 레벨 변경 요청을 처리
 void psh::Field::RecvReqLevelChange(const SessionID id, CRecvBuffer &recvBuffer)
 {
     AccountNo accountNo;
     ServerType type;
     GetGame_ReqLevelEnter(recvBuffer, accountNo, type);
-
     auto [_, playerPtr] = *_players.find(id);
 
     if (playerPtr->Valid())
     {
-        auto obj = static_pointer_cast<GameObject>(playerPtr);
+        auto obj = std::static_pointer_cast<GameObject>(playerPtr);
         DestroyActor(obj);
     }
 
     playerPtr->_data->SetLocation(playerPtr->Location());
-
     _dbThread->LeaveGroup(playerPtr->_data, &_server, id, _server.GetGroupId(type));
 }
 
+// 플레이어의 위치 변경 완료를 처리
 void psh::Field::RecvChangeComp(const SessionID id, CRecvBuffer &recvBuffer)
 {
     AccountNo accountNo;
     GetGame_ReqChangeComplete(recvBuffer, accountNo);
-
-    auto &[_,playerPtr] = *_players.find(id);
+    auto &[_, playerPtr] = *_players.find(id);
 
     if (playerPtr->isDead())
     {
         playerPtr->Revive();
     }
     _dbThread->EnterGroup(playerPtr->_data);
-    AddActor(static_pointer_cast<GameObject>(playerPtr));
+    AddActor(std::static_pointer_cast<GameObject>(playerPtr));
 }
 
+// 플레이어의 채팅 메시지 처리
 void psh::Field::RecvChat(const SessionID id, CRecvBuffer &recvByffer)
 {
     auto &[_, player] = *_players.find(id);
     String chatData;
     GetGame_ReqChat(recvByffer, chatData);
+
     if (player == nullptr)
     {
         _logger->Write(L"Disconnect", CLogger::LogLevel::Invalid, L"recvChat. Not Found Player. SessionID : %d", id);
@@ -213,16 +206,13 @@ void psh::Field::RecvChat(const SessionID id, CRecvBuffer &recvByffer)
 
     auto chatBuffer = SendBuffer::Alloc();
     MakeGame_ResChat(chatBuffer, player->ObjectId(), chatData);
-    for (auto view = GetPlayerView(player->Location(), SEND_OFFSETS::BROADCAST);
-         const auto &p: view)
-    {
-        std::static_pointer_cast<Player>(p)->SendPacket(chatBuffer);
-    }
+    BroadcastToPlayer(player->Location(), {chatBuffer});
 }
 
+// 플레이어 이동 요청 처리
 void psh::Field::RecvMove(const SessionID sessionId, CRecvBuffer &buffer)
 {
-    auto &[_,player] = *_players.find(sessionId);
+    auto &[_, player] = *_players.find(sessionId);
     FVector location{};
     GetGame_ReqMove(buffer, location);
 
@@ -234,9 +224,6 @@ void psh::Field::RecvMove(const SessionID sessionId, CRecvBuffer &buffer)
         return;
     }
 
-    //자기가 있는 위치로 이동해서 nan되는 문제 발생시
-    //단순히 리턴 하면 더미에서 move 패킷 검증올 못함.
-    //그거 방지용
     if (location == player->Location())
     {
         auto moveBuffer = SendBuffer::Alloc();
@@ -245,34 +232,35 @@ void psh::Field::RecvMove(const SessionID sessionId, CRecvBuffer &buffer)
         printf("InvalidLocation. objID : %d, AccountNo : %lld\n", player->ObjectType(), player->AccountNumber());
         return;
     }
+
     player->MoveStart(location);
 }
 
+// 플레이어 공격 요청 처리
 void psh::Field::RecvAttack(const SessionID sessionId, CRecvBuffer &buffer)
 {
-    auto &[_,player] = *_players.find(sessionId);
+    auto &[_, player] = *_players.find(sessionId);
     char type;
     FVector dir{};
     GetGame_ReqAttack(buffer, type, dir);
-    std::cout << dir;
+
     if (player == nullptr)
     {
         _logger->Write(L"Disconnect", CLogger::LogLevel::Invalid, L"recvAttack. Not Found Player. SessionID : %d"
                      , sessionId);
-        _iocp->DisconnectSession(sessionId);
     }
     if (player->isDead())
     {
-        //printf("ResAttack playerDead, Account : %d\n", player->AccountNumber() );
         return;
     }
 
     player->Attack(type, dir);
 }
 
+// 특정 위치의 플레이어에게 데이터를 브로드캐스트
 void psh::Field::BroadcastToPlayer(FVector targetLocation, const std::vector<SendBuffer> &packets)
 {
-    for (auto view = GetPlayerView(targetLocation, SEND_OFFSETS::BROADCAST);
+    for (auto view = GetObjectView(ViewObjectType::Player, targetLocation, SEND_OFFSETS::BROADCAST);
          const auto &player: view)
     {
         for (const SendBuffer &packet: packets)
@@ -282,24 +270,18 @@ void psh::Field::BroadcastToPlayer(FVector targetLocation, const std::vector<Sen
     }
 }
 
+void psh::Field::SpawnItem(const shared<Item> &obj)
+{
+    ASSERT_CRASH(false, "Not implemented");
+}
+
+// 몬스터 생성 및 필드에 추가
 void psh::Field::SpawnMonster(const shared<Monster> &obj)
 {
     AddActor(std::static_pointer_cast<GameObject>(obj));
 }
 
-psh::FVector psh::Field::GetRandomLocation()
-{
-    return {
-        static_cast<float>(RandomUtil::Rand(0, _fieldSize))
-      , static_cast<float>(RandomUtil::Rand(0, _fieldSize))
-    };
-}
-
-size_t psh::Field::GetMonsterCount()
-{
-    return _monsterMap->Objects();
-}
-
+// 필드가 생성될 때 초기화
 void psh::Field::OnCreate()
 {
     String extraName = L"Group";
@@ -307,42 +289,68 @@ void psh::Field::OnCreate()
     _logger = std::make_unique<CLogger>(extraName.c_str());
 }
 
+// 공격 처리 로직
 psh::victim_select::AttackResult psh::Field::ProcessAttack(AttackInfo info)
 {
     return _victimSelect(*this, info);
 }
 
+// 특정 오브젝트 타입에 대한 시야 반환
+psh::Field::view_type psh::Field::GetObjectView(ViewObjectType type, const FVector &location
+                                              , std::span<const Sector> offsets)
+{
+    std::vector<map_type::SectorView> returnView;
 
+    if ((type & ViewObjectType::Player) == ViewObjectType::Player)
+    {
+        returnView.push_back(_playerMap->GetSectorsFromOffset(location, offsets));
+    }
+    if ((type & ViewObjectType::Monster) == ViewObjectType::Monster)
+    {
+        returnView.push_back(_monsterMap->GetSectorsFromOffset(location, offsets));
+    }
+    if ((type & ViewObjectType::Item) == ViewObjectType::Item)
+    {
+        returnView.push_back(_itemMap->GetSectorsFromOffset(location, offsets));
+    }
+
+    return map_type::SectorView{returnView};
+}
+
+// 필드 내 특정 위치에서 시야 반환(구현되지 않음)
+psh::Field::view_type psh::Field::GetObjectViewByPoint(ViewObjectType type, const std::list<FVector> &coordinate)
+{
+    throw std::logic_error("Not implemented");
+}
+
+// 오브젝트를 대기 목록에 추가
 void psh::Field::AddActor(const shared<GameObject> &obj)
 {
     _createWaits.push_back(obj);
 }
 
+// 오브젝트 삭제 대기 목록에 추가
 void psh::Field::DestroyActor(shared<GameObject> &obj)
 {
     obj->Valid(false);
-
     _delWaits.emplace_back(obj);
 }
 
+// 오브젝트 삭제 대기 목록에 추가 (rvalue 참조)
 void psh::Field::DestroyActor(shared<GameObject> &&obj)
 {
     DestroyActor(obj);
 }
 
-
+// 대기 중인 오브젝트를 필드에 삽입
 void psh::Field::InsertWaitObjectInMap()
 {
     while (!_createWaits.empty())
     {
         auto obj = _createWaits.front();
         _createWaits.pop_front();
-
         _objects.insert(obj);
 
-        //플레이어가 아니면 id 설정.
-        //플레이어의 경우 요청하기 전에 미리 설정함.
-        //좋은 코드인가
         if (obj->ObjectType() != eObjectType::Player)
         {
             obj->ObjectId(NextObjectId());
@@ -357,6 +365,7 @@ void psh::Field::InsertWaitObjectInMap()
     }
 }
 
+// 오브젝트 타입에 따라 적절한 맵 반환
 psh::GameMap<psh::ObjectID, psh::shared<psh::GameObject> > *psh::Field::FindObjectMap(
     const shared<GameObject> &obj) const
 {
@@ -374,6 +383,7 @@ psh::GameMap<psh::ObjectID, psh::shared<psh::GameObject> > *psh::Field::FindObje
     }
 }
 
+// 삭제 대기 중인 오브젝트 정리
 void psh::Field::CleanupDeleteWait()
 {
     while (!_delWaits.empty())
@@ -387,16 +397,17 @@ void psh::Field::CleanupDeleteWait()
         {
             map->Delete(obj->ObjectId(), obj->Location());
         }
-
         _objects.erase(obj);
     }
 }
 
+// 다음 오브젝트 ID 반환
 psh::ObjectID psh::Field::NextObjectId()
 {
     return ++_objectId;
 }
 
+// 필드 내 오브젝트 업데이트
 void psh::Field::UpdateContent(const int deltaMs)
 {
     for (auto &obj: _objects)
@@ -405,14 +416,11 @@ void psh::Field::UpdateContent(const int deltaMs)
     }
 }
 
+// 모니터링 데이터 전송
 void psh::Field::SendMonitor()
 {
-    printf("Players : %zd\n"
-           "Group : %ld, Work : %lld, Queue: %d, Handled : %lld\n"
-
-         , _players.size()
-         , static_cast<long>(GetGroupID()), GetWorkTime(), GetQueued(), GetJobTps()
-          );
+    printf("Players : %zd\nGroup : %ld, Work : %lld, Queue: %d, Handled : %lld\n",
+           _players.size(), static_cast<long>(GetGroupID()), GetWorkTime(), GetQueued(), GetJobTps());
 
     if (!_useMonitor)
     {
@@ -420,8 +428,6 @@ void psh::Field::SendMonitor()
     }
 
     auto [queued, enqueue, dequeue, delaySum] = _dbThread->GetMonitor();
-    //printf("DBQueued: %lld, DBEnqueue : %lld, DBDequeue : %lld, DBDelayAvg : %f\n"
-    //    , monitor.queued, monitor.enqueue, monitor.dequeue, monitor.delaySum / float(monitor.dequeue));
 
     if (_monitorSession == InvalidSessionID())
     {
@@ -434,12 +440,11 @@ void psh::Field::SendMonitor()
         _iocp->SetSessionStaticKey(_monitorSession, 0);
         SendLogin();
     }
-    else if (_server.IsValidSession(_monitorSession) == false)
+    else if (!_server.IsValidSession(_monitorSession))
     {
         _monitorSession = InvalidSessionID();
         return;
     }
-
 
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_RUN, static_cast<int>(1));
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_WORK_TIME, static_cast<int>(GetWorkTime()));
@@ -457,20 +462,32 @@ void psh::Field::SendMonitor()
     }
 }
 
+// 모니터 로그인 전송
 void psh::Field::SendLogin() const
 {
     auto buffer = SendBuffer::Alloc();
-
     buffer << en_PACKET_SS_MONITOR_LOGIN << static_cast<WORD>(1) << static_cast<char>(static_cast<long>(GetGroupID()));
     _server.SendPacket(_monitorSession, buffer);
 }
 
+// 모니터링 데이터 전송
 void psh::Field::SendMonitorData(const en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, const int value) const
 {
     auto buffer = SendBuffer::Alloc();
-
     buffer << en_PACKET_SS_MONITOR_DATA_UPDATE << static_cast<WORD>(1) << static_cast<char>(static_cast<long>(
-                GetGroupID())) << type <<
-            value << static_cast<int>(time(nullptr));
+        GetGroupID())) << type << value << static_cast<int>(time(nullptr));
     _server.SendPacket(_monitorSession, buffer);
+}
+
+// ViewObjectType 비트 연산자 오버로딩
+psh::Field::ViewObjectType psh::operator|(Field::ViewObjectType lhs, Field::ViewObjectType rhs)
+{
+    using enumType = std::underlying_type_t<Field::ViewObjectType>;
+    return static_cast<Field::ViewObjectType>(static_cast<enumType>(lhs) | static_cast<enumType>(rhs));
+}
+
+psh::Field::ViewObjectType psh::operator&(Field::ViewObjectType lhs, Field::ViewObjectType rhs)
+{
+    using enumType = std::underlying_type_t<Field::ViewObjectType>;
+    return static_cast<Field::ViewObjectType>(static_cast<enumType>(lhs) & static_cast<enumType>(rhs));
 }

@@ -3,8 +3,7 @@
 
 namespace psh
 {
-    struct RandomUtil
-    {
+    struct RandomUtil {
         //fix seed for debug
         inline static thread_local auto gen = std::mt19937(0); // NOLINT(*-msc51-cpp)
 
@@ -16,6 +15,12 @@ namespace psh
         static int Rand(const int min, const int max)
         {
             std::uniform_int_distribution dis(min, max);
+            return dis(gen);
+        }
+
+        static float Rand(const float min, const float max)
+        {
+            std::uniform_real_distribution dis(min, max);
             return dis(gen);
         }
     };

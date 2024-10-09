@@ -15,8 +15,9 @@ void psh::RangeObject::Enter(shared<GameObject> obj)
     OnEnter(obj);
 }
 
-void psh::RangeObject::OnUpdate([[maybe_unused]] int delta)
+void psh::RangeObject::Update([[maybe_unused]] int delta)
 {
+    GameObject::Update(delta);
     //가장 무식하게 짜기.
     //내 안에 있던 애들을 전부 순회하면서
     //벗어났다면
@@ -37,23 +38,14 @@ void psh::RangeObject::OnUpdate([[maybe_unused]] int delta)
     // 그렇지 않다면
     // OnEnter를 호출한다.
 
-    std::set<Sector> sectors;
-
-    for (const auto point: _range->GetCoordinates())
-    {
-        sectors.insert(_map->GetSector(point));
-    }
 
     //자기에게 맞는 적절한 객체만 선택하는 함수가 있어야 함.
-    for (auto sector: sectors)
+    for (auto &p: _field.GetObjectViewByPoint(Field::ViewObjectType::All, _range->GetCoordinates()))
     {
-        for (auto &p: _field.GetPlayerView(sector, SEND_OFFSETS::Single))
+        if (_range->Contains(p->Location()))
         {
-            if (_range->Contains(p->Location()) && ranges::find(_containObjects, p) == _containObjects.end())
-            {
-                OnEnter(p);
-                _containObjects.push_back(p);
-            }
+            OnEnter(p);
+            _containObjects.push_back(p);
         }
     }
 }
@@ -87,26 +79,17 @@ void psh::SingleInteractionObject::Enter(shared<GameObject> obj)
     OnEnter(obj);
 }
 
-void psh::SingleInteractionObject::OnUpdate(int delta)
+void psh::SingleInteractionObject::Update(int delta)
 {
-    std::set<Sector> sectors;
+    auto playerView = _field.GetObjectViewByPoint(Field::ViewObjectType::Player, _range->GetCoordinates());
 
-    for (const auto point: _range->GetCoordinates())
+    for (const auto &p: playerView)
     {
-        sectors.insert(_map->GetSector(point));
-    }
-
-    //자기에게 맞는 적절한 객체만 선택하는 함수가 있어야 함.
-    for (auto sector: sectors)
-    {
-        for (const auto &p: _field.GetPlayerView(sector, SEND_OFFSETS::Single))
+        if (_range->Contains(p->Location()))
         {
-            if (_range->Contains(p->Location()))
-            {
-                OnEnter(p);
-                _field.DestroyActor(shared_from_this());
-                return;
-            }
+            OnEnter(p);
+            _field.DestroyActor(shared_from_this());
+            return;
         }
     }
 }

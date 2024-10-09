@@ -2,33 +2,30 @@
 
 #include "ChatCharacter.h"
 #include "Field.h"
-#include "TableData.h"
 #include "Macro.h"
 
 namespace psh::victim_select
 {
     VictimSelectFunction pveVictimSelector = [](psh::Field &field, const psh::AttackInfo &attackInfo) {
-        //어떤 범위에 고유 점들을 가지고 오고, 이걸 섹터 리스트로 변환하고, 이 섹터 리스트에 대해 뷰를 받아와야 함.
-        //range를 받으면
-
-
         switch (attackInfo.attackerType)
         {
             case eObjectType::Player:
             {
-                // for (auto view = field.GetMonsterView();
-                //      auto &obj: view)
-                // {
-                //     if (attackInfo.range->Contains(obj->Location()))
-                //     {
-                //         std::static_pointer_cast<ChatCharacter>(obj)->Hit({attackInfo.attacker, attackInfo.damage});
-                //     }
-                // }
+                for (auto view = field.GetObjectViewByPoint(psh::Field::ViewObjectType::Monster
+                                                          , attackInfo.range->GetCoordinates());
+                     auto &obj: view)
+                {
+                    if (attackInfo.range->Contains(obj->Location()))
+                    {
+                        std::static_pointer_cast<ChatCharacter>(obj)->Hit({attackInfo.attacker, attackInfo.damage});
+                    }
+                }
             }
             break;
             case eObjectType::Monster:
             {
-                auto view = field.GetPlayerViewByCoordinate(attackInfo.range->GetCoordinates());
+                auto view = field.GetObjectViewByPoint(psh::Field::ViewObjectType::Player
+                                                     , attackInfo.range->GetCoordinates());
 
                 for (auto &obj: view)
                 {
@@ -56,22 +53,22 @@ namespace psh::victim_select
         return AttackResult::Invalid;
     };
 
-    VictimSelectFunction psh::victim_select::GetVictimByServerType(ServerType type)
+    VictimSelectFunction psh::victim_select::GetVictimByServerType(psh::ServerType type)
     {
         switch (type)
         {
-            case ServerType::Village:
+            case psh::ServerType::Village:
                 return invalidSelector;
                 break;
-            case ServerType::Easy:
+            case psh::ServerType::Easy:
                 [[fallthrough]];
-            case ServerType::Hard:
+            case psh::ServerType::Hard:
                 return pveVictimSelector;
                 break;
-            case ServerType::Pvp:
+            case psh::ServerType::Pvp:
                 return pvpVictimSelector;
                 break;
-            case ServerType::End:
+            case psh::ServerType::End:
                 ASSERT_CRASH(false, "invalid state");
                 return nullptr;
                 break;

@@ -3,6 +3,7 @@
 #include "AttackData.h"
 #include "Field.h"
 #include "GameMap.h"
+#include "MoveComponent.h"
 #include "Player.h"
 #include "Profiler.h"
 #include "RangeObject.h"
@@ -23,8 +24,9 @@ namespace psh
     }
 
 
-    void Monster::OnUpdate(const int delta)
+    void Monster::Update(const int delta)
     {
+        ChatCharacter::Update(delta);
         PRO_BEGIN(MonsterOnUpdate)
         if (attackCooldown > 0)
         {
@@ -69,15 +71,14 @@ namespace psh
             {
                 return;
             }
-            if (isMove())
+            if (IsMoving())
             {
                 MoveStop();
             }
 
-
             auto attackDir = (target->Location() - Location()).Normalize();
 
-            attackDir = isnan(attackDir.X) ? Direction() : attackDir;
+            attackDir = isnan(attackDir.X) ? ViewDirection() : attackDir;
 
             Attack(0, attackDir);
 

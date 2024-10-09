@@ -24,11 +24,8 @@ namespace psh::MonsterAi
     using TargetSelector = std::function<std::weak_ptr<ChatCharacter>(FVector, Field *)>;
 
     extern const TargetSelector PveTargetSelector;
+    extern const TargetSelector PvpTargetSelector;
 }
-
-
-class MonsterAi {
-};
 
 
 #endif //MONSTERAI_H

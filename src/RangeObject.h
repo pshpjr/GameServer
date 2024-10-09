@@ -27,13 +27,14 @@ namespace psh
     protected:
         void OnDestroyImpl() override;
 
-        void OnUpdate(int delta) final;
+        void Update(int delta) final;
 
     private:
         shared<CircleRange> _range;
         std::list<shared<GameObject> > _containObjects;
     };
 
+    //지금은 플레이어랑만 상호작용 함.
     class SingleInteractionObject : public GameObject {
     public :
         SingleInteractionObject(Field &group, const GameObjectData &initData, PoolPtr<Range> range);
@@ -44,7 +45,7 @@ namespace psh
         virtual void OnEnter(const shared<GameObject> &obj) = 0;
 
     private:
-        void OnUpdate(int delta) final;
+        void Update(int delta) final;
 
         PoolPtr<Range> _range;
     };

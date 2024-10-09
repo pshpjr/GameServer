@@ -1,20 +1,7 @@
 ﻿#pragma once
-#include "ContentTypes.h"
-#include "Group.h"
 
-#include "GameMap.h"
-
-
-#include <range/v3/all.hpp>
-
-#include "IVictimSelect.h"
-#include "Player.h"
-
-namespace psh
-{
-    class MonsterSpawner;
-}
-
+// 전방 선언(forward declarations)
+#include "ContentTypes.h"//BYTE 종속성
 enum en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE : BYTE;
 class CLogger;
 
@@ -23,23 +10,48 @@ namespace psh
     class Item;
     class Monster;
     struct ServerInitData;
-
     class DBThreadWrapper;
     class GameObject;
     class IVictimSelect;
     class Player;
     class Server;
+    class MonsterSpawner;
+}
 
+// 헤더 파일 포함
+
+#include "Group.h"
+#include "GameMap.h"
+#include "IVictimSelect.h"
+#include "Player.h"
+
+#include <range/v3/all.hpp>
+
+// 네임스페이스 정의
+namespace psh
+{
     class Field final : public Group {
+        using map_type = GameMap<ObjectID, shared<GameObject> >;
+        using view_type = map_type::SectorView;
+
     public:
-        Field(Server &server
-            , const ServerInitData &data
-            , ServerType type
-            , short mapSize = 6400
+        // 타입 정의 및 상수
+        enum class ViewObjectType : uint8 {
+            Player = 1 << 1, Monster = 1 << 2, Item = 1 << 3, All = (1 << 1) | (1 << 2) | (1 << 3)
+        };
+
+        // 연산자 오버로딩
+        friend ViewObjectType operator|(ViewObjectType lhs, ViewObjectType rhs);
+
+        friend ViewObjectType operator&(ViewObjectType lhs, ViewObjectType rhs);
+
+        // 생성자와 소멸자
+        Field(Server &server, const ServerInitData &data, ServerType type, short mapSize = 6400
             , short sectorSize = 400);
 
         ~Field() override;
 
+        // 공용 멤버 함수
         void OnEnter(SessionID id) override;
 
         void OnLeave(SessionID id, int wsaErrCode) override;
@@ -52,49 +64,10 @@ namespace psh
 
         victim_select::AttackResult ProcessAttack(AttackInfo info);
 
-        decltype(auto) GetPlayerView(const FVector &location, const std::span<const Sector> offsets)
-        {
-            return _playerMap->GetSectorsFromOffset(location, offsets);
-        }
+        view_type GetObjectView(ViewObjectType type, const FVector &location, std::span<const Sector> offsets);
 
-        decltype(auto) GetPlayerViewByCoordinate(const std::list<FVector> &locations)
-        {
-            return _playerMap->GetSectorsByList(locations);
-        }
+        view_type GetObjectViewByPoint(ViewObjectType type, const std::list<FVector> &coordinate);
 
-        decltype(auto) GetPlayerView(const Sector &sector, const std::span<const Sector> offsets)
-        {
-            return _playerMap->GetSectorsFromOffset(sector, offsets);
-        }
-
-        decltype(auto) GetObjectView(const FVector &location, const std::span<const Sector> offsets)
-        {
-            return map_type::SectorView{
-                _playerMap->GetSectorsFromOffset(location, offsets)
-              , _monsterMap->GetSectorsFromOffset(location, offsets)
-              , _itemMap->GetSectorsFromOffset(location, offsets)
-            };
-        }
-
-        decltype(auto) GetMonsterView(const FVector &location, const std::span<const Sector> offsets)
-        {
-            return _monsterMap->GetSectorsFromOffset(location, offsets);
-        }
-
-        decltype(auto) GetItemView(const FVector &location, const std::span<const Sector> offsets)
-        {
-            return _itemMap->GetSectorsFromOffset(location, offsets);
-        }
-
-        decltype(auto) GetItemViewByList(const std::list<FVector> &locations)
-        {
-            return _itemMap->GetSectorsByList(locations);
-        }
-
-
-        //외부에서 만들어서 넣고, 지운다.
-        //진짜 맵에 들어갈 때 valid, 삭제 대기 시작되면 invalid 상태가 된다.
-        //valid 상태에서
         void AddActor(const shared<GameObject> &obj);
 
         void DestroyActor(shared<GameObject> &obj);
@@ -103,21 +76,13 @@ namespace psh
 
         void BroadcastToPlayer(FVector targetLocation, const std::vector<SendBuffer> &packets);
 
-        void SpawnItem(const shared<Item> &obj)
-        {
-        };
+        void SpawnItem(const shared<Item> &obj);
 
         void SpawnMonster(const shared<Monster> &obj);
 
-        FVector GetRandomLocation();
-
-        [[nodiscard]] size_t GetMonsterCount();
-
-    protected:
-        List<shared<GameObject> > _createWaits;
-        List<shared<GameObject> > _delWaits;
-
-        [[nodiscard]] GameMap<ObjectID, shared<GameObject> > *FindObjectMap(const shared<GameObject> &obj) const;
+    private:
+        // 비공용 멤버 함수
+        [[nodiscard]] map_type *FindObjectMap(const shared<GameObject> &obj) const;
 
         void InsertWaitObjectInMap();
 
@@ -129,24 +94,6 @@ namespace psh
 
         void SendMonitor();
 
-        std::unique_ptr<DBThreadWrapper> _dbThread;
-
-        //Info
-        Server &_server;
-        const ServerInitData &_initData;
-        const ServerType _groupType = ServerType::End;
-
-        using map_type = GameMap<ObjectID, shared<GameObject> >;
-
-        std::unordered_set<shared<GameObject> > _objects;
-
-        SessionMap<std::shared_ptr<Player> > _players;
-        std::shared_ptr<map_type> _playerMap;
-        std::shared_ptr<map_type> _monsterMap;
-        std::shared_ptr<map_type> _itemMap;
-        victim_select::VictimSelectFunction _victimSelect;
-
-    private:
         void BroadcastPlayerLeave(const PlayerRef &playerPtr);
 
         void RecvReqLevelChange(SessionID id, CRecvBuffer &recvBuffer);
@@ -159,26 +106,39 @@ namespace psh
 
         void RecvAttack(SessionID sessionId, CRecvBuffer &buffer);
 
-
-        //DB
-        bool _useMonitor = false;
-        std::chrono::steady_clock::time_point _nextDBSend{};
-        std::chrono::steady_clock::time_point _prevUpdate{};
-
-        //Monitor
         void SendLogin() const;
 
         void SendMonitorData(en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, int value) const;
 
+        // 멤버 변수
+        List<shared<GameObject> > _createWaits;
+        List<shared<GameObject> > _delWaits;
+
+        std::unique_ptr<DBThreadWrapper> _dbThread;
+
+        Server &_server;
+        const ServerInitData &_initData;
+        const ServerType _groupType = ServerType::End;
+
+        std::unordered_set<shared<GameObject> > _objects;
+        SessionMap<std::shared_ptr<Player> > _players;
+        std::shared_ptr<map_type> _playerMap;
+        std::shared_ptr<map_type> _monsterMap;
+        std::shared_ptr<map_type> _itemMap;
+        victim_select::VictimSelectFunction _victimSelect;
+
+        bool _useMonitor = false;
+        std::chrono::steady_clock::time_point _nextDBSend{};
+        std::chrono::steady_clock::time_point _prevUpdate{};
+
         std::unique_ptr<CLogger> _logger = nullptr;
         std::unique_ptr<MonsterSpawner> _spawner = nullptr;
-
 
         long _groupSessionCount = 0;
         long _fps = 0;
 
         SessionID _monitorSession = InvalidSessionID();
         ObjectID _objectId = 0;
-        int _fieldSize = 0;
+        short _fieldSize = 0;
     };
 }
