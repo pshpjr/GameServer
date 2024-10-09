@@ -40,7 +40,7 @@ void psh::GameObject::MoveStart(const FVector destination)
     MakeGame_ResMove(moveBuffer, _objectId, _objectType, destination);
 
     for (auto view = _field.GetPlayerView(Location(), SEND_OFFSETS::BROADCAST);
-         const auto &player: view)
+         auto &player: view)
     {
         std::static_pointer_cast<Player>(player)->SendPacket(moveBuffer);
     }
@@ -112,7 +112,7 @@ void psh::GameObject::BroadcastSectorChange(const int sectorIndex) const
     {
         auto deleteThisBuffer = SendBuffer::Alloc();
         MakeGame_ResDestroyActor(deleteThisBuffer, ObjectId(), false, Move);
-        for (const auto &player: deletePlayers)
+        for (auto &player: deletePlayers)
         {
             std::static_pointer_cast<Player>(player)->SendPacket(deleteThisBuffer);
         }
@@ -120,7 +120,7 @@ void psh::GameObject::BroadcastSectorChange(const int sectorIndex) const
 
         auto createThisBuffer = SendBuffer::Alloc();
         MakeCreatePacket(createThisBuffer, false);
-        for (const auto& player : newPlayers)
+        for (auto &player: newPlayers)
         {
             std::static_pointer_cast<Player>(player)->SendPacket(createThisBuffer);
         }
@@ -159,7 +159,7 @@ void psh::GameObject::HandleMove(const int delta)
 
     auto delObjects = _field.GetObjectView(OldLocation(), SEND_OFFSETS::DeleteTable[sectorIndex]);
     auto deleteObjectsBuffer = SendBuffer::Alloc();
-    for (const auto &obj: delObjects)
+    for (auto &obj: delObjects)
     {
         MakeGame_ResDestroyActor(deleteObjectsBuffer, obj->ObjectId(), false, Move);
     }
@@ -172,7 +172,7 @@ void psh::GameObject::HandleMove(const int delta)
     auto createObjects = _field.GetObjectView(Location(), SEND_OFFSETS::CreateTable[sectorIndex]);
     auto createObjectsBuffer = SendBuffer::Alloc();
 
-    for (const auto &obj: createObjects)
+    for (auto &obj: createObjects)
     {
         obj->MakeCreatePacket(createObjectsBuffer, false);
     }

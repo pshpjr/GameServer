@@ -195,7 +195,6 @@ void psh::Field::RecvChangeComp(const SessionID id, CRecvBuffer &recvBuffer)
     {
         playerPtr->Revive();
     }
-
     _dbThread->EnterGroup(playerPtr->_data);
     AddActor(static_pointer_cast<GameObject>(playerPtr));
 }
@@ -353,7 +352,6 @@ void psh::Field::InsertWaitObjectInMap()
         map->Insert(obj->ObjectId(), obj, obj->Location());
         obj->Valid(true);
         obj->SetMap(map);
-
 
         obj->OnCreate();
     }
