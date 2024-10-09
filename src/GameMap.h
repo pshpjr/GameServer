@@ -14,7 +14,7 @@ namespace psh
 
     //언리얼의 좌표계는 y가 오른쪽. 좌하단이 0, 앞이 x
 
-    template<typename T>
+    template<typename keyTy, typename valTy>
     class GameMap {
         const short SECTOR_SIZE = 100;
         const short MAP_SIZE = 0;
@@ -22,54 +22,125 @@ namespace psh
         const short MAX_SECTOR_INDEX_Y = MAP_SIZE / SECTOR_SIZE;
 
         const short GRID_SIZE = 100;
-
-
-
-        decltype(auto) GetDataViewFromSectors()
-        {
-            return ranges::views::filter([this](const Sector sector) {
-                       return IsValidSector(sector);
-                   })
-                   | ranges::views::transform([this](Sector sector) {
-                       return ranges::views::all(_map[sector.x][sector.y]);
-                   })
-                   | ranges::views::join;
-        }
-
-
-        static decltype(auto) GetFlatSectorsView(const Sector begin, const Sector end)
-        {
-            return ranges::views::iota(begin.x, end.x + 1)
-                   | ranges::views::transform([=](auto x) {
-                       return ranges::views::iota(begin.y, end.y + 1)
-                              | ranges::views::transform([=](auto y) {
-                                  return Sector{x, y};
-                              });
-                   })
-                   | ranges::views::join;
-        }
-
-        decltype(auto) SectorsViewByPoint(const FVector &point1, const FVector &point2) const
-        {
-            const auto p1Sector = GetSector(point1);
-            const auto p2Sector = GetSector(point2);
-
-            return GetFlatSectorsView(p1Sector, p2Sector);
-        }
-
-        static decltype(auto) SectorsViewBySector(const Sector &target, std::span<const Sector> offsets)
-        {
-            // target의 수명이 어떨지 모르므로 람다에서 값으로 복사
-            return ranges::views::all(offsets)
-                   | ranges::views::transform([target](const Sector offset) {
-                       const auto x = static_cast<short>(target.x + offset.x);
-                       const auto y = static_cast<short>(target.y + offset.y);
-                       return Sector{x, y};
-                   });
-        }
+        using container = std::unordered_map<keyTy, valTy>;
 
     public:
-        using container = std::unordered_set<T>;
+        class SectorViewIterator {
+            using iterator_category = std::forward_iterator_tag;
+            using value_type = valTy;
+            using outerIterator = typename std::vector<std::reference_wrapper<container> >::iterator;
+            using innerIterator = typename container::iterator;
+            using reference = value_type &;
+            using pointer = value_type *;
+
+        public:
+            SectorViewIterator(outerIterator begin, outerIterator end): _cur{begin}
+                                                                    , _end{end}
+            {
+                if (_cur != _end)
+                {
+                    _it = _cur->get().begin();
+                    moveNext();
+                }
+            }
+
+            SectorViewIterator &operator++()
+            {
+                ++_it;
+                moveNext();
+                return *this;
+            }
+
+            SectorViewIterator operator++(int)
+            {
+                SectorViewIterator temp = *this;
+                ++(*this);
+                return temp;
+            }
+
+            reference operator*()
+            {
+                return (*_it).second;
+            }
+
+            pointer operator->()
+            {
+                return &((*_it).second);
+            }
+
+            friend bool operator==(const SectorViewIterator &lhs, const SectorViewIterator &rhs)
+            {
+                // 두 반복자가 모두 끝에 도달한 경우
+                if (lhs._cur == lhs._end && rhs._cur == rhs._end)
+                {
+                    return true;
+                }
+
+                // 하나의 반복자가 끝에 도달한 경우
+                if (lhs._cur == lhs._end || rhs._cur == rhs._end)
+                {
+                    return false;
+                }
+
+                // 현재 섹터와 객체 위치가 동일한 경우
+                return lhs._cur == rhs._cur && lhs._it == rhs._it;
+            }
+
+            friend bool operator!=(const SectorViewIterator &lhs, const SectorViewIterator &rhs)
+            {
+                return !(lhs == rhs);
+            }
+
+        private:
+            void moveNext()
+            {
+                while (_cur != _end && _it == _cur->get().end())
+                {
+                    ++_cur;
+                    if (_cur != _end)
+                    {
+                        _it = _cur->get().begin();
+                    }
+                }
+            }
+
+        private:
+            outerIterator _cur;
+            outerIterator _end;
+            innerIterator _it;
+        };
+
+        class SectorView {
+        public:
+            using sectorContainer = std::vector<std::reference_wrapper<container> >;
+            using iterator = SectorViewIterator;
+
+            explicit SectorView(sectorContainer &sectors): _sectors(sectors)
+            {
+            }
+
+            //중복된 섹터를 넣을 경우 중복해서 탐색함.
+            SectorView(std::initializer_list<SectorView> views)
+            {
+                for (auto &view: views)
+                {
+                    _sectors.insert(_sectors.end(), view._sectors.begin(), view._sectors.end());
+                }
+            }
+
+            iterator begin()
+            {
+                return iterator(_sectors.begin(), _sectors.end());
+            }
+
+            iterator end()
+            {
+                return iterator(_sectors.end(), _sectors.end());
+            }
+
+        private:
+            sectorContainer _sectors;
+        };
 
         GameMap(const GameMap &other) = delete;
 
@@ -134,59 +205,11 @@ namespace psh
         }
 
         /**
-         * 해당 영역에 포함되는 섹터들의 뷰를 리턴함.
-         * 결과를 벡터로 변환할 것
-         * @param p1 좌상단
-         * @param p2 우하단
-         * @return
-         */
-        decltype(auto) GetSectorsFromPoint(const FVector &p1, const FVector &p2)
-        {
-            auto sectors = SectorsViewByPoint(p1, p2);
-            return sectors | GetDataViewFromSectors();
-        }
-
-        //target 소멸 전에 뷰를 사용할 것.
-        decltype(auto) GetSectorsFromOffset(const Sector &target, const std::span<const Sector> offsets)
-        {
-            auto sectors = SectorsViewBySector(target, offsets);
-            return sectors | GetDataViewFromSectors();
-        }
-
-
-        //결과를 벡터로 변환할 것.
-        decltype(auto) GetSectorsFromOffset(const FVector &location, const std::span<const Sector> offsets)
-        {
-            //offset을 span으로 받으므로 offsets의 수명은 이 view가 실행될 때 까지 살아있어야 함.
-            //target도 살아있어야 함. 지역변수 target을 대상으로 생성한 뷰는 리턴할 때 사라짐.
-            const Sector target = GetSector(location);
-            return GetSectorsFromOffset(target, offsets)
-                   | ranges::to<std::vector>;
-        }
-
-        //결과를 벡터로 변환할 것.
-        decltype(auto) GetSectorsByList(const std::list<FVector> &locations)
-        {
-            std::list<Sector> unique_list = locations
-                                            | ranges::views::transform([this](auto &location) {
-                                                return GetSector(location);
-                                            }) | ranges::to<std::list>();
-
-            unique_list.sort();
-            unique_list.unique();
-
-            return unique_list
-                   | GetDataViewFromSectors()
-                   | ranges::to<std::vector>;
-        }
-
-
-        /**
          *
          * @param target 삽입할 객체
          * @param location 위치
          */
-        void Insert(const T &target, const FVector location)
+        void Insert(const keyTy key, const valTy &val, const FVector location)
         {
             ++_objects;
             const auto [x,y] = GetSector(location);
@@ -194,10 +217,10 @@ namespace psh
             ASSERT_CRASH(0 <= x && x <=MAX_SECTOR_INDEX_X, "Invalid xLocation");
             ASSERT_CRASH(0 <= y && y <=MAX_SECTOR_INDEX_Y, "Invalid yLocation");
 
-            _map[x][y].insert(target);
+            _map[x][y].insert({key, val});
         }
 
-        void Delete(const T &target, const FVector location)
+        void Delete(const keyTy key, const FVector location)
         {
             --_objects;
             const auto [x,y] = GetSector(location);
@@ -205,9 +228,8 @@ namespace psh
             ASSERT_CRASH(0 <= x && x <=MAX_SECTOR_INDEX_X, "Invalid xLocation");
             ASSERT_CRASH(0 <= y && y <=MAX_SECTOR_INDEX_Y, "Invalid yLocation");
 
-            _map[x][y].erase(target);
+            _map[x][y].erase(key);
         }
-
 
         [[nodiscard]] bool IsValidSector(const Sector sector) const
         {
@@ -222,6 +244,80 @@ namespace psh
             }
 
             return true;
+        }
+
+        static std::vector<Sector> GetFlatSectorsView(const Sector &begin, const Sector &end)
+        {
+            std::vector<Sector> sectors;
+            for (short x = begin.x; x <= end.x; ++x)
+            {
+                for (short y = begin.y; y <= end.y; ++y)
+                {
+                    sectors.emplace_back(Sector{x, y});
+                }
+            }
+            return sectors;
+        }
+
+        SectorView GetDataViewFromSectors(const std::vector<Sector> &sectors)
+        {
+            typename SectorView::sectorContainer sector_containers;
+            for (const auto &sector: sectors)
+            {
+                if (IsValidSector(sector))
+                {
+                    sector_containers.push_back(_map[sector.x][sector.y]);
+                }
+            }
+            return SectorView(sector_containers);
+        }
+
+        [[nodiscard]] std::vector<Sector> SectorsViewByPoint(const FVector &point1, const FVector &point2) const
+        {
+            const auto p1Sector = GetSector(point1);
+            const auto p2Sector = GetSector(point2);
+            return GetFlatSectorsView(p1Sector, p2Sector);
+        }
+
+        static std::vector<Sector> SectorsViewBySector(const Sector &target, const std::span<const Sector> offsets)
+        {
+            std::vector<Sector> sectors;
+            for (const auto &offset: offsets)
+            {
+                const auto x = static_cast<short>(target.x + offset.x);
+                const auto y = static_cast<short>(target.y + offset.y);
+                sectors.emplace_back(Sector{x, y});
+            }
+            return sectors;
+        }
+
+        SectorView GetSectorsFromPoint(const FVector &p1, const FVector &p2)
+        {
+            auto sectors = SectorsViewByPoint(p1, p2);
+            return GetDataViewFromSectors(sectors);
+        }
+
+        SectorView GetSectorsFromOffset(const Sector &target, const std::span<const Sector> offsets)
+        {
+            auto sectors = SectorsViewBySector(target, offsets);
+            return GetDataViewFromSectors(sectors);
+        }
+
+        SectorView GetSectorsFromOffset(const FVector &location, const std::span<const Sector> offsets)
+        {
+            const Sector target = GetSector(location);
+            return GetSectorsFromOffset(target, offsets);
+        }
+
+        SectorView GetSectorsByList(const std::list<FVector> &locations)
+        {
+            std::set<Sector> unique_sectors;
+            for (const auto &location: locations)
+            {
+                unique_sectors.insert(GetSector(location));
+            }
+            std::vector sectors(unique_sectors.begin(), unique_sectors.end());
+            return GetDataViewFromSectors(sectors);
         }
 
     private:

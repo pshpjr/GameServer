@@ -34,7 +34,7 @@ void psh::ChatCharacter::Hit(const DamageInfo info)
     auto hitPacket = SendBuffer::Alloc();
     MakeGame_ResHit(hitPacket, ObjectId(), info.attacker, _hp);
 
-    for (const auto view = _field.GetPlayerView(Location(), SEND_OFFSETS::BROADCAST);
+    for (auto view = _field.GetPlayerView(Location(), SEND_OFFSETS::BROADCAST);
          auto &player: view)
     {
         std::static_pointer_cast<Player>(player)->SendPacket(hitPacket);

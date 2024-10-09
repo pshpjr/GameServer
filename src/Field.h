@@ -64,14 +64,16 @@ namespace psh
 
         decltype(auto) GetPlayerView(const Sector &sector, const std::span<const Sector> offsets)
         {
-            return _playerMap->GetSectorsFromOffset(sector, offsets) | ranges::to<std::vector>;
+            return _playerMap->GetSectorsFromOffset(sector, offsets);
         }
 
         decltype(auto) GetObjectView(const FVector &location, const std::span<const Sector> offsets)
         {
-            return ranges::views::concat(_playerMap->GetSectorsFromOffset(location, offsets)
-                                       , _monsterMap->GetSectorsFromOffset(location, offsets)
-                                       , _itemMap->GetSectorsFromOffset(location, offsets));
+            return map_type::SectorView{
+                _playerMap->GetSectorsFromOffset(location, offsets)
+              , _monsterMap->GetSectorsFromOffset(location, offsets)
+              , _itemMap->GetSectorsFromOffset(location, offsets)
+            };
         }
 
         decltype(auto) GetMonsterView(const FVector &location, const std::span<const Sector> offsets)
@@ -115,7 +117,7 @@ namespace psh
         List<shared<GameObject> > _createWaits;
         List<shared<GameObject> > _delWaits;
 
-        [[nodiscard]] GameMap<shared<GameObject> > *FindObjectMap(const shared<GameObject> &obj) const;
+        [[nodiscard]] GameMap<ObjectID, shared<GameObject> > *FindObjectMap(const shared<GameObject> &obj) const;
 
         void InsertWaitObjectInMap();
 
@@ -134,7 +136,7 @@ namespace psh
         const ServerInitData &_initData;
         const ServerType _groupType = ServerType::End;
 
-        using map_type = GameMap<shared<GameObject> >;
+        using map_type = GameMap<ObjectID, shared<GameObject> >;
 
         std::unordered_set<shared<GameObject> > _objects;
 

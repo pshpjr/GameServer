@@ -13,7 +13,7 @@ namespace psh
         GroupChange, Move, Die
     };
 
-    template<typename T>
+    template<typename Key, typename T>
     class GameMap;
     class GameObject;
 
@@ -150,12 +150,12 @@ namespace psh
             _inMap = inMap;
         }
 
-        GameMap<shared<GameObject> > *GetMap() const
+        GameMap<ObjectID, shared<GameObject> > *GetMap() const
         {
             return _map;
         }
 
-        void SetMap(GameMap<shared<GameObject> > *map)
+        void SetMap(GameMap<ObjectID, shared<GameObject> > *map)
         {
             _map = map;
         }
@@ -184,7 +184,7 @@ namespace psh
         }
 
         Field &_field;
-        GameMap<shared<GameObject> > *_map{nullptr};
+        GameMap<ObjectID, shared<GameObject> > *_map{nullptr};
         removeResult _removeReason;
 
     private:

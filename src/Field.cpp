@@ -214,8 +214,8 @@ void psh::Field::RecvChat(const SessionID id, CRecvBuffer &recvByffer)
 
     auto chatBuffer = SendBuffer::Alloc();
     MakeGame_ResChat(chatBuffer, player->ObjectId(), chatData);
-    for (const auto view = GetPlayerView(player->Location(), SEND_OFFSETS::BROADCAST);
-         auto &p: view)
+    for (auto view = GetPlayerView(player->Location(), SEND_OFFSETS::BROADCAST);
+         const auto &p: view)
     {
         std::static_pointer_cast<Player>(p)->SendPacket(chatBuffer);
     }
@@ -273,8 +273,8 @@ void psh::Field::RecvAttack(const SessionID sessionId, CRecvBuffer &buffer)
 
 void psh::Field::BroadcastToPlayer(FVector targetLocation, const std::vector<SendBuffer> &packets)
 {
-    for (const auto view = GetPlayerView(targetLocation, SEND_OFFSETS::BROADCAST);
-         auto &player: view)
+    for (auto view = GetPlayerView(targetLocation, SEND_OFFSETS::BROADCAST);
+         const auto &player: view)
     {
         for (const SendBuffer &packet: packets)
         {
@@ -341,11 +341,7 @@ void psh::Field::InsertWaitObjectInMap()
 
         _objects.insert(obj);
 
-        const auto map = FindObjectMap(obj);
-        map->Insert(obj, obj->Location());
-        obj->Valid(true);
-        obj->SetMap(map);
-
+        //플레이어가 아니면 id 설정.
         //플레이어의 경우 요청하기 전에 미리 설정함.
         //좋은 코드인가
         if (obj->ObjectType() != eObjectType::Player)
@@ -353,12 +349,18 @@ void psh::Field::InsertWaitObjectInMap()
             obj->ObjectId(NextObjectId());
         }
 
+        const auto map = FindObjectMap(obj);
+        map->Insert(obj->ObjectId(), obj, obj->Location());
+        obj->Valid(true);
+        obj->SetMap(map);
+
 
         obj->OnCreate();
     }
 }
 
-psh::GameMap<psh::shared<psh::GameObject> > *psh::Field::FindObjectMap(const shared<GameObject> &obj) const
+psh::GameMap<psh::ObjectID, psh::shared<psh::GameObject> > *psh::Field::FindObjectMap(
+    const shared<GameObject> &obj) const
 {
     switch (obj->ObjectType())
     {
@@ -385,7 +387,7 @@ void psh::Field::CleanupDeleteWait()
         if (const auto map = obj->GetMap();
             map != nullptr)
         {
-            map->Delete(obj, obj->Location());
+            map->Delete(obj->ObjectId(), obj->Location());
         }
 
         _objects.erase(obj);
