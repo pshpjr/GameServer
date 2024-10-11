@@ -5,13 +5,12 @@
 
 namespace psh
 {
-    MoveComponent::MoveComponent(GameObject &owner, float baseSpeed)
+    MoveComponent::MoveComponent(GameObject& owner, float baseSpeed)
         : _owner(owner)
-      , _destination{owner.Location()}
-      , _baseSpeedPerMs(baseSpeed)
-      , _moveSpeedPerMs{baseSpeed}
-    {
-    }
+        , _destination{owner.Location()}
+        , _baseSpeedPerMs(baseSpeed)
+        , _moveSpeedPerMs{baseSpeed}
+        , _oldLocation{owner.Location()} {}
 
     void MoveComponent::Update(int delta)
     {
@@ -20,18 +19,18 @@ namespace psh
             return;
         }
 
-        auto &map = *_owner.GetMap();
-        auto &field = _owner.GetField();
+        auto& map = *_owner.GetMap();
+        auto& field = _owner.GetField();
 
         // 위치 업데이트 수행
         UpdateLocation(delta);
-
+        _owner.ViewDirection(_moveDirection);
         // 섹터가 변경되었는지 확인 후 처리
-        const auto oldLoc = _owner.OldLocation();
+        const auto oldLoc = _oldLocation;
         const auto curLoc = _owner.Location();
 
-        const auto oldSec = map.GetSector(oldLoc);
-        const auto newSec = map.GetSector(curLoc);
+        const auto oldSec = map.GetSectorAtLocation(oldLoc);
+        const auto newSec = map.GetSectorAtLocation(curLoc);
         if (oldSec == newSec)
         {
             return;
@@ -58,7 +57,7 @@ namespace psh
         RefreshSectorObjects(field, deltaSector);
     }
 
-    void MoveComponent::MoveStart(const FVector &destination)
+    void MoveComponent::MoveStart(const FVector& destination)
     {
         _destination = destination;
         _moveDirection = (_destination - _owner.Location()).Normalize();
@@ -69,11 +68,16 @@ namespace psh
         MakeGame_ResMove(moveBuffer, _owner.ObjectId(), _owner.ObjectType(), _destination);
         _owner.GetField().BroadcastToPlayer(_owner.Location(), {moveBuffer});
 
-        ASSERT_CRASH(!isnan(_direction.X), "InvalidDestination");
+        ASSERT_CRASH(!isnan(_moveDirection.X), "InvalidDestination");
     }
 
     void MoveComponent::MoveStop()
     {
+        if (_isMoving == false)
+        {
+            return;
+        }
+
         _isMoving = false;
 
         // 이동 멈춤 패킷 생성 및 전송
@@ -86,17 +90,23 @@ namespace psh
     {
         const float distanceToDestination = (_destination - _owner.Location()).Size();
 
+        if (isnan(distanceToDestination))
+        {
+            MoveStop();
+            return;
+        }
+
         if (const FVector moveDelta = _moveDirection * static_cast<float>(delta) * _moveSpeedPerMs;
             distanceToDestination <= moveDelta.Size())
         {
-            _owner.OldLocation(_owner.Location()); // 기존 위치 저장
+            _oldLocation = _owner.Location(); // 기존 위치 저장
             _owner.Location(_destination); // 새로운 위치 설정
             MoveStop(); // 목적지 도달 시 이동 멈춤
         }
         else
         {
             FVector newLocation = _owner.Location() + moveDelta;
-            _owner.OldLocation(_owner.Location()); // 기존 위치 저장
+            _oldLocation = _owner.Location(); // 기존 위치 저장
             _owner.Location(newLocation); // 새로운 위치 설정
         }
     }
@@ -105,15 +115,16 @@ namespace psh
     {
         const auto sectorIndex = SEND_OFFSETS::getDirectionIndex(delta);
 
-        auto deletePlayers = _owner.GetField().GetObjectView(Field::ViewObjectType::Player, _owner.OldLocation()
-                                                           , SEND_OFFSETS::DeleteTable[sectorIndex]);
-        auto newPlayers = _owner.GetField().GetObjectView(Field::ViewObjectType::Player, _owner.Location()
-                                                        , SEND_OFFSETS::CreateTable[sectorIndex]);
+        auto deletePlayers = _owner.GetField()
+                                   .GetObjectView(Field::ViewObjectType::Player, _oldLocation,
+                                                  SEND_OFFSETS::DeleteTable[sectorIndex]);
+        auto newPlayers = _owner.GetField().GetObjectView(Field::ViewObjectType::Player, _owner.Location(),
+                                                          SEND_OFFSETS::CreateTable[sectorIndex]);
 
         // 기존 플레이어에게 삭제 패킷 전송
         auto deleteThisBuffer = SendBuffer::Alloc();
-        MakeGame_ResDestroyActor(deleteThisBuffer, _owner.ObjectId(), false, static_cast<char>(removeResult::Move));
-        for (auto &player: deletePlayers)
+        MakeGame_ResDestroyActor(deleteThisBuffer, _owner.ObjectId(), false, static_cast<char>(removeReason::Move));
+        for (auto& player : deletePlayers)
         {
             std::static_pointer_cast<Player>(player)->SendPacket(deleteThisBuffer);
         }
@@ -121,36 +132,37 @@ namespace psh
         // 새로운 플레이어에게 생성 패킷 전송
         auto createThisBuffer = SendBuffer::Alloc();
         _owner.MakeCreatePacket(createThisBuffer, false);
-        for (auto &player: newPlayers)
+        for (auto& player : newPlayers)
         {
             std::static_pointer_cast<Player>(player)->SendPacket(createThisBuffer);
         }
     }
 
-    void MoveComponent::RefreshSectorObjects(Field &field, Sector delta) const
+    void MoveComponent::RefreshSectorObjects(Field& field
+                                             , Sector delta) const
     {
         const auto sectorIndex = SEND_OFFSETS::getDirectionIndex(delta);
 
         auto delObjects =
-                field.GetObjectView(Field::ViewObjectType::All, _owner.OldLocation()
-                                  , SEND_OFFSETS::DeleteTable[sectorIndex]);
-        for (auto &obj: delObjects)
+            field.GetObjectView(Field::ViewObjectType::All, _oldLocation
+                                , SEND_OFFSETS::DeleteTable[sectorIndex]);
+        for (const auto& obj : delObjects)
         {
             auto deleteObjectsBuffer = SendBuffer::Alloc();
             MakeGame_ResDestroyActor(deleteObjectsBuffer, obj->ObjectId(), false
-                                   , static_cast<char>(removeResult::Move));
-            static_cast<Player *>(&_owner)->SendPacket(deleteObjectsBuffer);
+                                     , static_cast<char>(removeReason::Move));
+            static_cast<Player*>(&_owner)->SendPacket(deleteObjectsBuffer);
         }
 
         auto createObjects =
-                field.GetObjectView(Field::ViewObjectType::All, _owner.Location()
-                                  , SEND_OFFSETS::CreateTable[sectorIndex]);
+            field.GetObjectView(Field::ViewObjectType::All, _owner.Location()
+                                , SEND_OFFSETS::CreateTable[sectorIndex]);
 
-        for (auto &obj: createObjects)
+        for (const auto& obj : createObjects)
         {
             auto createObjectsBuffer = SendBuffer::Alloc();
             obj->MakeCreatePacket(createObjectsBuffer, false);
-            static_cast<Player *>(&_owner)->SendPacket(createObjectsBuffer);
+            static_cast<Player*>(&_owner)->SendPacket(createObjectsBuffer);
         }
     }
 

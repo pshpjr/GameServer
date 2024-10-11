@@ -1,33 +1,35 @@
 ﻿#pragma once
-#include <chrono>
+#include "Updatable.h"
 
-class Timer {
-public:
-    using ms = std::chrono::milliseconds;
-
-    void Reset(const ms lifeMs)
+namespace psh
+{
+    class Timer : public Updatable
     {
-        _life = lifeMs;
-        _elapsed = ms(0);
-    }
+    public:
+        void Reset(int lifeMs)
+        {
+            _life = lifeMs;
+            _elapsed = 0;
+        }
 
-    bool Update(const ms elapsed)
-    {
-        AddElapsed(elapsed);
-        return IsExpired();
-    }
+        void Update(int delta) override
+        {
+            AddElapsed(delta);
+        }
 
-    void AddElapsed(const ms elapsed)
-    {
-        _elapsed += elapsed;
-    }
+        void AddElapsed(int elapsed)
+        {
+            _elapsed += elapsed;
+        }
 
-    [[nodiscard]] bool IsExpired() const noexcept
-    {
-        return _elapsed >= _life;
-    }
+        [[nodiscard]] bool IsExpired() const noexcept
+        {
+            return _elapsed >= _life;
+        }
 
-private:
-    ms _life = ms(0);
-    ms _elapsed = ms(0);
-};
+    private:
+        int _life = 0;
+        int _elapsed = 0;
+    };
+}
+

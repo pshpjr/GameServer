@@ -1,84 +1,136 @@
 ﻿#include "DBThreadWrapper.h"
-
 #include "Player.h"
 #include "Server.h"
+#include <exception>
 
 namespace psh
 {
+    DBThreadWrapper::~DBThreadWrapper()
+    {
+        dbThreadRunning.store(false, std::memory_order_release);
+        hasData.store(true, std::memory_order_release);
+        hasData.notify_one();
+    }
+
     void DBThreadWrapper::UpdateCoin(const std::shared_ptr<DBData>& dbData)
     {
-        Enqueue([this, dbData]
-        {
-            const auto time = conn.Query(
-                                         "UPDATE `mydb`.`player` SET `Coins` = '%d' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
-                                       , dbData->Coin(), dbData->AccountNo());
-            _data.delaySum += time.count();
-            conn.reset();
+        Enqueue([this, dbData] {
+            try
+            {
+                const auto time = conn.Query(
+                    "UPDATE `mydb`.`player` SET `Coins` = '%d' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
+                    , dbData->Coin(), dbData->AccountNum());
+                _data.delaySum += time;
+                conn.reset();
+            }
+            catch (const std::exception& e)
+            {
+                auto exceptionPtr = std::current_exception();
+                _completeAlert.Enqueue([exceptionPtr] {
+                    std::rethrow_exception(exceptionPtr);
+                });
+            }
         });
     }
 
     void DBThreadWrapper::UpdateLocation(const std::shared_ptr<DBData>& dbData)
     {
-        Enqueue([this, dbData]
-        {
-            const auto time = conn.Query(
-                                         "UPDATE `mydb`.`player` SET `LocationX` = '%f', `LocationY` = '%f' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
-                                       , dbData->Location().X, dbData->Location().Y, dbData->AccountNo());
-
-            _data.delaySum += time.count();
-            conn.reset();
+        Enqueue([this, dbData] {
+            try
+            {
+                const auto time = conn.Query(
+                    "UPDATE `mydb`.`player` SET `LocationX` = '%f', `LocationY` = '%f' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
+                    , dbData->Location().X, dbData->Location().Y, dbData->AccountNum());
+                _data.delaySum += time;
+                conn.reset();
+            }
+            catch (const std::exception& e)
+            {
+                auto exceptionPtr = std::current_exception();
+                _completeAlert.Enqueue([exceptionPtr] {
+                    std::rethrow_exception(exceptionPtr);
+                });
+            }
         });
     }
 
     void DBThreadWrapper::UpdateHP(const std::shared_ptr<DBData>& dbData)
     {
-        Enqueue([dbData,this]
-        {
-            const auto time = conn.Query(
-                                         "UPDATE `mydb`.`player` SET `HP` = '%d' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
-                                       , dbData->Hp(), dbData->AccountNo());
-            _data.delaySum += time.count();
-            conn.reset();
+        Enqueue([this, dbData] {
+            try
+            {
+                const auto time = conn.Query(
+                    "UPDATE `mydb`.`player` SET `HP` = '%d' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
+                    , dbData->Hp(), dbData->AccountNum());
+                _data.delaySum += time;
+                conn.reset();
+            }
+            catch (const std::exception& e)
+            {
+                auto exceptionPtr = std::current_exception();
+                _completeAlert.Enqueue([exceptionPtr] {
+                    std::rethrow_exception(exceptionPtr);
+                });
+            }
         });
     }
 
     void DBThreadWrapper::EnterGroup(const std::shared_ptr<DBData>& dbData)
     {
-        Enqueue([dbData, this]
-        {
-            const auto time = conn.Query(
-                                         "UPDATE `mydb`.`player` SET `ServerType` = '%d', `LocationX` = '%f', `LocationY` = '%f' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
-                                       , dbData->ServerType(), dbData->Location().X, dbData->Location().Y, dbData->AccountNo());
-            _data.delaySum += time.count();
-
-            conn.reset();
+        Enqueue([this, dbData] {
+            try
+            {
+                const auto time = conn.Query(
+                    "UPDATE `mydb`.`player` SET `ServerType` = '%d', `LocationX` = '%f', `LocationY` = '%f' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
+                    , dbData->ServerType(), dbData->Location().X, dbData->Location().Y, dbData->AccountNum());
+                _data.delaySum += time;
+                conn.reset();
+            }
+            catch (const std::exception& e)
+            {
+                auto exceptionPtr = std::current_exception();
+                _completeAlert.Enqueue([exceptionPtr] {
+                    std::rethrow_exception(exceptionPtr);
+                });
+            }
         });
     }
 
-    void DBThreadWrapper::LeaveGroup(const std::shared_ptr<DBData>& dbData
-        , Server* server
-        , SessionID session
-        , GroupID nextGroup)
+    void DBThreadWrapper::SaveAll(const std::shared_ptr<DBData>& dbData, const std::function<void()>& callback)
     {
-        Enqueue([dbData,this,server,session,nextGroup]
-        {
-            const auto time = conn.Query(
-                                         "UPDATE `mydb`.`player` SET `HP` = '%d', `ServerType` = '%d', `LocationX` = '%f', `LocationY` = '%f' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
-                                       , dbData->Hp(), dbData->ServerType(), dbData->Location().X, dbData->Location().Y, dbData->AccountNo());
-            _data.delaySum += time.count();
-            //auto time = conn.Query("SELECT * from `mydb`.`player` WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
-            //    , dbData->AccountNo());
+        Enqueue([this, dbData, callback] {
+            try
+            {
+                const auto time = conn.Query(
+                    "UPDATE `mydb`.`player` SET `HP` = '%d', `ServerType` = '%d', `LocationX` = '%f', `LocationY` = '%f' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
+                    , dbData->Hp(), dbData->ServerType(), dbData->Location().X, dbData->Location().Y
+                    , dbData->AccountNum());
+                _data.delaySum += time;
+                conn.reset();
 
-            _data.delaySum += 1;
-            conn.reset();
-            server->MoveSession(session, nextGroup);
+                if (callback)
+                {
+                    _completeAlert.Enqueue(callback);
+                }
+            }
+            catch (const std::exception& e)
+            {
+                auto exceptionPtr = std::current_exception();
+                _completeAlert.Enqueue([exceptionPtr] {
+                    std::rethrow_exception(exceptionPtr);
+                });
+            }
         });
-        //server->MoveSession(session,nextGroup);
     }
 
     void DBThreadWrapper::Enqueue(const std::function<void()>& func)
     {
-        _queue->Enqueue(func);
+        if (dbThreadRunning.load(std::memory_order::memory_order_acquire) == false)
+        {
+            ASSERT_CRASH(false, "Enqueue when DB end");
+        }
+
+        _jobQueue->Enqueue(func);
 
         _data.enqueue++;
         if (_data.enqueue >= 10)
@@ -93,12 +145,12 @@ namespace psh
 
     void DBThreadWrapper::DBWorkerFunc()
     {
-        while (true)
+        while (dbThreadRunning.load(std::memory_order::memory_order_acquire))
         {
             hasData.wait(false, std::memory_order::memory_order_acquire);
 
             std::function<void()> task;
-            while (_queue->Dequeue(task))
+            while (_jobQueue->Dequeue(task))
             {
                 task();
 
@@ -106,10 +158,10 @@ namespace psh
                 if (_data.dequeue >= 10)
                 {
                     _oldData.dequeue += 10;
-                    _oldData.delaySum += _data.delaySum;
+                    _oldData.delaySum += duration_cast<std::chrono::milliseconds>(_data.delaySum).count();
 
                     _data.dequeue = 0;
-                    _data.delaySum = 0;
+                    _data.delaySum = std::chrono::microseconds::zero();
                 }
             }
 

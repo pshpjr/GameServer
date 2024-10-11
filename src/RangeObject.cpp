@@ -3,11 +3,10 @@
 #include "Range.h"
 #include "TableData.h"
 
-psh::RangeObject::RangeObject(Field &group, const GameObjectData &initData
-                            , const float radius): GameObject(group, initData)
-                                               , _range(std::make_shared<CircleRange>(initData.location, radius))
-{
-}
+psh::RangeObject::RangeObject(Field& group, const GameObjectData& initData
+                              , const float radius)
+    : GameObject(group, initData)
+    , _range(std::make_shared<CircleRange>(initData.location, radius)) {}
 
 void psh::RangeObject::Enter(shared<GameObject> obj)
 {
@@ -15,9 +14,8 @@ void psh::RangeObject::Enter(shared<GameObject> obj)
     OnEnter(obj);
 }
 
-void psh::RangeObject::Update([[maybe_unused]] int delta)
+void psh::RangeObject::OnUpdate([[maybe_unused]] int delta)
 {
-    GameObject::Update(delta);
     //가장 무식하게 짜기.
     //내 안에 있던 애들을 전부 순회하면서
     //벗어났다면
@@ -40,7 +38,7 @@ void psh::RangeObject::Update([[maybe_unused]] int delta)
 
 
     //자기에게 맞는 적절한 객체만 선택하는 함수가 있어야 함.
-    for (auto &p: _field.GetObjectViewByPoint(Field::ViewObjectType::All, _range->GetCoordinates()))
+    for (auto& p : _field.GetObjectViewByPoint(Field::ViewObjectType::All, _range->GetCoordinates()))
     {
         if (_range->Contains(p->Location()))
         {
@@ -68,22 +66,21 @@ void psh::RangeObject::OnDestroyImpl()
     }
 }
 
-psh::SingleInteractionObject::SingleInteractionObject(Field &group, const GameObjectData &initData
-                                                    , PoolPtr<Range> range): GameObject(group, initData)
-                                                                         , _range(move(range))
-{
-}
+psh::SingleInteractionObject::SingleInteractionObject(Field& group, const GameObjectData& initData
+                                                      , PoolPtr<Range> range)
+    : GameObject(group, initData)
+    , _range(move(range)) {}
 
 void psh::SingleInteractionObject::Enter(shared<GameObject> obj)
 {
     OnEnter(obj);
 }
 
-void psh::SingleInteractionObject::Update(int delta)
+void psh::SingleInteractionObject::OnUpdate(int delta)
 {
     auto playerView = _field.GetObjectViewByPoint(Field::ViewObjectType::Player, _range->GetCoordinates());
 
-    for (const auto &p: playerView)
+    for (const auto& p : playerView)
     {
         if (_range->Contains(p->Location()))
         {
@@ -94,13 +91,28 @@ void psh::SingleInteractionObject::Update(int delta)
     }
 }
 
-psh::Item::Item(Field &group, const GameObjectData &initData, PoolPtr<Range> range): SingleInteractionObject{
-        group, initData, move(range)
-    }
+psh::Item::Item(Field& group, const GameObjectData& initData, PoolPtr<Range> range, int lifeMs)
+    : SingleInteractionObject{group, initData, move(range)}
 {
+    _life.Reset(lifeMs);
 }
 
-void psh::Item::OnEnter(const shared<GameObject> &obj)
+void psh::Item::OnEnter(const shared<GameObject>& obj)
 {
+    if (obj->ObjectType() == eObjectType::Player)
+    {
+        std::static_pointer_cast<Player>(obj)->AddCoin(1);
+    }
+}
+
+void psh::Item::OnUpdate(int delta)
+{
+    SingleInteractionObject::OnUpdate(delta);
+    _life.Update(delta);
+
+    if (_life.IsExpired())
+    {
+        _field.DestroyActor(shared_from_this());
+    }
 }
 

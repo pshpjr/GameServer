@@ -2,32 +2,33 @@
 
 #include <vector>
 #include "FVector.h"
-#include "GameObject.h"
+#include "ContentTypes.h"
 #include "Range.h"
 
 // 전방 선언
 namespace psh
 {
+    class GameObject;
     class Range;
 }
 
 namespace psh
 {
-    // 클래스 내부의 타입 정의 및 상수
-    using SkillID = char;
-
-    struct DamageInfo {
-        int damage;
+    struct DamageInfo
+    {
         ObjectID attacker;
+        int damage;
     };
 
-    struct ReqAttack {
-        const GameObject &attacker;
+    struct ReqAttack
+    {
+        const GameObject& attacker;
         FVector direction{};
         SkillID skillId{};
     };
 
-    struct AttackInfo {
+    struct AttackInfo
+    {
         eObjectType attackerType{};
         PoolPtr<Range> range{};
         SkillID skillId{};
@@ -39,10 +40,12 @@ namespace psh
      * 어떤 스킬의 범위, 데미지, ID
      * skillSize는 0,1 방향을 바라본 것을 기준으로 한다.
      */
-    struct SkillInfo {
+    struct SkillInfo
+    {
         SkillID id;
         FVector skillSize;
         int damage;
+        int cooldown;
     };
 
     namespace ATTACK
@@ -65,14 +68,7 @@ namespace psh
          * @param id 객체 템플릿 ID
          * @return 스킬 ID 목록
          */
-        std::vector<SkillID> &GetSkillsByTemplate(TemplateID id);
-
-        /**
-         * 템플릿 ID를 통해 AI 공격 범위를 가져옴
-         * @param id 템플릿 ID
-         * @return 범위
-         */
-        int GetAIRangeByTemplate(TemplateID id);
+        std::vector<SkillID>& GetSkillsByTemplate(TemplateID id);
 
         /**
          * 공격 실행 함수
@@ -91,9 +87,10 @@ namespace psh
 
         /**
          * 아이템 ID를 통해 범위 객체를 가져옴
+         * @param location
          * @param id 아이템 ID
          * @return 범위 객체
          */
-        RangeUnique GetRangeByItemID(TemplateID id);
+        RangeUnique CalculateRangeByItemID(FVector location, TemplateID id);
     }
 }

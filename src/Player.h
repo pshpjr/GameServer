@@ -19,18 +19,17 @@ namespace psh
     class Player final : public ChatCharacter
     {
     public:
-        ~Player() override = default;
-
         Player(Field& group
-            , const GameObjectData &initData
-            , std::shared_ptr<DBData> dbData
-            , DBThreadWrapper* dbThread);
-        void GetCoin(char value) const;
+               , const GameObjectData& initData
+               , std::shared_ptr<DBData> dbData
+               , DBThreadWrapper* dbThread);
+        ~Player() override;
+        void AddCoin(char value) const;
 
         void SendCoinInfo() const;
 
         void MakeCreatePacket(SendBuffer& buffer, bool spawn) const override;
-        void SendPacket(const SendBuffer &buffer) const;
+        void SendPacket(const SendBuffer& buffer) const;
 
         [[nodiscard]] SessionID SessionId() const
         {
@@ -38,15 +37,17 @@ namespace psh
         }
 
         void DieImpl() override;
-
+        void UpdateDBData();
 
         [[nodiscard]] AccountNo AccountNumber() const
         {
-            return _data->AccountNo();
+            return _data->AccountNum();
         }
 
         std::shared_ptr<DBData> _data;
         void OnCreateImpl() override;
+        void OnDestroyImpl() override;
+        GroupID _nextGroup{0};
 
     private:
         DBThreadWrapper* _dbThread = nullptr;

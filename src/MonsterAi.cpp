@@ -11,44 +11,49 @@
 
 namespace psh::MonsterAi
 {
-    const TargetSelector PveTargetSelector = [](FVector location, Field *field)-> std::weak_ptr<ChatCharacter> {
+    const TargetSelector PveTargetSelector = [](TargetRequest request, Field& field)-> std::weak_ptr<GameObject> {
         float curMax = 1000;
-        std::weak_ptr<ChatCharacter> target;
+        std::weak_ptr<GameObject> target;
 
-        auto view = field->GetObjectView(Field::ViewObjectType::Player, location, SEND_OFFSETS::BROADCAST);
-        for (const auto &obj: view)
+        auto view = field.GetObjectView(Field::ViewObjectType::Player, request.location, SEND_OFFSETS::BROADCAST);
+        for (const auto& obj : view)
         {
-            if (Distance(obj->Location(), location) < curMax)
+            if (Distance(obj->Location(), request.location) < curMax)
             {
-                curMax = Distance(obj->Location(), location);
-                target = std::static_pointer_cast<ChatCharacter>(obj);
+                curMax = Distance(obj->Location(), request.location);
+                target = obj;
             }
         }
         return target;
     };
 
-    const TargetSelector PvpTargetSelector = [](FVector location, Field *field)-> std::weak_ptr<ChatCharacter> {
+    const TargetSelector PvpTargetSelector = [](TargetRequest request, Field& field)-> std::weak_ptr<GameObject> {
         float curMax = 1000;
-        std::weak_ptr<ChatCharacter> target;
+        std::weak_ptr<GameObject> target;
 
-
-        for (auto view = field->GetObjectView(Field::ViewObjectType::Player, location, SEND_OFFSETS::BROADCAST);
-             const auto &obj: view)
+        for (auto view = field.GetObjectView(Field::ViewObjectType::Player, request.location, SEND_OFFSETS::BROADCAST);
+             const auto& obj : view)
         {
-            if (Distance(obj->Location(), location) < curMax)
+            if (Distance(obj->Location(), request.location) < curMax)
             {
-                curMax = Distance(obj->Location(), location);
-                target = std::static_pointer_cast<ChatCharacter>(obj);
+                curMax = Distance(obj->Location(), request.location);
+                target = obj;
             }
         }
 
-        for (auto view = field->GetObjectView(Field::ViewObjectType::Monster, location, SEND_OFFSETS::BROADCAST);
-             const auto &obj: view)
+        for (auto view = field.GetObjectView(Field::ViewObjectType::Monster, request.location, SEND_OFFSETS::BROADCAST);
+             const auto& obj : view)
         {
-            if (Distance(obj->Location(), location) < curMax)
+            if (obj->ObjectId() == request.objectId)
             {
-                curMax = Distance(obj->Location(), location);
-                target = std::static_pointer_cast<ChatCharacter>(obj);
+                continue;
+            }
+
+
+            if (Distance(obj->Location(), request.location) < curMax)
+            {
+                curMax = Distance(obj->Location(), request.location);
+                target = obj;
             }
         }
 

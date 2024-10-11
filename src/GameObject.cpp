@@ -12,63 +12,32 @@
 namespace psh
 {
     // GameObject 클래스 생성자
-    GameObject::GameObject(Field &group, const GameObjectData &initData)
-        : _location(initData.location)
-      , _viewDirection(initData.direction)
-      , _objectType(initData.objectType)
-      , _templateId(initData.templateId)
-      , _field(group)
-      , _oldLocation(initData.location)
-      , _movementComponent{std::make_unique<MoveComponent>(*this, initData.moveSpeedPerSec / 1000.0f)}
-    {
-    }
+    GameObject::GameObject(Field& group, const GameObjectData& initData)
+        : _field(group)
+        , _location(initData.location)
+        , _viewDirection(initData.direction)
+        , _objectType(initData.objectType)
+        , _templateId(initData.templateId) {}
 
     GameObject::~GameObject() = default;
 
+
     // 생성 패킷을 구성하는 함수
-    void GameObject::MakeCreatePacket(SendBuffer &buffer, const bool spawn) const
+    void GameObject::MakeCreatePacket(SendBuffer& buffer, const bool spawn) const
     {
         MakeGame_ResCreateActor(buffer, _objectId, _objectType, _templateId, _location, _viewDirection, spawn);
-        if (_movementComponent == nullptr)
-        {
-            return;
-        }
-
-        if (_movementComponent->IsMoving())
-        {
-            MakeGame_ResMove(buffer, _objectId, _objectType, _movementComponent->Destination());
-        }
     }
 
-    // 이동 시작 함수
-    void GameObject::MoveStart(const FVector destination) const
-    {
-        _movementComponent->MoveStart(destination);
-    }
-
-    // 이동 멈춤 함수
-    void GameObject::MoveStop() const
-    {
-        _movementComponent->MoveStop();
-    }
-
-    bool GameObject::IsMoving() const
-    {
-        return _movementComponent->IsMoving();
-    }
 
     // 업데이트 함수
-    void GameObject::Update(const int delta)
+    void GameObject::Update(int delta)
     {
         if (!Valid())
         {
             return;
         }
 
-        if (_movementComponent != nullptr)
-        {
-            _movementComponent->Update(delta);
-        }
+        OnUpdate(delta);
     }
 
     // 생성 시 호출되는 함수
@@ -86,17 +55,36 @@ namespace psh
     void GameObject::OnDestroy()
     {
         auto destroyed = SendBuffer::Alloc();
-        MakeGame_ResDestroyActor(destroyed, ObjectId(), true, static_cast<char>(_removeReason));
+        bool isDead = _removeReason == removeReason::Die;
+        MakeGame_ResDestroyActor(destroyed, ObjectId(), isDead, static_cast<char>(_removeReason));
 
         _field.BroadcastToPlayer(Location(), {destroyed});
         // 플레이어에게 소멸 패킷 전송
         OnDestroyImpl();
     }
 
-    std::ostream &operator<<(std::ostream &out, const GameObject &obj)
+    void GameObject::OutFromMapWhenGroupMove()
+    {
+        //그룹 이동시 패킷을 받으면 안 된다.
+        //이동 후 패킷을 받게 될 수 있음.
+        //클라이언트 레벨 이동 후 패킷을 받으면 에러다.
+
+        _map->Delete(ObjectId(), Location());
+        _inMap = false;
+        _map = nullptr;
+    }
+
+    void GameObject::IntoMap(GameMap<ObjectID, std::shared_ptr<GameObject>>* map)
+    {
+        map->Insert(ObjectId(), shared_from_this(), Location());
+        _map = map;
+        Valid(true);
+    }
+
+    std::ostream& operator<<(std::ostream& out, const GameObject& obj)
     {
         out << std::format("(GameObj: type:{}, Oid:{}, Loc:({},{})", static_cast<char>(obj.ObjectType())
-                         , obj.ObjectId(), obj.Location().X, obj.Location().Y);
+                           , obj.ObjectId(), obj.Location().X, obj.Location().Y);
         return out;
     }
 } // namespace psh

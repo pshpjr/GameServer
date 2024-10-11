@@ -18,11 +18,14 @@ namespace psh
     /**
      * 몬스터를 스폰하는 클래스
      */
-    class MonsterSpawner : public Updatable {
+    class MonsterSpawner : public Updatable
+    {
     public:
+        ;
+
         [[deprecated("Use GetSpawner func instead")]]
-        MonsterSpawner(ServerType type, Field &field, GameMap<ObjectID, shared<Monster> > &monsterMap
-                     , MonsterAi::TargetSelector selector);
+        MonsterSpawner(ServerType type, Field& field, GameMap<ObjectID, shared<GameObject>>& monsterMap
+                       , MonsterAi::TargetSelector selector);
 
         // 공용 (public) 멤버 함수
         /**
@@ -38,21 +41,21 @@ namespace psh
          * @param monsterMap 몬스터 맵
          * @return 맞춤형 MonsterSpawner 객체
          */
-        static std::unique_ptr<MonsterSpawner> GetSpawner(ServerType type, Field &field
-                                                        , GameMap<ObjectID, shared<Monster> > &monsterMap);
+        static std::unique_ptr<MonsterSpawner> GetSpawner(ServerType type, Field& field
+                                                          , GameMap<ObjectID, shared<GameObject>>& monsterMap);
 
         ~MonsterSpawner() final = default;
 
     private:
         // 클래스 내부의 타입 정의 및 상수
         const int MAX_MONSTERS = 30;
-        const float _mapSize;
 
         // 멤버 변수
         ServerType _type;
-        Field &_field;
-        GameMap<ObjectID, shared<Monster> > &_monsterMap;
+        Field& _field;
+        GameMap<ObjectID, shared<GameObject>>& _monsterMap;
         MonsterAi::TargetSelector _selector;
+        const float _mapSize;
 
         // 기본 몬스터 데이터
         GameObjectData _defaultData = {

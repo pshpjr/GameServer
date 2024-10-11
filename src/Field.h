@@ -7,6 +7,7 @@ class CLogger;
 
 namespace psh
 {
+    struct MonitorData;
     class Item;
     class Monster;
     struct ServerInitData;
@@ -30,13 +31,15 @@ namespace psh
 // 네임스페이스 정의
 namespace psh
 {
-    class Field final : public Group {
-        using map_type = GameMap<ObjectID, shared<GameObject> >;
+    class Field final : public Group
+    {
+        using map_type = GameMap<ObjectID, shared<GameObject>>;
         using view_type = map_type::SectorView;
 
     public:
         // 타입 정의 및 상수
-        enum class ViewObjectType : uint8 {
+        enum class ViewObjectType : uint8
+        {
             Player = 1 << 1, Monster = 1 << 2, Item = 1 << 3, All = (1 << 1) | (1 << 2) | (1 << 3)
         };
 
@@ -46,8 +49,8 @@ namespace psh
         friend ViewObjectType operator&(ViewObjectType lhs, ViewObjectType rhs);
 
         // 생성자와 소멸자
-        Field(Server &server, const ServerInitData &data, ServerType type, short mapSize = 6400
-            , short sectorSize = 400);
+        Field(Server& server, const ServerInitData& data, ServerType type, MonitorData& monitor, short mapSize = 6400
+              , short sectorSize = 400);
 
         ~Field() override;
 
@@ -55,34 +58,35 @@ namespace psh
         void OnEnter(SessionID id) override;
 
         void OnLeave(SessionID id, int wsaErrCode) override;
+        void ProcessDatabaseAlerts();
 
         void OnUpdate(int milli) override;
 
-        void OnRecv(SessionID id, CRecvBuffer &recvBuffer) override;
+        void OnRecv(SessionID id, CRecvBuffer& recvBuffer) override;
 
         void OnCreate() override;
 
-        victim_select::AttackResult ProcessAttack(AttackInfo info);
+        AttackResult ProcessAttack(AttackInfo info);
 
-        view_type GetObjectView(ViewObjectType type, const FVector &location, std::span<const Sector> offsets);
+        view_type GetObjectView(ViewObjectType type, const FVector& location, std::span<const Sector> offsets);
 
-        view_type GetObjectViewByPoint(ViewObjectType type, const std::list<FVector> &coordinate);
+        view_type GetObjectViewByPoint(ViewObjectType type, const std::list<FVector>& coordinate);
 
-        void AddActor(const shared<GameObject> &obj);
+        void AddActor(const shared<GameObject>& obj);
 
-        void DestroyActor(shared<GameObject> &obj);
+        void DestroyActor(shared<GameObject>& obj);
 
-        void DestroyActor(shared<GameObject> &&obj);
+        void DestroyActor(shared<GameObject>&& obj);
 
-        void BroadcastToPlayer(FVector targetLocation, const std::vector<SendBuffer> &packets);
+        void BroadcastToPlayer(FVector targetLocation, const std::vector<SendBuffer>& packets);
 
-        void SpawnItem(const shared<Item> &obj);
+        void SpawnMonster(const shared<Monster>& obj);
 
-        void SpawnMonster(const shared<Monster> &obj);
+        void MoveField(SessionID id, GroupID gid);
 
     private:
         // 비공용 멤버 함수
-        [[nodiscard]] map_type *FindObjectMap(const shared<GameObject> &obj) const;
+        [[nodiscard]] map_type* FindObjectMap(const shared<GameObject>& obj) const;
 
         void InsertWaitObjectInMap();
 
@@ -94,34 +98,35 @@ namespace psh
 
         void SendMonitor();
 
-        void BroadcastPlayerLeave(const PlayerRef &playerPtr);
+        void BroadcastPlayerLeave(const PlayerRef& playerPtr);
 
-        void RecvReqLevelChange(SessionID id, CRecvBuffer &recvBuffer);
+        void RecvReqLevelChange(SessionID id, CRecvBuffer& recvBuffer);
 
-        void RecvChangeComp(SessionID id, CRecvBuffer &recvBuffer);
+        void RecvChangeComp(SessionID id, CRecvBuffer& recvBuffer);
 
-        void RecvChat(SessionID id, CRecvBuffer &recvByffer);
+        void RecvChat(SessionID id, CRecvBuffer& recvByffer);
 
-        void RecvMove(SessionID sessionId, CRecvBuffer &buffer);
+        void RecvMove(SessionID sessionId, CRecvBuffer& buffer);
 
-        void RecvAttack(SessionID sessionId, CRecvBuffer &buffer);
+        void RecvAttack(SessionID sessionId, CRecvBuffer& buffer);
 
         void SendLogin() const;
 
         void SendMonitorData(en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, int value) const;
-
         // 멤버 변수
-        List<shared<GameObject> > _createWaits;
-        List<shared<GameObject> > _delWaits;
+        List<shared<GameObject>> _createWaits;
+        List<shared<GameObject>> _delWaits;
 
+        std::unique_ptr<LockFreeFixedQueue<std::function<void()>, 1024>> _dbCompAlert;
         std::unique_ptr<DBThreadWrapper> _dbThread;
 
-        Server &_server;
-        const ServerInitData &_initData;
+        MonitorData& _monitorData;
+        Server& _server;
+        const ServerInitData& _initData;
         const ServerType _groupType = ServerType::End;
 
-        std::unordered_set<shared<GameObject> > _objects;
-        SessionMap<std::shared_ptr<Player> > _players;
+        std::unordered_set<shared<GameObject>> _objects;
+        SessionMap<std::shared_ptr<Player>> _players;
         std::shared_ptr<map_type> _playerMap;
         std::shared_ptr<map_type> _monsterMap;
         std::shared_ptr<map_type> _itemMap;

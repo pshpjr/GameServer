@@ -6,14 +6,14 @@
 
 namespace psh::victim_select
 {
-    VictimSelectFunction pveVictimSelector = [](psh::Field &field, const psh::AttackInfo &attackInfo) {
+    VictimSelectFunction pveVictimSelector = [](Field& field, const AttackInfo& attackInfo) {
         switch (attackInfo.attackerType)
         {
-            case eObjectType::Player:
+        case eObjectType::Player:
             {
-                for (auto view = field.GetObjectViewByPoint(psh::Field::ViewObjectType::Monster
-                                                          , attackInfo.range->GetCoordinates());
-                     auto &obj: view)
+                for (auto view = field.GetObjectViewByPoint(Field::ViewObjectType::Monster
+                                                            , attackInfo.range->GetCoordinates());
+                     auto& obj : view)
                 {
                     if (attackInfo.range->Contains(obj->Location()))
                     {
@@ -22,12 +22,12 @@ namespace psh::victim_select
                 }
             }
             break;
-            case eObjectType::Monster:
+        case eObjectType::Monster:
             {
-                auto view = field.GetObjectViewByPoint(psh::Field::ViewObjectType::Player
-                                                     , attackInfo.range->GetCoordinates());
+                auto view = field.GetObjectViewByPoint(Field::ViewObjectType::Player
+                                                       , attackInfo.range->GetCoordinates());
 
-                for (auto &obj: view)
+                for (auto& obj : view)
                 {
                     if (attackInfo.range->Contains(obj->Location()))
                     {
@@ -36,42 +36,76 @@ namespace psh::victim_select
                 }
             }
             break;
-            case eObjectType::Item:
-                [[fallthrough]];
-            case eObjectType::Object:
-                [[fallthrough]];
-            default:
-                ASSERT_CRASH(false, "InvalidType");
+        case eObjectType::Item:
+            [[fallthrough]];
+        case eObjectType::Object:
+            [[fallthrough]];
+        default:
+            ASSERT_CRASH(false, "InvalidType");
         }
         return AttackResult::Success;
     };
 
 
-    VictimSelectFunction pvpVictimSelector;
+    VictimSelectFunction pvpVictimSelector = [](Field& field, const AttackInfo& attackInfo) {
+        //몬스터
+        {
+            for (auto view = field.GetObjectViewByPoint(Field::ViewObjectType::Monster
+                                                        , attackInfo.range->GetCoordinates());
+                 auto& obj : view)
+            {
+                if (attackInfo.range->Contains(obj->Location()))
+                {
+                    std::static_pointer_cast<ChatCharacter>(obj)->Hit({attackInfo.attacker, attackInfo.damage});
+                }
+            }
+        }
+        // 플레이어 전부 맞음
+        {
+            auto view = field.GetObjectViewByPoint(Field::ViewObjectType::Player
+                                                   , attackInfo.range->GetCoordinates());
 
-    VictimSelectFunction invalidSelector = [](psh::Field &field, const psh::AttackInfo &attackInfo) {
+            for (auto& obj : view)
+            {
+                if (attackInfo.range->Contains(obj->Location()))
+                {
+                    std::static_pointer_cast<ChatCharacter>(obj)->Hit({attackInfo.attacker, attackInfo.damage});
+                }
+            }
+        }
+
+        if (attackInfo.attackerType != eObjectType::Player && attackInfo.attackerType != eObjectType::Monster)
+        {
+            ASSERT_CRASH(false, "InvalidType");
+        }
+
+
+        return AttackResult::Success;
+    };
+
+    VictimSelectFunction invalidSelector = [](Field& field, const AttackInfo& attackInfo) {
         return AttackResult::Invalid;
     };
 
-    VictimSelectFunction psh::victim_select::GetVictimByServerType(psh::ServerType type)
+    VictimSelectFunction victim_select::GetVictimByServerType(ServerType type)
     {
         switch (type)
         {
-            case psh::ServerType::Village:
-                return invalidSelector;
-                break;
-            case psh::ServerType::Easy:
-                [[fallthrough]];
-            case psh::ServerType::Hard:
-                return pveVictimSelector;
-                break;
-            case psh::ServerType::Pvp:
-                return pvpVictimSelector;
-                break;
-            case psh::ServerType::End:
-                ASSERT_CRASH(false, "invalid state");
-                return nullptr;
-                break;
+        case ServerType::Village:
+            return invalidSelector;
+            break;
+        case ServerType::Easy:
+            [[fallthrough]];
+        case ServerType::Hard:
+            return pveVictimSelector;
+            break;
+        case ServerType::Pvp:
+            return pvpVictimSelector;
+            break;
+        case ServerType::End:
+            ASSERT_CRASH(false, "invalid state");
+            return nullptr;
+            break;
         }
         return nullptr;
     }

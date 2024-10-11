@@ -33,6 +33,8 @@ add_executable(CMakeServer
         MoveComponent.cpp
         MoveComponent.h
         IdTypes.h
+        AiComponent.cpp
+        AiComponent.h
 )
 
 target_include_directories(CMakeServer PRIVATE ../../packetParser)

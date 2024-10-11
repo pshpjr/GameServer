@@ -2,124 +2,53 @@
 
 #include "AttackData.h"
 #include "Field.h"
-#include "GameMap.h"
 #include "MoveComponent.h"
 #include "Player.h"
 #include "Profiler.h"
 #include "RangeObject.h"
-#include "TableData.h"
+#include "AiComponent.h"
 
 namespace psh
 {
-    constexpr auto PLAYER_MOVE_SPEED = 200;
-    constexpr auto MAX_MOVE_RANGE = 800;
-    constexpr auto SEARCH_DELAY_MS = 2000;
-    constexpr auto ATTACK_DELAY_MS = 1000;
-
-    Monster::Monster(Field &group, const GameObjectData &initData)
-        : ChatCharacter(group, initData)
-      , attackRange{ATTACK::GetAIRangeByTemplate(initData.templateId)}
-      , _spawnLocation{initData.location}
+    const Nickname& GetMonsterName(TemplateID id)
     {
+        static const std::array monsterNames = {
+            Nickname("Invalid"), Nickname("Invalid"), Nickname("Invalid"), Nickname("Invalid"), // 0~3
+            Nickname("Easy_1")
+            , Nickname("Easy_2"), Nickname("Easy_3"), Nickname("Easy_4"), // 4~7
+            Nickname("Hard_1")
+            , Nickname("Hard_2"), Nickname("Hard_3"), Nickname("Hard_4"), // 8~11
+            Nickname("PVP_1")
+            , Nickname("PVP_2"), Nickname("PVP_3"), Nickname("PVP_4") // 12~15
+        };
+
+        if (id < 0 || id >= static_cast<int>(monsterNames.size()))
+        {
+            ASSERT_CRASH(false, "Invalid monster");
+        }
+
+        return monsterNames[id];
     }
 
+    Monster::Monster(Field& group, const GameObjectData& initData, std::unique_ptr<MonsterAiComponent> aiComponent)
+        : ChatCharacter(group, initData, std::move(aiComponent)) {}
 
-    void Monster::Update(const int delta)
+
+    void Monster::MakeCreatePacket(SendBuffer& buffer, bool spawn) const
     {
-        ChatCharacter::Update(delta);
-        PRO_BEGIN(MonsterOnUpdate)
-        if (attackCooldown > 0)
-        {
-            attackCooldown -= delta;
-        }
-        if (searchCooldown > 0)
-        {
-            searchCooldown -= delta;
-        }
-        if (moveCooldown > 0)
-        {
-            moveCooldown -= delta;
-            return;
-        }
-
-        const auto target = _target.lock();
-
-        if (target == nullptr)
-        {
-            if (searchCooldown > 0)
-            {
-                return;
-            }
-
-            PRO_BEGIN(GetClosestTarget);
-            _target = _selector(Location(), &_field);
-            //_attackStrategy->GetClosestTarget(_spawnLocation, _target, MAX_MOVE_RANGE/2);
-            searchCooldown += SEARCH_DELAY_MS;
-            return;
-        }
-
-        if (target->isDead())
-        {
-            _target.reset();
-            return;
-        }
-
-        const auto dist = Distance(target->Location(), Location());
-        if ((dist < _skills[0].skillInfo.skillSize.X))
-        {
-            if (attackCooldown > 0)
-            {
-                return;
-            }
-            if (IsMoving())
-            {
-                MoveStop();
-            }
-
-            auto attackDir = (target->Location() - Location()).Normalize();
-
-            attackDir = isnan(attackDir.X) ? ViewDirection() : attackDir;
-
-            Attack(0, attackDir);
-
-            attackCooldown += ATTACK_DELAY_MS;
-            return;
-        }
-
-        if ((Location() - _spawnLocation).Size() > MAX_MOVE_RANGE)
-        {
-            MoveStart(_spawnLocation);
-            _target.reset();
-            moveCooldown += MAX_MOVE_RANGE / PLAYER_MOVE_SPEED * 1000;
-            return;
-        }
-
-        //몬스터가 과도하게 플레이어 잘 쫓아오는 것 막기 위해
-        //1초 이동 가능한 범위에서 움직인다. 
-        if (dist > PLAYER_MOVE_SPEED)
-        {
-            const auto dest = Location() + (target->Location() - Location()).Normalize() * PLAYER_MOVE_SPEED;
-            MoveStart(dest);
-        }
-        else
-        {
-            MoveStart(target->Location());
-        }
-
-        moveCooldown += 1000;
-    }
-
-    void Monster::OnDestroyImpl()
-    {
+        ChatCharacter::MakeCreatePacket(buffer, spawn);
+        MakeGame_ResPlayerDetail(buffer, ObjectId(), GetMonsterName(TemplateId()));
     }
 
     void Monster::DieImpl()
     {
-        GameObjectData itemData{Location(), {0, 0}, 0, eObjectType::Item, 100};
+        GameObjectData itemData{Location(), {0, 0}, 0, eObjectType::Item, 16};
 
-        const auto obj = std::make_shared<Item>(_field, itemData, ATTACK::GetRangeByItemID(100));
+        const auto obj = std::make_shared<Item>(_field, itemData
+                                                , ATTACK::CalculateRangeByItemID(
+                                                    itemData.location, itemData.templateId));
 
-        _field.SpawnItem(obj);
-        _removeReason = removeResult::Die;
+        _field.AddActor(obj);
+        _removeReason = removeReason::Die;
     }
 }

@@ -3,21 +3,29 @@
 #include <functional>
 #include "AttackData.h"
 
-namespace psh::victim_select
+
+namespace psh
 {
     // 전방 선언(forward declarations)
     class Field;
-    class AttackInfo;
-    enum class ServerType;
+    struct AttackInfo;
+    enum class ServerType : unsigned char;
 
     // 클래스 내부의 타입 정의 및 상수
-    enum class AttackResult {
-        Success, Invalid, Miss,
+    enum class AttackResult
+    {
+        Success
+        , Invalid
+        , Miss
+        ,
     };
 
-    // bind해서 첫 인자 고정해서 사용할 것.
-    using VictimSelectFunction = std::function<AttackResult(psh::Field &field, const psh::AttackInfo &)>;
+    namespace victim_select
+    {
+        // bind해서 첫 인자 고정해서 사용할 것.
+        using VictimSelectFunction = std::function<AttackResult(Field& field, const AttackInfo&)>;
 
-    // 공용 멤버 함수
-    VictimSelectFunction GetVictimByServerType(psh::ServerType type);
+        // 공용 멤버 함수
+        VictimSelectFunction GetVictimByServerType(ServerType type);
+    }
 } // namespace psh::victim_select

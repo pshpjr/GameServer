@@ -6,17 +6,19 @@
 
 namespace psh
 {
+    class Player;
+
     class DBData
     {
     public:
         DBData(const SessionID& sessionId
-            , const AccountNo accountNo
-            , const FVector& location
-            , const char serverType
-            , const char characterType
-            , const int coin
-            , const int hp
-            , const Nickname& nick)
+               , const AccountNo accountNo
+               , const FVector& location
+               , const char serverType
+               , const char characterType
+               , const int coin
+               , const int hp
+               , const Nickname& nick)
             : _sessionId(sessionId)
             , _accountNo(accountNo)
             , _location(location)
@@ -24,8 +26,46 @@ namespace psh
             , _characterType(characterType)
             , _coin(coin)
             , _hp(hp)
-            , _nick(nick)
+            , _nick(nick) {}
+
+        void SessionId(const SessionID& session_id)
         {
+            _sessionId = session_id;
+        }
+
+        void AccountNum(AccountNo account_no)
+        {
+            _accountNo = account_no;
+        }
+
+        void Location(const FVector& location)
+        {
+            _location = location;
+        }
+
+        void ServerType(char server_type)
+        {
+            _serverType = server_type;
+        }
+
+        void CharacterType(char character_type)
+        {
+            _characterType = character_type;
+        }
+
+        void Coin(int coin)
+        {
+            _coin = coin;
+        }
+
+        void Hp(int hp)
+        {
+            _hp = hp;
+        }
+
+        void Nick(const Nickname& nick)
+        {
+            _nick = nick;
         }
 
         [[nodiscard]] SessionID SessionId() const
@@ -33,24 +73,9 @@ namespace psh
             return _sessionId;
         }
 
-        void SetSessionId(const SessionID& sessionId)
-        {
-            _sessionId = sessionId;
-        }
-
-        [[nodiscard]] AccountNo AccountNo() const
+        [[nodiscard]] AccountNo AccountNum() const
         {
             return _accountNo;
-        }
-
-        [[nodiscard]] Nickname Nick() const
-        {
-            return _nick;
-        }
-
-        void SetAccountNo(const psh::AccountNo accountNo)
-        {
-            _accountNo = accountNo;
         }
 
         [[nodiscard]] FVector Location() const
@@ -58,20 +83,9 @@ namespace psh
             return _location;
         }
 
-
-        void SetLocation(const FVector location)
-        {
-            _location = location;
-        }
-
         [[nodiscard]] char ServerType() const
         {
             return _serverType;
-        }
-
-        void SetServerType(const char serverType)
-        {
-            _serverType = serverType;
         }
 
         [[nodiscard]] char CharacterType() const
@@ -79,24 +93,9 @@ namespace psh
             return _characterType;
         }
 
-        void SetCharacterType(const char characterType)
-        {
-            _characterType = characterType;
-        }
-
         [[nodiscard]] int Coin() const
         {
             return _coin;
-        }
-
-        void SetCoin(const int coin)
-        {
-            _coin = coin;
-        }
-
-        void AddCoin(const int value)
-        {
-            _coin += value;
         }
 
         [[nodiscard]] int Hp() const
@@ -104,14 +103,17 @@ namespace psh
             return _hp;
         }
 
-        void SetHp(const int hp)
+        [[nodiscard]] Nickname Nick() const
         {
-            _hp = hp;
+            return _nick;
         }
+
+        void SaveAll(Player& player);
+        void AddCoin(char value);
 
     private:
         SessionID _sessionId;
-        psh::AccountNo _accountNo;
+        AccountNo _accountNo;
         FVector _location;
         char _serverType;
         char _characterType;

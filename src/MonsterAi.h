@@ -21,10 +21,18 @@ namespace psh
 
 namespace psh::MonsterAi
 {
-    using TargetSelector = std::function<std::weak_ptr<ChatCharacter>(FVector, Field *)>;
+    struct TargetRequest
+    {
+        FVector location;
+        ObjectID objectId; //요청자
+    };
+
+    using TargetSelector = std::function<std::weak_ptr<GameObject>(TargetRequest, Field&)>;
 
     extern const TargetSelector PveTargetSelector;
     extern const TargetSelector PvpTargetSelector;
+
+    TargetSelector GetTargetSelectorByType(ServerType type);
 }
 
 

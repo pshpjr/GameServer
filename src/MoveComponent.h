@@ -44,6 +44,7 @@ namespace psh
         bool _isMoving = false;
         float _baseSpeedPerMs{};
         float _moveSpeedPerMs{};
+        FVector _oldLocation{};
     };
 }
 #endif //MOVABLE_H
