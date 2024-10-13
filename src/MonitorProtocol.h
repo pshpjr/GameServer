@@ -3,6 +3,7 @@
 // ReSharper disable CppTabsAreDisallowed
 #pragma once
 #include "Types.h"
+
 // 섹터 50 x 50
 enum en_Server_TYPE : BYTE
 {
@@ -130,7 +131,10 @@ enum en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE : BYTE
     dfMONITOR_DATA_TYPE_GAME_DB_TPS = 21, // 그룹 DB 초당 처리 횟수 
     dfMONITOR_DATA_TYPE_GAME_DB_QUEUE_SIZE = 22, // 그룹 DB 큐 사이즈
     dfMONITOR_DATA_TYPE_GAME_DB_QUERY_AVG = 23, // 그룹 DB 쿼리 평균
-
+    dfMONITOR_DATA_TYPE_GAME_MAX_WORK = 24, //그룹 최대 프레임 시간
+    dfMONITOR_DATA_TYPE_GAME_DB_ERR = 25, //DB 에러
+    dfMONITOR_DATA_TYPE_GAME_CIRCLE_POOL = 26, //circle pool
+    dfMONITOR_DATA_TYPE_GAME_SQUARE_POOL = 27, //square pool
 
     dfMONITOR_DATA_TYPE_LOGIN_SERVER_RUN = 100, // 로그인서버 실행여부 ON / OFF
     dfMONITOR_DATA_TYPE_LOGIN_SERVER_CPU = 101, // 로그인서버 CPU 사용률
@@ -141,7 +145,6 @@ enum en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE : BYTE
     dfMONITOR_DATA_TYPE_LOGIN_QUARY_MAX = 106, // 로그인 DB 쿼리 시간 MAX
     dfMONITOR_DATA_TYPE_LOGIN_QUARY_AVG = 107, // 로그인 DB 쿼리 시간 AVG
 
-
     dfMONITOR_DATA_TYPE_CHAT_SERVER_RUN = 130, // 채팅서버 ChatServer 실행 여부 ON / OFF
     dfMONITOR_DATA_TYPE_CHAT_SERVER_CPU = 131, // 채팅서버 ChatServer CPU 사용률
     dfMONITOR_DATA_TYPE_CHAT_SERVER_MEM = 132, // 채팅서버 ChatServer 메모리 사용 MByte
@@ -150,7 +153,8 @@ enum en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE : BYTE
     dfMONITOR_DATA_TYPE_CHAT_UPDATE_TPS = 135, // 채팅서버 UPDATE 스레드 초당 초리 횟수
     dfMONITOR_DATA_TYPE_CHAT_PACKET_POOL = 136, // 채팅서버 패킷풀 사용량
     dfMONITOR_DATA_TYPE_CHAT_UPDATEMSG_POOL = 137, // 채팅서버 UPDATE MSG 풀 사용량
-    dfMONITOR_DATA_TYPE_CHAT_ACCEPT_TPS = 138, dfMONITOR_DATA_TYPE_GAME_SERVER_CPU = 140, // GameServer CPU 사용률
+    dfMONITOR_DATA_TYPE_CHAT_ACCEPT_TPS = 138, //accept tps
+    dfMONITOR_DATA_TYPE_GAME_SERVER_CPU = 140, // GameServer CPU 사용률
     dfMONITOR_DATA_TYPE_GAME_SERVER_MEM = 141, // GameServer 메모리 사용 MByte
 
 

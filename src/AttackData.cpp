@@ -104,11 +104,6 @@ namespace psh
         const auto& [id, skillSize, damage,notUse] = GetSkillInfoById(attack.skillId);
         auto range = CalculateSkillRange(attacker.Location(), attack.direction, attack.skillId);
         AttackInfo info{attacker.ObjectType(), std::move(range), attack.skillId, attacker.ObjectId(), damage};
-        if (attack.skillId == 12)
-        {
-            std::cout << "Attack12 :" << damage << std::endl;
-        }
-
         // 공격패킷과 이펙트 패킷을 전송하기
         // 나중에 miss등의 이펙트도 생길 수 있음.
         if (auto result = attacker.GetField().ProcessAttack(std::move(info));
@@ -121,10 +116,21 @@ namespace psh
     }
 
     // 기타 내부 함수 및 헬퍼 함수
+
     namespace rangePool
     {
-        ModernObjectPool<SquareRange> squarePool(100);
-        ModernObjectPool<CircleRange> circlePool(100);
+        thread_local ModernObjectPool<SquareRange> squarePool(100);
+        thread_local ModernObjectPool<CircleRange> circlePool(100);
+    }
+
+    int ATTACK::getSquarePoolSzie()
+    {
+        return rangePool::squarePool.Size();
+    }
+
+    int ATTACK::getCirclePoolSzie()
+    {
+        return rangePool::circlePool.Size();
     }
 
     RangeUnique ATTACK::CalculateSkillRange(FVector location, FVector dir, SkillID id)

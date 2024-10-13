@@ -197,7 +197,7 @@ namespace psh
             //여기가 모든 입력을 걸러준다는 가정.
             if (location.X < 0 || MAP_SIZE <= location.X || location.Y < 0 || MAP_SIZE <= location.Y)
             {
-                std::cout << "InvalidSector" << '\n';
+                //나중에 invalid 왜 생기나 확인하기.
                 ClampLocationToMap(location);
             }
 

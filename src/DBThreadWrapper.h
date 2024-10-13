@@ -45,7 +45,7 @@ namespace psh
         void EnterGroup(const std::shared_ptr<DBData>& dbData);
 
         //callback은 완료 후 compAlert큐에 저장됨.
-        void SaveAll(const std::shared_ptr<DBData>& dbData, const std::function<void()>& callback);
+        void SaveAll(std::shared_ptr<DBData> dbData, std::function<void()> callback);
 
 
         //getMonitor 사이의 값을 출력. 

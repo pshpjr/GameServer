@@ -81,13 +81,20 @@ namespace psh
 
     void Player::OnDestroyImpl()
     {
+        ChatCharacter::OnDestroyImpl();
         UpdateDBData();
         if (_removeReason == removeReason::GroupChange)
         {
-            _dbThread->SaveAll(_data, [this] {
-                _field.MoveField(_data->SessionId(), _nextGroup);
-            });
+            //비동기 실행의경우 끝까지 수명 관리 해 줘야 한다는 것.
+            std::weak_ptr weakSelf = shared_from_this();
 
+            //이동 완료되어도 아직 안 끊겼다면 그룹 이동.
+            _dbThread->SaveAll(_data, [weakSelf, id = this->_data->SessionId(),next = this->_nextGroup] {
+                if (auto self = weakSelf.lock())
+                {
+                    self->GetField().MoveField(id, next);
+                }
+            });
             return;
         }
 

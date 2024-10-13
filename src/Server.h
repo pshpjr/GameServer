@@ -7,6 +7,7 @@
 #include "IOCP.h"
 #include "ServerInitData.h"
 #include "SettingParser.h"
+enum en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE : BYTE;
 class DBConnection;
 
 namespace psh
@@ -20,7 +21,12 @@ namespace psh
         int64 workTime{};
         int64 queued{};
         int64 jobTps{};
+        int64 maxWork{};
         int32 dbError{};
+        int32 players{};
+        int32 dbDequeue{};
+        int32 squarePool{};
+        int32 circlePool{};
     };
 
     class Server final : public IOCP
@@ -48,6 +54,12 @@ namespace psh
         }
 
     private:
+        void SendMonitorData(en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, int value);
+
+
+        void SendLogin();
+
+
         void OnLoginLogin(SessionID sessionId, CRecvBuffer& buffer);
         void OnLogin(SessionID sessionId, CRecvBuffer& buffer);
 
@@ -67,5 +79,6 @@ namespace psh
         ServerInitData _initData;
         DWORD _dbTlsId;
         std::atomic<uint64> _dbErrorCount;
+        SessionID _monitorSession = InvalidSessionID();
     };
 }

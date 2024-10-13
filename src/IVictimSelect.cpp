@@ -84,6 +84,7 @@ namespace psh::victim_select
     };
 
     VictimSelectFunction invalidSelector = [](Field& field, const AttackInfo& attackInfo) {
+        //ASSERT_CRASH(false, "Invalid");
         return AttackResult::Invalid;
     };
 

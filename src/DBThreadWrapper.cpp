@@ -96,9 +96,9 @@ namespace psh
         });
     }
 
-    void DBThreadWrapper::SaveAll(const std::shared_ptr<DBData>& dbData, const std::function<void()>& callback)
+    void DBThreadWrapper::SaveAll(std::shared_ptr<DBData> dbData, std::function<void()> callback)
     {
-        Enqueue([this, dbData, callback] {
+        Enqueue([this, dbData = std::move(dbData), callback= std::move(callback)] {
             try
             {
                 const auto time = conn.Query(

@@ -32,6 +32,11 @@ bool psh::MonsterAiComponent::IsReturning()
 
 void psh::MonsterAiComponent::Update(int delta)
 {
+    if (_owner->isDead())
+    {
+        return;
+    }
+
     _moveDelay.Update(delta);
     _searchDelay.Update(delta);
 

@@ -5,6 +5,7 @@
 #include "Field.h"
 #include "GameMap.h"
 #include "LockGuard.h"
+#include "MonitorProtocol.h"
 #include "PacketGenerated.h"
 #include "Utility.h"
 
@@ -22,9 +23,9 @@ namespace psh
         _serverSettings.GetValue(L"db.GameDBPwd", _initData.gameDBPwd);
         _serverSettings.GetValue(L"db.MonitorIP", _initData.MonitorServerIP);
         _serverSettings.GetValue(L"db.MonitorPort", _initData.MonitorServerPort);
-
         _serverSettings.GetValue(L"db.useMonitorServer", _initData.UseMonitorServer);
-        _serverSettings.GetValue(L"game.useMonsterAI", _initData.useMonsterAI);
+
+        _serverSettings.GetValue(L"game.useConsoleMonitor", _initData.consoleMonitor);
 
         _groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Village)] = CreateGroup<Field>(*this, _initData
             , ServerType::Village, _monitors[static_cast<std::vector<GroupID>::size_type>(ServerType::Village)]);
@@ -90,21 +91,36 @@ namespace psh
 
     void Server::OnMonitorRun()
     {
+        if (_initData.consoleMonitor == false)
+        {
+            return;
+        }
+        if (_monitorSession == InvalidSessionID())
+        {
+            auto client = GetClientSession(_initData.MonitorServerIP, _initData.MonitorServerPort);
+            if (client.HasError())
+            {
+                return;
+            }
+            _monitorSession = client.Value();
+            SetSessionStaticKey(_monitorSession, 0);
+            SendLogin();
+        }
+
         PrintMonitorString();
         auto monitorStr = std::format(
             L"==================================================================================\n"
             L" {:<11s}{:^55s}{:>11s}\n"
             L"----------------------------------------------------------------------------------\n"
-            L"+  {:<14s} : {:>10d}\n"
-            , L"", L"Content", L""
-            , L"DBErr", _dbErrorCount.load());
+            , L"", L"Content", L"");
 
-        for (const auto& [id, workTime, queued, jobTps,dbErr] : _monitors)
+        for (const auto& [id, workTime, queued, jobTps,maxWork,dbErr,players,dbDeq,circle, square] : _monitors)
         {
-            monitorStr.append(std::format(L"+  {:<14s} : {:>10d}, {:<14s} : {:>10d}, {:<14s} : {:>10d}\n"
-                                          , L"ID", id, L"WORK", workTime, L"DBErr", dbErr));
-            monitorStr.append(std::format(L"+  {:<14s} : {:>10d}, {:<14s} : {:>10d}\n"
-                                          , L"QUEUED", queued, L"JobTps", jobTps));
+            monitorStr.append(std::format(L"+  {:<7s} : {:>5d}, {:<7s} : {:>5}, {:<7s} : {:>5d}, {:<7s} : {:>5d}\n"
+                                          , L"ID", id, L"WORK", workTime, L"DBErr", dbErr, L"MaxWork", maxWork));
+            monitorStr.append(std::format(L"+  {:<7s} : {:>5d}, {:<7s} : {:>5d}, {:<7s} : {:>5d}, {:<7s} : {:>5d}\n"
+                                          , L"QUEUED", queued, L"JobTps", jobTps, L"Players", players, L"DBDequeue"
+                                          , dbDeq));
             monitorStr.append(L"----------------------------------------------------------------------------------\n");
         }
 
@@ -123,6 +139,21 @@ namespace psh
         auto& ret = _dbData.find(id)->second;
 
         return ret;
+    }
+
+    void Server::SendMonitorData(const en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, const int value)
+    {
+        auto buffer = SendBuffer::Alloc();
+        buffer << en_PACKET_SS_MONITOR_DATA_UPDATE << static_cast<WORD>(0) <<
+            static_cast<char>(0) << type << value << static_cast<int>(time(nullptr));
+        SendPacket(_monitorSession, buffer);
+    }
+
+    void Server::SendLogin()
+    {
+        auto buffer = SendBuffer::Alloc();
+        buffer << en_PACKET_SS_MONITOR_LOGIN << static_cast<WORD>(0) << static_cast<char>(0);
+        SendPacket(_monitorSession, buffer);
     }
 
     //로그인 서버 겸용으로 쓰다가 나중에 제거.
@@ -154,15 +185,14 @@ namespace psh
             const bool loginState(conn.getChar(3));
             conn.reset();
 
-
             if (truePass != playerPass)
             {
                 MakeLogin_ResLogin(loginResult, 0, playerID, eLoginResult::WrongPassword, SessionKey());
             }
-            // else if (loginState == true)
-            // {
-            //     MakeLogin_ResLogin(loginResult, 0, playerID, eLoginResult::DuplicateLogin, SessionKey());
-            // }
+            else if (loginState == true)
+            {
+                MakeLogin_ResLogin(loginResult, 0, playerID, eLoginResult::DuplicateLogin, SessionKey());
+            }
             else
             {
                 MakeLogin_ResLogin(loginResult, accountNo, playerID, eLoginResult::LoginSuccess, SessionKey());

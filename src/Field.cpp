@@ -232,6 +232,11 @@ void psh::Field::RecvChat(const SessionID id, CRecvBuffer& recvByffer)
         return;
     }
 
+    if (player->Valid() == false)
+    {
+        return;
+    }
+
     auto chatBuffer = SendBuffer::Alloc();
     MakeGame_ResChat(chatBuffer, player->ObjectId(), chatData);
     BroadcastToPlayer(player->Location(), {chatBuffer});
@@ -241,9 +246,10 @@ void psh::Field::RecvChat(const SessionID id, CRecvBuffer& recvByffer)
 void psh::Field::RecvMove(const SessionID sessionId, CRecvBuffer& buffer)
 {
     auto& [_, player] = *_players.find(sessionId);
+
     FVector location{};
     GetGame_ReqMove(buffer, location);
-    _playerMap->ClampLocationToMap(location);
+
     if (player == nullptr)
     {
         _logger->Write(L"Disconnect", CLogger::LogLevel::Invalid, L"recvMove. Not Found Player. SessionID : %d"
@@ -252,12 +258,18 @@ void psh::Field::RecvMove(const SessionID sessionId, CRecvBuffer& buffer)
         return;
     }
 
+    if (player->Valid() == false)
+    {
+        return;
+    }
+
+    _playerMap->ClampLocationToMap(location);
+
     if (location == player->Location())
     {
         auto moveBuffer = SendBuffer::Alloc();
         MakeGame_ResMove(moveBuffer, player->ObjectId(), player->ObjectType(), player->Location());
         SendPacket(player->SessionId(), moveBuffer);
-        printf("InvalidLocation. objID : %d, AccountNo : %lld\n", player->ObjectType(), player->AccountNumber());
         return;
     }
 
@@ -276,10 +288,19 @@ void psh::Field::RecvAttack(const SessionID sessionId, CRecvBuffer& buffer)
     {
         _logger->Write(L"Disconnect", CLogger::LogLevel::Invalid, L"recvAttack. Not Found Player. SessionID : %d"
                        , sessionId);
+        return;
     }
-    if (player->isDead())
+
+    if (player->Valid() == false)
     {
         return;
+    }
+
+    if (player->IsCooldownEndDebug(type) == false)
+    {
+        auto attackBuffer = SendBuffer::Alloc();
+        MakeGame_ResAttack(attackBuffer, player->ObjectId(), type, dir);
+        SendPacket(player->SessionId(), attackBuffer);
     }
 
     player->Attack(type, dir);
@@ -297,7 +318,6 @@ void psh::Field::BroadcastToPlayer(FVector targetLocation, const std::vector<Sen
         }
     }
 }
-
 
 // 몬스터 생성 및 필드에 추가
 void psh::Field::SpawnMonster(const shared<Monster>& obj)
@@ -465,13 +485,17 @@ void psh::Field::SendMonitor()
     _monitorData.workTime = GetWorkTime();
     _monitorData.queued = GetQueued();
     _monitorData.jobTps = GetJobTps();
-
+    _monitorData.players = _players.size();
+    _monitorData.maxWork = GetMaxWorkTime();
+    auto [queued, enqueue, dequeue, delaySum,DBErr] = _dbThread->GetMonitor();
+    _monitorData.dbDequeue = dequeue;
+    _monitorData.squarePool = ATTACK::getSquarePoolSzie();
+    _monitorData.circlePool = ATTACK::getCirclePoolSzie();
     if (!_useMonitor)
     {
         return;
     }
 
-    auto [queued, enqueue, dequeue, delaySum,DBErr] = _dbThread->GetMonitor();
 
     if (_monitorSession == InvalidSessionID())
     {
@@ -492,13 +516,17 @@ void psh::Field::SendMonitor()
 
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_RUN, static_cast<int>(1));
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_WORK_TIME, static_cast<int>(GetWorkTime()));
+    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_MAX_WORK, static_cast<int>(GetMaxWorkTime()));
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_JOB_QUEUE_SIZE, GetQueued());
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_JOB_TPS, static_cast<int>(GetJobTps()));
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SESSIONS, static_cast<int>(Sessions()));
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_PLAYERS, static_cast<int>(_players.size()));
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_TPS, static_cast<int>(dequeue));
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_QUEUE_SIZE, static_cast<int>(queued));
-
+    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_ENTER_TPS, GetEnterTps());
+    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_LEAVE_TPS, GetLeaveTps());
+    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SQUARE_POOL, _monitorData.squarePool);
+    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_CIRCLE_POOL, _monitorData.circlePool);
     using std::chrono::duration_cast;
     using std::chrono::milliseconds;
     if (dequeue != 0)
@@ -513,7 +541,8 @@ void psh::Field::SendMonitor()
 void psh::Field::SendLogin() const
 {
     auto buffer = SendBuffer::Alloc();
-    buffer << en_PACKET_SS_MONITOR_LOGIN << static_cast<WORD>(1) << static_cast<char>(static_cast<long>(GetGroupID()));
+    buffer << en_PACKET_SS_MONITOR_LOGIN << static_cast<WORD>(static_cast<long>(GetGroupID())) << static_cast<char>(
+        static_cast<long>(GetGroupID()));
     _server.SendPacket(_monitorSession, buffer);
 }
 
@@ -521,7 +550,8 @@ void psh::Field::SendLogin() const
 void psh::Field::SendMonitorData(const en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, const int value) const
 {
     auto buffer = SendBuffer::Alloc();
-    buffer << en_PACKET_SS_MONITOR_DATA_UPDATE << static_cast<WORD>(1) << static_cast<char>(static_cast<long>(
+    buffer << en_PACKET_SS_MONITOR_DATA_UPDATE << static_cast<WORD>(static_cast<long>(GetGroupID())) << static_cast<
+        char>(static_cast<long>(
         GetGroupID())) << type << value << static_cast<int>(time(nullptr));
     _server.SendPacket(_monitorSession, buffer);
 }

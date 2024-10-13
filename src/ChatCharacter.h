@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <chrono>
+
 #include "AttackData.h"
 #include "GameObject.h"
 #include "Timer.h"
@@ -21,6 +23,8 @@ namespace psh
         };
 
     public:
+        bool IsCooldownEndDebug(SkillID type);
+
         ChatCharacter(Field& group, const GameObjectData& initData, std::unique_ptr<MonsterAiComponent> aiComponent);
 
         ~ChatCharacter() override;
@@ -45,6 +49,7 @@ namespace psh
         void Revive();
 
         void Die();
+        void OnDestroyImpl() override;
 
         /**
         * 주로 아이템 생성할 때 사용.

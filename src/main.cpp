@@ -2,6 +2,7 @@
 
 #include "AttackData.h"
 #include "DBConnection.h"
+#include "ProcessMonitor.h"
 #include "Server.h"
 #include "TableData.h"
 
@@ -10,6 +11,9 @@
 
 int main()
 {
+    ProcessMonitor monitor{L"Google Chrome"};
+
+    monitor.Update();
     try
     {
         DBConnection::LibInit();
@@ -22,7 +26,7 @@ int main()
 
         server->Wait();
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
         std::cout << "Unhandled Exception : " << e.what() << '\n';
 

@@ -16,7 +16,7 @@ namespace psh
         String MonitorServerIP;
         Port MonitorServerPort;
 
-        bool useMonsterAI;
+        bool consoleMonitor;
     };
 }
 

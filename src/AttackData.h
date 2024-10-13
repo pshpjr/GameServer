@@ -55,7 +55,8 @@ namespace psh
          * 공격 시스템 초기화
          */
         void Init();
-
+        int getSquarePoolSzie();
+        int getCirclePoolSzie();
         /**
          * 스킬 ID를 통해 스킬 정보를 가져옴
          * @param skillId 스킬 ID

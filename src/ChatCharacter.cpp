@@ -7,6 +7,19 @@
 #include "TableData.h"
 
 
+bool psh::ChatCharacter::IsCooldownEndDebug(SkillID type)
+{
+    auto it = _skills.find(type);
+    if (it == _skills.end())
+    {
+        ASSERT_CRASH(false, "No skill found");
+    }
+    auto& [_,skill] = *it;
+
+    //만료 확인
+    return skill.timer.IsExpired();
+}
+
 psh::ChatCharacter::ChatCharacter(Field& group, const GameObjectData& initData
                                   , std::unique_ptr<MonsterAiComponent> aiComponent)
     : GameObject(group, initData)
@@ -80,7 +93,6 @@ void psh::ChatCharacter::Attack(const SkillID type, const FVector dir)
     {
         ASSERT_CRASH(false, "No skill found");
     }
-
     auto& [_,skill] = *it;
     //만료 확인
     if (skill.timer.IsExpired() == false)
@@ -96,6 +108,10 @@ void psh::ChatCharacter::Attack(const SkillID type, const FVector dir)
 
 void psh::ChatCharacter::Hit(const DamageInfo info)
 {
+    if (Valid() == false)
+    {
+        return;
+    }
     //각종 데미지 계산 공식...
     _hp -= info.damage;
 
@@ -127,6 +143,8 @@ void psh::ChatCharacter::Die()
     DieImpl();
     _field.DestroyActor(shared_from_this());
 }
+
+void psh::ChatCharacter::OnDestroyImpl() {}
 
 int psh::ChatCharacter::Hp()
 {
