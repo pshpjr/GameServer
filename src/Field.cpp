@@ -23,6 +23,7 @@
 #include "TableData.h"
 #include "Monster.h"
 #include "MonsterSpawner.h"
+#include "optick.h"
 #include "Rand.h"
 
 // 필드 클래스 생성자 및 소멸자
@@ -116,10 +117,24 @@ void psh::Field::ProcessDatabaseAlerts()
 // 필드 내 상태 업데이트
 void psh::Field::OnUpdate(const int milli)
 {
+    OPTICK_FRAME("Field Update");
     using namespace std::chrono;
-    UpdateContent(milli);
-    InsertWaitObjectInMap();
-    CleanupDeleteWait();
+
+    {
+        OPTICK_EVENT("Field Update");
+        UpdateContent(milli);
+    }
+
+    {
+        OPTICK_EVENT("InsertObject");
+        InsertWaitObjectInMap();
+    }
+
+    {
+        OPTICK_EVENT("DeleteObject");
+        CleanupDeleteWait();
+    }
+
     //_fps++;
 
     if (_spawner)
@@ -127,7 +142,11 @@ void psh::Field::OnUpdate(const int milli)
         _spawner->Update(milli);
     }
 
-    ProcessDatabaseAlerts();
+
+    {
+        OPTICK_EVENT("Database Alert");
+        ProcessDatabaseAlerts();
+    }
 
 
     if (steady_clock::now() < _nextDBSend)
@@ -135,7 +154,11 @@ void psh::Field::OnUpdate(const int milli)
         return;
     }
 
-    SendMonitor();
+    {
+        OPTICK_EVENT("Send Monitor");
+        SendMonitor();
+    }
+
     _nextDBSend += 1s;
     //_fps = 0;
 }

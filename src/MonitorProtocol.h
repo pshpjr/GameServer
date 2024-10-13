@@ -114,49 +114,34 @@ enum en_PACKET_TYPE : WORD
 
 enum en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE : BYTE
 {
-    dfMONITOR_DATA_TYPE_MONITOR_CPU_TOTAL = 1, // 서버컴퓨터 CPU 전체 사용률
-    dfMONITOR_DATA_TYPE_MONITOR_NONPAGED_MEMORY = 2, // 서버컴퓨터 논페이지 메모리 MByte
-    dfMONITOR_DATA_TYPE_MONITOR_NETWORK_RECV = 3, // 서버컴퓨터 네트워크 수신량 KByte
-    dfMONITOR_DATA_TYPE_MONITOR_NETWORK_SEND = 4, // 서버컴퓨터 네트워크 송신량 KByte
-    dfMONITOR_DATA_TYPE_MONITOR_AVAILABLE_MEMORY = 5, // 서버컴퓨터 사용가능 메모리
+    dfMONITOR_DATA_TYPE_MONITOR_CPU_TOTAL, // 서버컴퓨터 CPU 전체 사용률
+    dfMONITOR_DATA_TYPE_MONITOR_NONPAGED_MEMORY, // 서버컴퓨터 논페이지 메모리 MByte
+    dfMONITOR_DATA_TYPE_MONITOR_NETWORK_RECV, // 서버컴퓨터 네트워크 수신량 KByte
+    dfMONITOR_DATA_TYPE_MONITOR_NETWORK_SEND, // 서버컴퓨터 네트워크 송신량 KByte
+    dfMONITOR_DATA_TYPE_MONITOR_AVAILABLE_MEMORY, // 서버컴퓨터 사용가능 메모리
 
-    dfMONITOR_DATA_TYPE_GAME_SERVER_RUN = 11, // 그룹 실행 여부 ON / OFF
-    dfMONITOR_DATA_TYPE_GAME_WORK_TIME = 12, // 그룹 초당 일한 시간
-    dfMONITOR_DATA_TYPE_GAME_JOB_QUEUE_SIZE = 13, // 그룹 잡큐 사이즈
-    dfMONITOR_DATA_TYPE_GAME_JOB_TPS = 14, // 그룹 잡 초당 처리 횟수
-    dfMONITOR_DATA_TYPE_GAME_SESSIONS = 15, // 그룹 세션 수 (컨넥션 수)
-    dfMONITOR_DATA_TYPE_GAME_PLAYERS = 16, // 그룹 플레이어 수
-    dfMONITOR_DATA_TYPE_GAME_ENTER_TPS = 17, // 그룹 ENTER 초당 횟수
-    dfMONITOR_DATA_TYPE_GAME_LEAVE_TPS = 18, // 그룹 LEAVE 초당 횟수
-    dfMONITOR_DATA_TYPE_GAME_DB_TPS = 21, // 그룹 DB 초당 처리 횟수 
-    dfMONITOR_DATA_TYPE_GAME_DB_QUEUE_SIZE = 22, // 그룹 DB 큐 사이즈
-    dfMONITOR_DATA_TYPE_GAME_DB_QUERY_AVG = 23, // 그룹 DB 쿼리 평균
-    dfMONITOR_DATA_TYPE_GAME_MAX_WORK = 24, //그룹 최대 프레임 시간
-    dfMONITOR_DATA_TYPE_GAME_DB_ERR = 25, //DB 에러
-    dfMONITOR_DATA_TYPE_GAME_CIRCLE_POOL = 26, //circle pool
-    dfMONITOR_DATA_TYPE_GAME_SQUARE_POOL = 27, //square pool
+    //프로세스별
+    dfMONITOR_DATA_TYPE_GAME_SERVER_CPU, // GameServer CPU 사용률
+    dfMONITOR_DATA_TYPE_GAME_SERVER_MEM, // GameServer 메모리 사용 MByte
 
-    dfMONITOR_DATA_TYPE_LOGIN_SERVER_RUN = 100, // 로그인서버 실행여부 ON / OFF
-    dfMONITOR_DATA_TYPE_LOGIN_SERVER_CPU = 101, // 로그인서버 CPU 사용률
-    dfMONITOR_DATA_TYPE_LOGIN_SERVER_MEM = 102, // 로그인서버 메모리 사용 MByte
-    dfMONITOR_DATA_TYPE_LOGIN_SESSION = 103, // 로그인서버 세션 수 (컨넥션 수)
-    dfMONITOR_DATA_TYPE_LOGIN_AUTH_TPS = 104, // 로그인서버 인증 처리 초당 횟수
-    dfMONITOR_DATA_TYPE_LOGIN_PACKET_POOL = 105, // 로그인서버 패킷풀 사용량
-    dfMONITOR_DATA_TYPE_LOGIN_QUARY_MAX = 106, // 로그인 DB 쿼리 시간 MAX
-    dfMONITOR_DATA_TYPE_LOGIN_QUARY_AVG = 107, // 로그인 DB 쿼리 시간 AVG
+    //그룹별
+    dfMONITOR_DATA_TYPE_GAME_SERVER_RUN, // 그룹 실행 여부 ON / OFF
+    dfMONITOR_DATA_TYPE_GAME_WORK_TIME, // 그룹 초당 일한 시간
+    dfMONITOR_DATA_TYPE_GAME_MAX_WORK, //그룹 최대 프레임 시간
+    dfMONITOR_DATA_TYPE_GAME_JOB_QUEUE_SIZE, // 그룹 잡큐 사이즈
+    dfMONITOR_DATA_TYPE_GAME_JOB_TPS, // 그룹 잡 초당 처리 횟수
+    dfMONITOR_DATA_TYPE_GAME_SESSIONS, //세션 개수
+    dfMONITOR_DATA_TYPE_GAME_PLAYERS, // 그룹 플레이어 수
+    dfMONITOR_DATA_TYPE_GAME_ENTER_TPS, // 그룹 ENTER 초당 횟수
+    dfMONITOR_DATA_TYPE_GAME_LEAVE_TPS, // 그룹 LEAVE 초당 횟수
+    dfMONITOR_DATA_TYPE_GAME_DB_TPS, // 그룹 DB 초당 처리 횟수
+    dfMONITOR_DATA_TYPE_GAME_DB_QUEUE_SIZE, // 그룹 DB 큐 사이즈
+    dfMONITOR_DATA_TYPE_GAME_DB_QUERY_AVG, // 그룹 DB 쿼리 평균
+    dfMONITOR_DATA_TYPE_GAME_DB_ERR, //DB 에러
 
-    dfMONITOR_DATA_TYPE_CHAT_SERVER_RUN = 130, // 채팅서버 ChatServer 실행 여부 ON / OFF
-    dfMONITOR_DATA_TYPE_CHAT_SERVER_CPU = 131, // 채팅서버 ChatServer CPU 사용률
-    dfMONITOR_DATA_TYPE_CHAT_SERVER_MEM = 132, // 채팅서버 ChatServer 메모리 사용 MByte
-    dfMONITOR_DATA_TYPE_CHAT_SESSION = 133, // 채팅서버 세션 수 (컨넥션 수)
-    dfMONITOR_DATA_TYPE_CHAT_PLAYER = 134, // 채팅서버 인증성공 사용자 수 (실제 접속자)
-    dfMONITOR_DATA_TYPE_CHAT_UPDATE_TPS = 135, // 채팅서버 UPDATE 스레드 초당 초리 횟수
-    dfMONITOR_DATA_TYPE_CHAT_PACKET_POOL = 136, // 채팅서버 패킷풀 사용량
-    dfMONITOR_DATA_TYPE_CHAT_UPDATEMSG_POOL = 137, // 채팅서버 UPDATE MSG 풀 사용량
-    dfMONITOR_DATA_TYPE_CHAT_ACCEPT_TPS = 138, //accept tps
-    dfMONITOR_DATA_TYPE_GAME_SERVER_CPU = 140, // GameServer CPU 사용률
-    dfMONITOR_DATA_TYPE_GAME_SERVER_MEM = 141, // GameServer 메모리 사용 MByte
 
+    dfMONITOR_DATA_TYPE_GAME_CIRCLE_POOL, //circle pool
+    dfMONITOR_DATA_TYPE_GAME_SQUARE_POOL, //square pool
 
     dfMONITOR_END
 };

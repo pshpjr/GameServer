@@ -5,7 +5,7 @@
 #include "ProcessMonitor.h"
 #include "Server.h"
 #include "TableData.h"
-#include "optick.h"
+#include "optick.config.h"
 // auto& manager = ProfileManager::Get();
 
 

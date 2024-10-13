@@ -6,6 +6,7 @@
 #include "GameMap.h"
 #include "LockGuard.h"
 #include "MonitorProtocol.h"
+#include "optick.h"
 #include "PacketGenerated.h"
 #include "Utility.h"
 
