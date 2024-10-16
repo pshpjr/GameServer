@@ -36,6 +36,13 @@ namespace psh
         using map_type = GameMap<ObjectID, shared<GameObject>>;
         using view_type = map_type::SectorView;
 
+        struct packetMonitor
+        {
+            int32 movePacket{};
+            int32 chatPacket{};
+            int32 attackPacket{};
+        };
+
     public:
         // 타입 정의 및 상수
         enum class ViewObjectType : uint8
@@ -98,8 +105,6 @@ namespace psh
 
         void SendMonitor();
 
-        void BroadcastPlayerLeave(const PlayerRef& playerPtr);
-
         void RecvReqLevelChange(SessionID id, CRecvBuffer& recvBuffer);
 
         void RecvChangeComp(SessionID id, CRecvBuffer& recvBuffer);
@@ -121,9 +126,11 @@ namespace psh
         std::unique_ptr<DBThreadWrapper> _dbThread;
 
         MonitorData& _monitorData;
+        packetMonitor _packetCount;
         Server& _server;
         const ServerInitData& _initData;
         const ServerType _groupType = ServerType::End;
+
 
         std::unordered_set<shared<GameObject>> _objects;
         SessionMap<std::shared_ptr<Player>> _players;

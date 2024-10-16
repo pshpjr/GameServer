@@ -5,12 +5,12 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     message(STATUS "MSVC")
     add_compile_options(-translateInclude)
     add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi /Zo")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi")
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /DEBUG")
 endif ()
 
 #optick 라이브러리 관련 설정.
-target_compile_definitions(NetLib PRIVATE USE_OPTICK 1)
+target_compile_definitions(NetLib PRIVATE USE_OPTICK=1)
 
 add_executable(CMakeServer
         Range.cpp

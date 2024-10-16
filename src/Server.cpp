@@ -48,6 +48,7 @@ namespace psh
     {
         //printf(format("Disconnect {:d} \n",sessionId.id).c_str());
 
+        AccountNo targetNo;
         {
             WRITE_LOCK;
             const auto it = _dbData.find(sessionId);
@@ -57,13 +58,12 @@ namespace psh
             }
 
             const auto& target = it->second;
-
-            auto& conn = GetGameDbConnection();
-            conn.Query("Update account set LoginState = 0 where (AccountNo = %d)", target->AccountNum());
-            conn.reset();
-
+            targetNo = target->AccountNum();
             _dbData.erase(it);
         }
+        auto& conn = GetGameDbConnection();
+        conn.Query("Update account set LoginState = 0 where (AccountNo = %d)", targetNo);
+        conn.reset();
     }
 
     void Server::OnRecvPacket(SessionID sessionId, CRecvBuffer& buffer)
@@ -241,24 +241,27 @@ namespace psh
         FVector location = {conn.getFloat(5), conn.getFloat(6)};
 
         conn.reset();
+
+        bool result = false;
         {
             WRITE_LOCK;
-            if (auto [_,result] = _dbData.emplace(sessionId
-                                                  , std::make_shared<DBData>(sessionId, AccountNo, location
-                                                                             , serverType, charType, coins, hp, nick));
-                result == false)
-            {
-                _connectionLogger.Write(L"DB", CLogger::LogLevel::Debug, L"Cannot create DBData. %d %d %s", AccountNo
-                                        , serverType, nick.ToString());
-                DisconnectSession(sessionId);
-                //플레이어 생성에 실패한 관련 에러 처리.
-            }
-            else
-            {
-                conn.Query("Update account set LoginState = 1 where (AccountNo = %d)", AccountNo);
-                conn.reset();
-            }
+            result = _dbData.emplace(sessionId, std::make_shared<DBData>(sessionId, AccountNo, location
+                                                                         , serverType, charType, coins, hp
+                                                                         , nick)).second;
         }
+        if (result == false)
+        {
+            _connectionLogger.Write(L"DB", CLogger::LogLevel::Debug, L"Cannot create DBData. %d %d %s", AccountNo
+                                    , serverType, nick.ToString());
+            DisconnectSession(sessionId);
+            //플레이어 생성에 실패한 관련 에러 처리.
+        }
+        else
+        {
+            conn.Query("Update account set LoginState = 1 where (AccountNo = %d)", AccountNo);
+            conn.reset();
+        }
+
 
         if (hp <= 0)
         {
