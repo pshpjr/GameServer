@@ -1,6 +1,7 @@
 #include "MoveComponent.h"
 #include "GameObject.h"
 #include "Field.h"
+#include "optick.h"
 #include "TableData.h"
 
 namespace psh
@@ -113,6 +114,7 @@ namespace psh
 
     void MoveComponent::BroadcastSectorChange(Sector delta) const
     {
+        OPTICK_EVENT();
         const auto sectorIndex = SEND_OFFSETS::getDirectionIndex(delta);
 
         auto deletePlayers = _owner.GetField()

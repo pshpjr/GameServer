@@ -11,9 +11,7 @@
 
 int main()
 {
-    ProcessMonitor monitor{L"Google Chrome"};
-
-    monitor.Update();
+    SessionID id = InvalidSessionID();
     try
     {
         DBConnection::LibInit();

@@ -54,6 +54,7 @@ psh::Field::~Field() = default;
 // 클라이언트가 필드에 입장할 때 호출
 void psh::Field::OnEnter(SessionID id)
 {
+    OPTICK_EVENT();
     auto dataPtr = _server.GetDbData(id);
     if (static_cast<ServerType>(dataPtr->ServerType()) != _groupType)
     {
@@ -63,6 +64,8 @@ void psh::Field::OnEnter(SessionID id)
         dataPtr->Location({RandomUtil::Rand(0.0, fieldSize), RandomUtil::Rand(0.0, fieldSize)});
     }
 
+
+    OPTICK_EVENT("PlayerGen other");
     //TODO: update 안 하는 gameObject로 만들고 OnCreate에서 처리하게 만들 수 있음.
     // 플레이어 객체 생성 및 세션 등록
     GameObjectData initData{dataPtr->Location(), {0, 0}, 200.0, eObjectType::Player, dataPtr->CharacterType()};
@@ -74,15 +77,25 @@ void psh::Field::OnEnter(SessionID id)
     MakeGame_ResLevelEnter(levelInfoPacket, playerPtr->AccountNumber(), playerPtr->ObjectId(), _groupType);
     SendPacket(playerPtr->SessionId(), levelInfoPacket);
 
-    _players.insert({id, std::move(playerPtr)});
-    _iocp->SetTimeout(id, 30000);
+    {
+        OPTICK_EVENT("PlayerInsert");
+        _players.insert({id, std::move(playerPtr)});
+        _iocp->SetTimeout(id, 30000);
+    }
 }
 
 // 클라이언트가 필드에서 퇴장할 때 호출
 void psh::Field::OnLeave(const SessionID id, int wsaErrCode)
 {
+    OPTICK_EVENT();
     const auto it = _players.find(id);
     const PlayerRef playerPtr = it->second;
+
+    if (wsaErrCode == 121)
+    {
+        _logger->Write(L"ServerLeave", CLogger::LogLevel::Debug, L"Session Leave with 121:%d "
+                       , playerPtr->AccountNumber());
+    }
 
     if (playerPtr->Valid())
     {
@@ -105,11 +118,9 @@ void psh::Field::ProcessDatabaseAlerts()
         catch (const std::exception& e)
         {
             std::cerr << "Exception: " << e.what() << std::endl;
-            ASSERT_CRASH(false);
         } catch (...)
         {
             std::cerr << "Unknown exception caught." << std::endl;
-            ASSERT_CRASH(false);
         }
     }
 }
@@ -117,7 +128,6 @@ void psh::Field::ProcessDatabaseAlerts()
 // 필드 내 상태 업데이트
 void psh::Field::OnUpdate(const int milli)
 {
-    OPTICK_FRAME("Field Update");
     using namespace std::chrono;
 
     {
@@ -166,6 +176,7 @@ void psh::Field::OnUpdate(const int milli)
 // 클라이언트로부터 받은 패킷 처리
 void psh::Field::OnRecv(const SessionID id, CRecvBuffer& recvBuffer)
 {
+    OPTICK_EVENT();
     ePacketType type;
     recvBuffer >> type;
     auto& [_, playerPtr] = *_players.find(id);
@@ -176,32 +187,23 @@ void psh::Field::OnRecv(const SessionID id, CRecvBuffer& recvBuffer)
         RecvChangeComp(id, recvBuffer);
         break;
     case eGame_ReqMove:
+        ++_packetCount.movePacket;
         RecvMove(id, recvBuffer);
         break;
     case eGame_ReqAttack:
+        ++_packetCount.attackPacket;
         RecvAttack(id, recvBuffer);
         break;
     case eGame_ReqLevelEnter:
         RecvReqLevelChange(id, recvBuffer);
         break;
     case eGame_ReqChat:
+        ++_packetCount.chatPacket;
         RecvChat(id, recvBuffer);
         break;
     default:
         DebugBreak();
         break;
-    }
-}
-
-// 특정 클라이언트가 떠날 때 이를 다른 플레이어에게 브로드캐스트
-void psh::Field::BroadcastPlayerLeave(const PlayerRef& playerPtr)
-{
-    auto destroyBuf = SendBuffer::Alloc();
-    MakeGame_ResDestroyActor(destroyBuf, playerPtr->ObjectId(), false, static_cast<char>(removeReason::GroupChange));
-    for (auto view = GetObjectView(ViewObjectType::Player, playerPtr->Location(), SEND_OFFSETS::BROADCAST);
-         auto& player : view)
-    {
-        std::static_pointer_cast<Player>(player)->SendPacket(destroyBuf);
     }
 }
 
@@ -230,6 +232,7 @@ void psh::Field::RecvReqLevelChange(const SessionID id, CRecvBuffer& recvBuffer)
 // 플레이어의 위치 변경 완료를 처리
 void psh::Field::RecvChangeComp(const SessionID id, CRecvBuffer& recvBuffer)
 {
+    OPTICK_EVENT();
     AccountNo accountNo;
     GetGame_ReqChangeComplete(recvBuffer, accountNo);
     auto& [_, playerPtr] = *_players.find(id);
@@ -244,6 +247,7 @@ void psh::Field::RecvChangeComp(const SessionID id, CRecvBuffer& recvBuffer)
 // 플레이어의 채팅 메시지 처리
 void psh::Field::RecvChat(const SessionID id, CRecvBuffer& recvByffer)
 {
+    OPTICK_EVENT();
     auto& [_, player] = *_players.find(id);
     String chatData;
     GetGame_ReqChat(recvByffer, chatData);
@@ -268,6 +272,7 @@ void psh::Field::RecvChat(const SessionID id, CRecvBuffer& recvByffer)
 // 플레이어 이동 요청 처리
 void psh::Field::RecvMove(const SessionID sessionId, CRecvBuffer& buffer)
 {
+    OPTICK_EVENT();
     auto& [_, player] = *_players.find(sessionId);
 
     FVector location{};
@@ -295,13 +300,14 @@ void psh::Field::RecvMove(const SessionID sessionId, CRecvBuffer& buffer)
         SendPacket(player->SessionId(), moveBuffer);
         return;
     }
-
+    OPTICK_EVENT("MoveStart");
     player->MoveStart(location);
 }
 
 // 플레이어 공격 요청 처리
 void psh::Field::RecvAttack(const SessionID sessionId, CRecvBuffer& buffer)
 {
+    OPTICK_EVENT();
     auto& [_, player] = *_players.find(sessionId);
     char type;
     FVector dir{};
@@ -332,6 +338,7 @@ void psh::Field::RecvAttack(const SessionID sessionId, CRecvBuffer& buffer)
 // 특정 위치의 플레이어에게 데이터를 브로드캐스트
 void psh::Field::BroadcastToPlayer(FVector targetLocation, const std::vector<SendBuffer>& packets)
 {
+    OPTICK_EVENT();
     for (auto view = GetObjectView(ViewObjectType::Player, targetLocation, SEND_OFFSETS::BROADCAST);
          const auto& player : view)
     {
@@ -365,6 +372,7 @@ void psh::Field::OnCreate()
 // 공격 처리 로직
 psh::AttackResult psh::Field::ProcessAttack(AttackInfo info)
 {
+    OPTICK_EVENT();
     return _victimSelect(*this, info);
 }
 
@@ -372,6 +380,7 @@ psh::AttackResult psh::Field::ProcessAttack(AttackInfo info)
 psh::Field::view_type psh::Field::GetObjectView(ViewObjectType type, const FVector& location
                                                 , std::span<const Sector> offsets)
 {
+    OPTICK_EVENT();
     std::vector<map_type::SectorView> returnView;
 
     if ((type & ViewObjectType::Player) == ViewObjectType::Player)
@@ -393,6 +402,7 @@ psh::Field::view_type psh::Field::GetObjectView(ViewObjectType type, const FVect
 // 필드 내 특정 위치에서 시야 반환(구현되지 않음)
 psh::Field::view_type psh::Field::GetObjectViewByPoint(ViewObjectType type, const std::list<FVector>& coordinate)
 {
+    OPTICK_EVENT();
     std::vector<map_type::SectorView> returnView;
 
     if ((type & ViewObjectType::Player) == ViewObjectType::Player)
@@ -505,6 +515,7 @@ void psh::Field::UpdateContent(const int deltaMs)
 // 모니터링 데이터 전송
 void psh::Field::SendMonitor()
 {
+    OPTICK_EVENT();
     _monitorData.workTime = GetWorkTime();
     _monitorData.queued = GetQueued();
     _monitorData.jobTps = GetJobTps();
@@ -546,10 +557,17 @@ void psh::Field::SendMonitor()
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_PLAYERS, static_cast<int>(_players.size()));
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_TPS, static_cast<int>(dequeue));
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_QUEUE_SIZE, static_cast<int>(queued));
+    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_ERR, static_cast<int>(_monitorData.dbError));
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_ENTER_TPS, GetEnterTps());
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_LEAVE_TPS, GetLeaveTps());
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SQUARE_POOL, _monitorData.squarePool);
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_CIRCLE_POOL, _monitorData.circlePool);
+
+    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_CHAT_COUNT, std::exchange(_packetCount.chatPacket, 0));
+    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_MOVE_COUNT, std::exchange(_packetCount.movePacket, 0));
+    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_ATTACK_COUNT, std::exchange(_packetCount.attackPacket, 0));
+
+
     using std::chrono::duration_cast;
     using std::chrono::milliseconds;
     if (dequeue != 0)
@@ -572,6 +590,7 @@ void psh::Field::SendLogin() const
 // 모니터링 데이터 전송
 void psh::Field::SendMonitorData(const en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, const int value) const
 {
+    OPTICK_EVENT();
     auto buffer = SendBuffer::Alloc();
     buffer << en_PACKET_SS_MONITOR_DATA_UPDATE << static_cast<WORD>(static_cast<long>(GetGroupID())) << static_cast<
         char>(static_cast<long>(

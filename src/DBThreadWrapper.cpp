@@ -3,6 +3,8 @@
 #include "Server.h"
 #include <exception>
 
+#include "optick.h"
+
 namespace psh
 {
     DBThreadWrapper::~DBThreadWrapper()
@@ -130,6 +132,7 @@ namespace psh
             ASSERT_CRASH(false, "Enqueue when DB end");
         }
 
+        OPTICK_EVENT()
         _jobQueue->Enqueue(func);
 
         _data.enqueue++;
