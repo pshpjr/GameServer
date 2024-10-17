@@ -41,6 +41,8 @@ add_executable(CMakeServer
         IdTypes.h
         AiComponent.cpp
         AiComponent.h
+        ThreadPool.cpp
+        ThreadPool.h
 )
 
 target_include_directories(CMakeServer PRIVATE ../../packetParser)

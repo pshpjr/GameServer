@@ -2,10 +2,9 @@
 #pragma once
 #include <future>
 #include <memory>
-#include <memory>
-#include "SessionTypes.h"
 
-#include "LockFreeFixedQueue.h"
+
+#include "SPSCQueue.h"
 
 #include "DBConnection.h"
 #include "GroupTypes.h"
@@ -19,7 +18,7 @@ namespace psh
 
     class DBThreadWrapper
     {
-        using jobQ = LockFreeFixedQueue<std::function<void()>, 1024>;
+        using jobQ = SPSCQueue<std::function<void()>, 1024>;
 
     public:
         struct MonitorData
@@ -34,7 +33,7 @@ namespace psh
         DBThreadWrapper(jobQ& compAlert, LPCSTR IP, Port port, LPCSTR ID, LPCSTR PWD, LPCSTR Schema)
             : conn(IP, port, ID, PWD, Schema)
             , dbThread(&DBThreadWrapper::DBWorkerFunc, this)
-            , _jobQueue(std::make_unique<LockFreeFixedQueue<std::function<void()>, 1024>>())
+            , _jobQueue(std::make_unique<jobQ>())
             , _completeAlert{compAlert} {}
 
         ~DBThreadWrapper();

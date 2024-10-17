@@ -7,6 +7,7 @@
 #include "IOCP.h"
 #include "ServerInitData.h"
 #include "SettingParser.h"
+#include "ThreadPool.h"
 enum en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE : BYTE;
 class DBConnection;
 
@@ -68,7 +69,7 @@ namespace psh
         //1 : dbData, 2 : dbConnection
         USE_MANY_LOCKS(2)
 
-        CLogger _connectionLogger;
+        CLogger _connectionLogger{L"Server", CLogger::LogLevel::Debug};
         SessionMap<std::shared_ptr<DBData>> _dbData;
 
         std::vector<GroupID> _groups{};
@@ -80,5 +81,6 @@ namespace psh
         DWORD _dbTlsId;
         std::atomic<uint64> _dbErrorCount;
         SessionID _monitorSession = InvalidSessionID();
+        ThreadPool _threadPool{8};
     };
 }

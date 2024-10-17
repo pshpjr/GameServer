@@ -29,7 +29,7 @@
 // 필드 클래스 생성자 및 소멸자
 psh::Field::Field(Server& server, const ServerInitData& data, const ServerType type, MonitorData& monitor, short mapSize
                   , short sectorSize)
-    : _dbCompAlert{std::make_unique<LockFreeFixedQueue<std::function<void()>, 1024>>()}
+    : _dbCompAlert{std::make_unique<SPSCQueue<std::function<void()>, 1024>>()}
     , _dbThread{
         std::make_unique<DBThreadWrapper>(*_dbCompAlert, data.gameDBIP.c_str(), data.gameDBPort, data.gameDBID.c_str()
                                           , data.gameDBPwd.c_str(), "mydb")
@@ -548,18 +548,17 @@ void psh::Field::SendMonitor()
         return;
     }
 
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_RUN, static_cast<int>(1));
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_WORK_TIME, static_cast<int>(GetWorkTime()));
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_MAX_WORK, static_cast<int>(GetMaxWorkTime()));
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_JOB_QUEUE_SIZE, GetQueued());
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_JOB_TPS, static_cast<int>(GetJobTps()));
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SESSIONS, static_cast<int>(Sessions()));
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_PLAYERS, static_cast<int>(_players.size()));
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_TPS, static_cast<int>(dequeue));
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_QUEUE_SIZE, static_cast<int>(queued));
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_ERR, static_cast<int>(_monitorData.dbError));
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_ENTER_TPS, GetEnterTps());
-    SendMonitorData(dfMONITOR_DATA_TYPE_GAME_LEAVE_TPS, GetLeaveTps());
+    SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_SERVER_RUN, static_cast<int>(1));
+    SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_WORK_TIME, static_cast<int>(GetWorkTime()));
+    SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_MAX_WORK, static_cast<int>(GetMaxWorkTime()));
+    SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_JOB_QUEUE_SIZE, GetQueued());
+    SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_JOB_TPS, static_cast<int>(GetJobTps()));
+    SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_PLAYERS, static_cast<int>(_players.size()));
+    SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_DB_TPS, static_cast<int>(dequeue));
+    SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_DB_QUEUE_SIZE, static_cast<int>(queued));
+    SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_DB_ERR, static_cast<int>(_monitorData.dbError));
+    SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_ENTER_TPS, GetEnterTps());
+    SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_LEAVE_TPS, GetLeaveTps());
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SQUARE_POOL, _monitorData.squarePool);
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_CIRCLE_POOL, _monitorData.circlePool);
 
@@ -574,7 +573,7 @@ void psh::Field::SendMonitor()
     {
         const int avgDelay = static_cast<int>(duration_cast<milliseconds>(delaySum).count() / dequeue);
 
-        SendMonitorData(dfMONITOR_DATA_TYPE_GAME_DB_QUERY_AVG, avgDelay);
+        SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_DB_QUERY_AVG, avgDelay);
     }
 }
 

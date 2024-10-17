@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-// 전방 선언(forward declarations)
+
 #include "ContentTypes.h"//BYTE 종속성
 enum en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE : BYTE;
 class CLogger;
@@ -25,7 +25,7 @@ namespace psh
 #include "GameMap.h"
 #include "IVictimSelect.h"
 #include "Player.h"
-
+#include <SPSCQueue.h>
 #include <range/v3/all.hpp>
 
 // 네임스페이스 정의
@@ -122,7 +122,7 @@ namespace psh
         List<shared<GameObject>> _createWaits;
         List<shared<GameObject>> _delWaits;
 
-        std::unique_ptr<LockFreeFixedQueue<std::function<void()>, 1024>> _dbCompAlert;
+        std::unique_ptr<SPSCQueue<std::function<void()>, 1024>> _dbCompAlert;
         std::unique_ptr<DBThreadWrapper> _dbThread;
 
         MonitorData& _monitorData;

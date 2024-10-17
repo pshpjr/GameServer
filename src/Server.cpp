@@ -1,5 +1,7 @@
 #include "Server.h"
 
+#include <dpp/exception.h>
+
 #include "DBConnection.h"
 #include "DBData.h"
 #include "Field.h"
@@ -48,7 +50,7 @@ namespace psh
     {
         //printf(format("Disconnect {:d} \n",sessionId.id).c_str());
 
-        AccountNo targetNo;
+        AccountNo accountNo;
         {
             WRITE_LOCK;
             const auto it = _dbData.find(sessionId);
@@ -57,13 +59,23 @@ namespace psh
                 return;
             }
 
-            const auto& target = it->second;
-            targetNo = target->AccountNum();
+            const auto& dbData = it->second;
+            accountNo = dbData->AccountNum();
             _dbData.erase(it);
         }
-        auto& conn = GetGameDbConnection();
-        conn.Query("Update account set LoginState = 0 where (AccountNo = %d)", targetNo);
-        conn.reset();
+        _threadPool.enqueue([accountNo, this] {
+            try
+            {
+                auto& conn = GetGameDbConnection();
+                conn.Query("Update account set LoginState = 0 where (AccountNo = %d)", accountNo);
+                conn.reset();
+            }
+            catch (std::exception& e)
+            {
+                _connectionLogger.Write(L"DBError", CLogger::LogLevel::Debug, L"DBErr OnDisconnect  : %s"
+                                        , e.what());
+            }
+        });
     }
 
     void Server::OnRecvPacket(SessionID sessionId, CRecvBuffer& buffer)
@@ -92,40 +104,53 @@ namespace psh
 
     void Server::OnMonitorRun()
     {
-        if (_initData.consoleMonitor == false)
+        if (_initData.consoleMonitor)
         {
-            return;
-        }
-        if (_monitorSession == InvalidSessionID())
-        {
-            auto client = GetClientSession(_initData.MonitorServerIP, _initData.MonitorServerPort);
-            if (client.HasError())
+            PrintMonitorString();
+            auto monitorStr = std::format(
+                L"==================================================================================\n"
+                L" {:<11s}{:^55s}{:>11s}\n"
+                L"----------------------------------------------------------------------------------\n"
+                , L"", L"Content", L"");
+
+            for (const auto& [id, workTime, queued, jobTps,maxWork,dbErr,players,dbDeq,circle, square] : _monitors)
             {
-                return;
+                monitorStr.append(std::format(L"+  {:<7s} : {:>5d}, {:<7s} : {:>5}, {:<7s} : {:>5d}, {:<7s} : {:>5d}\n"
+                                              , L"ID", id, L"WORK", workTime, L"DBErr", dbErr, L"MaxWork", maxWork));
+                monitorStr.append(std::format(L"+  {:<7s} : {:>5d}, {:<7s} : {:>5d}, {:<7s} : {:>5d}, {:<7s} : {:>5d}\n"
+                                              , L"QUEUED", queued, L"JobTps", jobTps, L"Players", players, L"DBDequeue"
+                                              , dbDeq));
+                monitorStr.append(
+                    L"----------------------------------------------------------------------------------\n");
             }
-            _monitorSession = client.Value();
-            SetSessionStaticKey(_monitorSession, 0);
-            SendLogin();
+
+            wprintf(monitorStr.c_str());
         }
 
-        PrintMonitorString();
-        auto monitorStr = std::format(
-            L"==================================================================================\n"
-            L" {:<11s}{:^55s}{:>11s}\n"
-            L"----------------------------------------------------------------------------------\n"
-            , L"", L"Content", L"");
-
-        for (const auto& [id, workTime, queued, jobTps,maxWork,dbErr,players,dbDeq,circle, square] : _monitors)
+        if (_initData.UseMonitorServer)
         {
-            monitorStr.append(std::format(L"+  {:<7s} : {:>5d}, {:<7s} : {:>5}, {:<7s} : {:>5d}, {:<7s} : {:>5d}\n"
-                                          , L"ID", id, L"WORK", workTime, L"DBErr", dbErr, L"MaxWork", maxWork));
-            monitorStr.append(std::format(L"+  {:<7s} : {:>5d}, {:<7s} : {:>5d}, {:<7s} : {:>5d}, {:<7s} : {:>5d}\n"
-                                          , L"QUEUED", queued, L"JobTps", jobTps, L"Players", players, L"DBDequeue"
-                                          , dbDeq));
-            monitorStr.append(L"----------------------------------------------------------------------------------\n");
+            if (_monitorSession == InvalidSessionID())
+            {
+                auto client = GetClientSession(_initData.MonitorServerIP, _initData.MonitorServerPort);
+                if (client.HasError())
+                {
+                    return;
+                }
+                _monitorSession = client.Value();
+                SetSessionStaticKey(_monitorSession, 0);
+                SendLogin();
+            }
+            else
+            {
+                SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_ACCEPT_TPS, GetAcceptTps());
+                SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_SEND_TPS, GetSendTps());
+                SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_RECV_TPS, GetRecvTps());
+                SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_DISCONNECT_TPS, GetDisconnectPerSec());
+                SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_SESSIONS, GetSessions());
+            }
         }
 
-        wprintf(monitorStr.c_str());
+
         if (GetAsyncKeyState(VK_HOME))
         {
             Stop();
@@ -145,7 +170,7 @@ namespace psh
     void Server::SendMonitorData(const en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, const int value)
     {
         auto buffer = SendBuffer::Alloc();
-        buffer << en_PACKET_SS_MONITOR_DATA_UPDATE << static_cast<WORD>(0) <<
+        buffer << en_PACKET_SS_MONITOR_DATA_UPDATE << static_cast<WORD>(1) <<
             static_cast<char>(0) << type << value << static_cast<int>(time(nullptr));
         SendPacket(_monitorSession, buffer);
     }
@@ -153,7 +178,7 @@ namespace psh
     void Server::SendLogin()
     {
         auto buffer = SendBuffer::Alloc();
-        buffer << en_PACKET_SS_MONITOR_LOGIN << static_cast<WORD>(0) << static_cast<char>(0);
+        buffer << en_PACKET_SS_MONITOR_LOGIN << static_cast<WORD>(1) << static_cast<char>(0);
         SendPacket(_monitorSession, buffer);
     }
 
@@ -170,36 +195,48 @@ namespace psh
         const std::string cid = util::WToS(id);
 
 
-        auto& conn = GetGameDbConnection();
-        conn.Query("select AccountNo, ID, PASS,LoginState from account where ID = '%s'", cid.c_str());
-        auto loginResult = SendBuffer::Alloc();
+        _threadPool.enqueue([cid, playerID, playerPass, sessionId, this] {
+            try
+            {
+                auto& conn = GetGameDbConnection();
+                conn.Query("select AccountNo, ID, PASS,LoginState from account where ID = '%s'", cid.c_str());
 
-        if (!conn.next())
-        {
-            MakeLogin_ResLogin(loginResult, 0, playerID, eLoginResult::InvalidId, SessionKey());
-        }
-        else
-        {
-            const AccountNo accountNo = conn.getInt(0);
-            //ID trueID(conn->getString(1));
-            const Password truePass(conn.getString(2));
-            const bool loginState(conn.getChar(3));
-            conn.reset();
+                auto loginResult = SendBuffer::Alloc();
 
-            if (truePass != playerPass)
-            {
-                MakeLogin_ResLogin(loginResult, 0, playerID, eLoginResult::WrongPassword, SessionKey());
+                if (!conn.next())
+                {
+                    MakeLogin_ResLogin(loginResult, 0, playerID, eLoginResult::InvalidId, SessionKey());
+                }
+                else
+                {
+                    const AccountNo accountNo = conn.getInt(0);
+                    //ID trueID(conn->getString(1));
+                    const Password truePass(conn.getString(2));
+                    const bool loginState(conn.getChar(3));
+                    conn.reset();
+
+                    if (truePass != playerPass)
+                    {
+                        MakeLogin_ResLogin(loginResult, 0, playerID, eLoginResult::WrongPassword, SessionKey());
+                    }
+                    else if (loginState == true)
+                    {
+                        MakeLogin_ResLogin(loginResult, 0, playerID, eLoginResult::DuplicateLogin, SessionKey());
+                    }
+                    else
+                    {
+                        MakeLogin_ResLogin(loginResult, accountNo, playerID, eLoginResult::LoginSuccess, SessionKey());
+                    }
+                }
+                SendPacket(sessionId, loginResult);
             }
-            else if (loginState == true)
+            catch (const std::exception& e)
             {
-                MakeLogin_ResLogin(loginResult, 0, playerID, eLoginResult::DuplicateLogin, SessionKey());
+                DisconnectSession(sessionId);
+                _connectionLogger.Write(L"DBError", CLogger::LogLevel::Debug, L"DBErr disconnect LoginLogin : %s"
+                                        , e.what());
             }
-            else
-            {
-                MakeLogin_ResLogin(loginResult, accountNo, playerID, eLoginResult::LoginSuccess, SessionKey());
-            }
-        }
-        SendPacket(sessionId, loginResult);
+        });
     }
 
     void Server::OnLogin(SessionID sessionId, CRecvBuffer& buffer)
@@ -220,59 +257,73 @@ namespace psh
         }
 
 
-        auto& conn = GetGameDbConnection();
+        _threadPool.enqueue([AccountNo, sessionId, this] {
+            auto& conn = GetGameDbConnection();
 
-        conn.Query("select Nick,HP,Coins,CharType,ServerType,LocationX,LocationY from mydb.player where AccountNo = %d"
-                   , AccountNo);
+            try
+            {
+                conn.Query(
+                    "select Nick,HP,Coins,CharType,ServerType,LocationX,LocationY from mydb.player where AccountNo = %d"
+                    , AccountNo);
 
-        if (!conn.next())
-        {
-            _dbErrorCount.fetch_add(1, std::memory_order_relaxed);
-            _connectionLogger.Write(L"DB", CLogger::LogLevel::Debug, L"DBFail : %d ", AccountNo);
-            DisconnectSession(sessionId);
-            return;
-        }
+                if (!conn.next())
+                {
+                    _dbErrorCount.fetch_add(1, std::memory_order_relaxed);
+                    _connectionLogger.Write(L"DB", CLogger::LogLevel::Debug, L"DBFail : %d ", AccountNo);
+                    DisconnectSession(sessionId);
+                    return;
+                }
 
-        Nickname nick(conn.getString(0));
-        int hp = conn.getInt(1);
-        int coins = conn.getInt(2);
-        char charType = conn.getChar(3);
-        char serverType = conn.getChar(4);
-        FVector location = {conn.getFloat(5), conn.getFloat(6)};
+                Nickname nick(conn.getString(0));
+                int hp = conn.getInt(1);
+                int coins = conn.getInt(2);
+                char charType = conn.getChar(3);
+                char serverType = conn.getChar(4);
+                FVector location = {conn.getFloat(5), conn.getFloat(6)};
 
-        conn.reset();
+                conn.reset();
 
-        bool result = false;
-        {
-            WRITE_LOCK;
-            result = _dbData.emplace(sessionId, std::make_shared<DBData>(sessionId, AccountNo, location
-                                                                         , serverType, charType, coins, hp
-                                                                         , nick)).second;
-        }
-        if (result == false)
-        {
-            _connectionLogger.Write(L"DB", CLogger::LogLevel::Debug, L"Cannot create DBData. %d %d %s", AccountNo
-                                    , serverType, nick.ToString());
-            DisconnectSession(sessionId);
-            //플레이어 생성에 실패한 관련 에러 처리.
-        }
-        else
-        {
-            conn.Query("Update account set LoginState = 1 where (AccountNo = %d)", AccountNo);
-            conn.reset();
-        }
+                bool result = false;
+                {
+                    WRITE_LOCK;
+                    result = _dbData.emplace(sessionId, std::make_shared<DBData>(sessionId, AccountNo, location
+                                                 , serverType, charType, coins, hp
+                                                 , nick)).second;
+                }
+                if (result == false)
+                {
+                    _connectionLogger.Write(L"DB", CLogger::LogLevel::Debug, L"Cannot create DBData. %d %d %s"
+                                            , AccountNo
+                                            , serverType, nick.ToString());
+                    DisconnectSession(sessionId);
+                    //플레이어 생성에 실패한 관련 에러 처리.
+                }
+                else
+                {
+                    conn.Query("Update account set LoginState = 1 where (AccountNo = %d)", AccountNo);
+                    conn.reset();
+                }
 
 
-        if (hp <= 0)
-        {
-            //마을로 보낸다.
-            _groupManager->MoveSession(
-                sessionId, _groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Village)]);
-        }
-        else
-        {
-            _groupManager->MoveSession(sessionId, _groups[static_cast<std::vector<GroupID>::size_type>(serverType)]);
-        }
+                if (hp <= 0)
+                {
+                    //마을로 보낸다.
+                    _groupManager->MoveSession(
+                        sessionId, _groups[static_cast<std::vector<GroupID>::size_type>(ServerType::Village)]);
+                }
+                else
+                {
+                    _groupManager->
+                        MoveSession(sessionId, _groups[static_cast<std::vector<GroupID>::size_type>(serverType)]);
+                }
+            }
+            catch (const std::exception& e)
+            {
+                DisconnectSession(sessionId);
+                _connectionLogger.Write(L"DBError", CLogger::LogLevel::Debug, L"DBErr disconnect GameLogin : %s"
+                                        , e.what());
+            }
+        });
     }
 
     DBConnection& Server::GetGameDbConnection()
