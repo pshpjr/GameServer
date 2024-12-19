@@ -2,6 +2,7 @@
 	path = NetLib
 	url = https://github.com/pshpjr/NetLib.git
 	branch = master
-[submodule "External/CommonHeaders"]
-	path = External/CommonHeaders
+[submodule "src/Common"]
+	path = src/Common
 	url = https://github.com/pshpjr/GameServer-CommonDatas.git
+	branch = main
