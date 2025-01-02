@@ -1,19 +1,20 @@
 ﻿#pragma once
 
-#include <iostream>
+#include <span>
 #include <vector>
 
-#include <range/v3/all.hpp>
 #include "FVector.h"
 #include "Sector.h"
+
 
 
 namespace psh
 {
     struct FVector;
 
+    //2차원 고정 크기 그리드 방식 게임 맵.
     //언리얼의 좌표계는 y가 오른쪽. 좌하단이 0, 앞이 x
-
+    //sectorView는 게임 맵의 여러 섹터들을 추상화 해서 하나의 view로 바라볼 수 있게 함(range::view와 유사)
     template <typename keyTy, typename valTy>
     class GameMap
     {
@@ -26,6 +27,7 @@ namespace psh
         using container = std::unordered_map<keyTy, valTy>;
 
     public:
+
         class SectorViewIterator
         {
             using iterator_category = std::forward_iterator_tag;
@@ -113,10 +115,14 @@ namespace psh
             innerIterator _it;
         };
 
+        //만든 가장 큰 원인은 cpp20의 view가 디버깅 하기 어렵다는 점 때문.
+        //지연 초기화 때문에 왜 이렇게 되는지 알 수 가 없음.
+        //생성 시점에 섹터가 고정된다는 점을 빼면 동일함.
         class SectorView
         {
         public:
             using sectorContainer = std::vector<std::reference_wrapper<container>>;
+
             using iterator = SectorViewIterator;
 
             explicit SectorView() = default;
@@ -191,6 +197,7 @@ namespace psh
             return _objects;
         }
 
+        //이 위치는 어떤 섹터에 있나요?
         [[nodiscard]] Sector GetSectorAtLocation(FVector location) const
         {
             //입력이 비정상이면 비정상적인 값 줌.
@@ -204,6 +211,7 @@ namespace psh
             return {static_cast<short>(location.X / SECTOR_SIZE), static_cast<short>(location.Y / SECTOR_SIZE)};
         }
 
+        //맵 벗어나지 못하게
         void ClampLocationToMap(FVector& loc) const
         {
             loc = Clamp(loc, 0, static_cast<float>(MAP_SIZE - 1));
@@ -225,6 +233,7 @@ namespace psh
             _map[x][y].insert({key, val});
         }
 
+        //객체 삭제
         void Delete(const keyTy key, const FVector location)
         {
             --_objects;
@@ -251,6 +260,7 @@ namespace psh
             return true;
         }
 
+        //begin, end를 포함하는 범위의 섹터를 사각형 형태로 선택함.
         static std::vector<Sector> GetSectorsInRange(const Sector& begin, const Sector& end)
         {
             std::vector<Sector> sectors;
@@ -264,18 +274,54 @@ namespace psh
             return sectors;
         }
 
+        //두 점을 포함하는 섹터를 사각형 형태로 선택함.
+        SectorView CreateSectorViewBetweenPoints(const FVector& p1, const FVector& p2)
+        {
+            auto sectors = GetSectorsBetweenPoints(p1, p2);
+            return CreateSectorView(sectors);
+        }
+
+        //타겟 섹터와 offset 값에 있는 섹터들을 선택함. 0,0도 추가해야 타겟 섹터도 선택됨. 중복 생길 수 있음.
+        SectorView CreateSectorViewWithOffsets(const Sector& target, const std::span<const Sector> offsets)
+        {
+            auto sectors = GetAdjacentSectors(target, offsets);
+            return CreateSectorView(sectors);
+        }
+
+        //타겟 점을 기준으로 offset 값에 있는 섹터들을 선택함. 0,0도 추가해야 타겟 섹터도 선택됨. 중복 생길 수 있음.
+        SectorView CreateSectorViewWithOffsets(const FVector& location, const std::span<const Sector> offsets)
+        {
+            const Sector target = GetSectorAtLocation(location);
+            return CreateSectorViewWithOffsets(target, offsets);
+        }
+
+        //해당 점들을 포함하는 뷰를 생성. 중복 포함하지 않음.
+        SectorView CreateSectorViewFromLocations(const std::list<FVector>& locations)
+        {
+            std::set<Sector> unique_sectors;
+            for (const auto& location : locations)
+            {
+                unique_sectors.insert(GetSectorAtLocation(location));
+            }
+            std::vector sectors(unique_sectors.begin(), unique_sectors.end());
+            return CreateSectorView(sectors);
+        }
+
+    private:
+
         SectorView CreateSectorView(const std::vector<Sector>& sectors)
         {
-            typename SectorView::sectorContainer sector_containers;
+            typename SectorView::sectorContainer sectorContainers;
             for (const auto& sector : sectors)
             {
                 if (IsSectorValid(sector))
                 {
-                    sector_containers.push_back(_map[sector.x][sector.y]);
+                    sectorContainers.push_back(_map[sector.x][sector.y]);
                 }
             }
-            return SectorView(sector_containers);
+            return SectorView(sectorContainers);
         }
+
 
         [[nodiscard]] std::vector<Sector> GetSectorsBetweenPoints(const FVector& point1, const FVector& point2) const
         {
@@ -283,6 +329,7 @@ namespace psh
             const auto p2Sector = GetSectorAtLocation(point2);
             return GetSectorsInRange(p1Sector, p2Sector);
         }
+
 
         static std::vector<Sector> GetAdjacentSectors(const Sector& target, const std::span<const Sector> offsets)
         {
@@ -296,36 +343,6 @@ namespace psh
             return sectors;
         }
 
-        SectorView CreateSectorViewBetweenPoints(const FVector& p1, const FVector& p2)
-        {
-            auto sectors = GetSectorsBetweenPoints(p1, p2);
-            return CreateSectorView(sectors);
-        }
-
-        SectorView CreateSectorViewWithOffsets(const Sector& target, const std::span<const Sector> offsets)
-        {
-            auto sectors = GetAdjacentSectors(target, offsets);
-            return CreateSectorView(sectors);
-        }
-
-        SectorView CreateSectorViewWithOffsets(const FVector& location, const std::span<const Sector> offsets)
-        {
-            const Sector target = GetSectorAtLocation(location);
-            return CreateSectorViewWithOffsets(target, offsets);
-        }
-
-        SectorView CreateSectorViewFromLocations(const std::list<FVector>& locations)
-        {
-            std::set<Sector> unique_sectors;
-            for (const auto& location : locations)
-            {
-                unique_sectors.insert(GetSectorAtLocation(location));
-            }
-            std::vector sectors(unique_sectors.begin(), unique_sectors.end());
-            return CreateSectorView(sectors);
-        }
-
-    private:
         std::vector<std::vector<container>> _map;
         int _objects = 0;
     };

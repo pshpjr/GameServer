@@ -55,8 +55,8 @@ namespace psh
          * 공격 시스템 초기화
          */
         void Init();
-        int getSquarePoolSzie();
-        int getCirclePoolSzie();
+        int GetSquarePoolSzie();
+        int GetCirclePoolSzie();
         /**
          * 스킬 ID를 통해 스킬 정보를 가져옴
          * @param skillId 스킬 ID
@@ -92,6 +92,6 @@ namespace psh
          * @param id 아이템 ID
          * @return 범위 객체
          */
-        RangeUnique CalculateRangeByItemID(FVector location, TemplateID id);
+        RangeUnique CalculateRangeByItemId(FVector location, TemplateID id);
     }
 }

@@ -13,6 +13,7 @@ namespace psh
     template <typename Key, typename T>
     class GameMap;
 
+    //게임 오브젝트 생성 시 필요한 데이터들 묶음
     struct GameObjectData
     {
         FVector location{0, 0};
@@ -48,7 +49,8 @@ namespace psh
 
         ~GameObject() override;
 
-        // 공용 멤버 함수 (Public Member Functions)
+        // 해당 객체 생성 패킷 만들 때 필요한 정보 추가
+        // 부모 함수 호출 후 원하는 데이터 추가하기.
         virtual void MakeCreatePacket(SendBuffer& buffer, bool spawn) const;
 
         void Update(int delta) final;
@@ -100,13 +102,18 @@ namespace psh
             return _field;
         }
 
-        //필드만 접근하는 setter 함수들. 얘도 빼낼 수 있을 것 같은데
+        //필드에 있다면 valid, 없다면 invalid인 걸로 관리중
+        //TODO:깔끔하게 수정 가능할 듯
         void Valid(const bool inMap)
         {
             _inMap = inMap;
         }
 
+        //그룹 이동시 맵에서 빼는 처리가 필요해서 추가함.
+        //그 외의 경우에는 삭제시 맵에서 제거해도 됨.
+        //그룹 이동 요청했다면 다른 애들의 패킷 받으면 안 됨.
         void OutFromMapWhenGroupMove();
+
         void IntoMap(GameMap<ObjectID, std::shared_ptr<GameObject>>* map);
 
         void ObjectId(const ObjectID id)

@@ -1,9 +1,22 @@
-﻿#pragma once
+﻿/*
+ *
+ * 내부적으로 2차원 벡터로 데이터를 관리하는 unordered_set
+ * 캐시 히트율을 높혀 순회 성능을 높혀보기 위한 것
+ * 테스트 결과 의미 없어서 폐기함
+ *
+ *
+ */
+
+
+
+#pragma once
 #include <ranges>
 #include <vector>
 #include "Macro.h"
 
+
 template <typename T>
+[[deprecated]]
 class flat_unordered_set_iterator
 {
     using inner_iterator = std::conditional_t<std::is_const_v<T>,

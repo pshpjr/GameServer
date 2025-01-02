@@ -23,8 +23,8 @@ bool psh::ChatCharacter::IsCooldownEndDebug(SkillID type)
 psh::ChatCharacter::ChatCharacter(Field& group, const GameObjectData& initData
                                   , std::unique_ptr<MonsterAiComponent> aiComponent)
     : GameObject(group, initData)
-    , _movementComponent{std::make_unique<MoveComponent>(*this, initData.moveSpeedPerSec / 1000.0f)}
-    , _aiComponent{std::move(aiComponent)}
+      , _movementComponent{std::make_unique<MoveComponent>(*this, initData.moveSpeedPerSec / 1000.0f)}
+      , _aiComponent{std::move(aiComponent)}
 {
     for (auto skill : ATTACK::GetSkillsByTemplate(initData.templateId))
     {
@@ -80,7 +80,7 @@ void psh::ChatCharacter::MakeCreatePacket(SendBuffer& buffer, const bool spawn) 
     MakeGame_ResChracterDetail(buffer, ObjectId(), _hp);
 }
 
-void psh::ChatCharacter::SetAI(unique<MonsterAiComponent> component)
+void psh::ChatCharacter::SetAi(unique<MonsterAiComponent> component)
 {
     _aiComponent = std::move(component);
 }
@@ -126,7 +126,7 @@ void psh::ChatCharacter::Hit(const DamageInfo info)
     }
 }
 
-bool psh::ChatCharacter::isDead() const
+bool psh::ChatCharacter::IsDead() const
 {
     return _hp <= 0;
 }
@@ -144,10 +144,11 @@ void psh::ChatCharacter::Die()
     _field.DestroyActor(shared_from_this());
 }
 
-void psh::ChatCharacter::OnDestroyImpl() {}
+void psh::ChatCharacter::OnDestroyImpl()
+{
+}
 
 int psh::ChatCharacter::Hp()
 {
     return _hp;
 }
-

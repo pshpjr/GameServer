@@ -27,11 +27,10 @@ namespace psh::MonsterAi
         ObjectID objectId; //요청자
     };
 
+    //몬스터 어그로 대상이 되는 애를 선택하는 함수
     using TargetSelector = std::function<std::weak_ptr<GameObject>(TargetRequest, Field&)>;
 
-    extern const TargetSelector PveTargetSelector;
-    extern const TargetSelector PvpTargetSelector;
-
+    //Pvp냐 Pve냐에 따라 몬스터 선택 함수가 달라짐.
     TargetSelector GetTargetSelectorByType(ServerType type);
 }
 

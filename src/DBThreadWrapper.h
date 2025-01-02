@@ -1,13 +1,12 @@
 ﻿// ReSharper disable CppParameterMayBeConst
 #pragma once
+
 #include <future>
 #include <memory>
 
-
-#include "SPSCQueue.h"
-
 #include "DBConnection.h"
 #include "GroupTypes.h"
+#include "SPSCQueue.h"
 #include "SocketTypes.h"
 
 namespace psh
@@ -16,6 +15,7 @@ namespace psh
     class DBData;
     class Player;
 
+    //비동기 쿼리 처리를 해주는 스레드 래핑.
     class DBThreadWrapper
     {
         using jobQ = SPSCQueue<std::function<void()>, 1024>;
@@ -32,9 +32,11 @@ namespace psh
 
         DBThreadWrapper(jobQ& compAlert, LPCSTR IP, Port port, LPCSTR ID, LPCSTR PWD, LPCSTR Schema)
             : conn(IP, port, ID, PWD, Schema)
-            , dbThread(&DBThreadWrapper::DBWorkerFunc, this)
-            , _jobQueue(std::make_unique<jobQ>())
-            , _completeAlert{compAlert} {}
+              , dbThread(&DBThreadWrapper::DBWorkerFunc, this)
+              , _jobQueue(std::make_unique<jobQ>())
+              , _completeAlert{compAlert}
+        {
+        }
 
         ~DBThreadWrapper();
 

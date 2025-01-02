@@ -1,6 +1,4 @@
 ﻿// ReSharper disable CppInconsistentNaming
-// ReSharper disable IdentifierTypo
-// ReSharper disable CppTabsAreDisallowed
 #pragma once
 #include "Types.h"
 

@@ -8,6 +8,7 @@ namespace psh
 {
     class Player;
 
+    //플레이어의 DB 데이터를 그대로 들고 오는 용도
     class DBData
     {
     public:
@@ -20,13 +21,15 @@ namespace psh
                , const int hp
                , const Nickname& nick)
             : _sessionId(sessionId)
-            , _accountNo(accountNo)
-            , _location(location)
-            , _serverType(serverType)
-            , _characterType(characterType)
-            , _coin(coin)
-            , _hp(hp)
-            , _nick(nick) {}
+              , _accountNo(accountNo)
+              , _location(location)
+              , _serverType(serverType)
+              , _characterType(characterType)
+              , _coin(coin)
+              , _hp(hp)
+              , _nick(nick)
+        {
+        }
 
         void SessionId(const SessionID& session_id)
         {

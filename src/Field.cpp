@@ -38,9 +38,9 @@ psh::Field::Field(Server& server, const ServerInitData& data, const ServerType t
     , _server(server)
     , _initData(data)
     , _groupType(type)
-    , _playerMap{std::make_unique<map_type>(mapSize, sectorSize)}
-    , _monsterMap{std::make_unique<map_type>(mapSize, sectorSize)}
-    , _itemMap{std::make_unique<map_type>(mapSize, sectorSize)}
+    , _playerMap{std::make_unique<MapType>(mapSize, sectorSize)}
+    , _monsterMap{std::make_unique<MapType>(mapSize, sectorSize)}
+    , _itemMap{std::make_unique<MapType>(mapSize, sectorSize)}
     , _victimSelect{victim_select::GetVictimByServerType(type)}
     , _useMonitor{_initData.UseMonitorServer}
     , _nextDBSend(std::chrono::steady_clock::now())
@@ -237,7 +237,7 @@ void psh::Field::RecvChangeComp(const SessionID id, CRecvBuffer& recvBuffer)
     GetGame_ReqChangeComplete(recvBuffer, accountNo);
     auto& [_, playerPtr] = *_players.find(id);
 
-    if (playerPtr->isDead())
+    if (playerPtr->IsDead())
     {
         playerPtr->Revive();
     }
@@ -245,12 +245,12 @@ void psh::Field::RecvChangeComp(const SessionID id, CRecvBuffer& recvBuffer)
 }
 
 // 플레이어의 채팅 메시지 처리
-void psh::Field::RecvChat(const SessionID id, CRecvBuffer& recvByffer)
+void psh::Field::RecvChat(const SessionID id, CRecvBuffer& recvBuffer)
 {
     OPTICK_EVENT();
     auto& [_, player] = *_players.find(id);
     String chatData;
-    GetGame_ReqChat(recvByffer, chatData);
+    GetGame_ReqChat(recvBuffer, chatData);
 
     if (player == nullptr)
     {
@@ -377,11 +377,11 @@ psh::AttackResult psh::Field::ProcessAttack(AttackInfo info)
 }
 
 // 특정 오브젝트 타입에 대한 시야 반환
-psh::Field::view_type psh::Field::GetObjectView(ViewObjectType type, const FVector& location
+psh::Field::ViewType psh::Field::GetObjectView(ViewObjectType type, const FVector& location
                                                 , std::span<const Sector> offsets)
 {
     OPTICK_EVENT();
-    std::vector<map_type::SectorView> returnView;
+    std::vector<MapType::SectorView> returnView;
 
     if ((type & ViewObjectType::Player) == ViewObjectType::Player)
     {
@@ -396,14 +396,14 @@ psh::Field::view_type psh::Field::GetObjectView(ViewObjectType type, const FVect
         returnView.push_back(_itemMap->CreateSectorViewWithOffsets(location, offsets));
     }
 
-    return map_type::SectorView{returnView};
+    return MapType::SectorView{returnView};
 }
 
 // 필드 내 특정 위치에서 시야 반환(구현되지 않음)
-psh::Field::view_type psh::Field::GetObjectViewByPoint(ViewObjectType type, const std::list<FVector>& coordinate)
+psh::Field::ViewType psh::Field::GetObjectViewByPoint(ViewObjectType type, const std::list<FVector>& coordinate)
 {
     OPTICK_EVENT();
-    std::vector<map_type::SectorView> returnView;
+    std::vector<MapType::SectorView> returnView;
 
     if ((type & ViewObjectType::Player) == ViewObjectType::Player)
     {
@@ -418,7 +418,7 @@ psh::Field::view_type psh::Field::GetObjectViewByPoint(ViewObjectType type, cons
         returnView.push_back(_itemMap->CreateSectorViewFromLocations(coordinate));
     }
 
-    return map_type::SectorView{returnView};
+    return MapType::SectorView{returnView};
 }
 
 // 오브젝트를 대기 목록에 추가
@@ -523,8 +523,8 @@ void psh::Field::SendMonitor()
     _monitorData.maxWork = GetMaxWorkTime();
     auto [queued, enqueue, dequeue, delaySum,DBErr] = _dbThread->GetMonitor();
     _monitorData.dbDequeue = dequeue;
-    _monitorData.squarePool = ATTACK::getSquarePoolSzie();
-    _monitorData.circlePool = ATTACK::getCirclePoolSzie();
+    _monitorData.squarePool = ATTACK::GetSquarePoolSzie();
+    _monitorData.circlePool = ATTACK::GetCirclePoolSzie();
     if (!_useMonitor)
     {
         return;
@@ -561,6 +561,7 @@ void psh::Field::SendMonitor()
     SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_LEAVE_TPS, GetLeaveTps());
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SQUARE_POOL, _monitorData.squarePool);
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_CIRCLE_POOL, _monitorData.circlePool);
+
 
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_CHAT_COUNT, std::exchange(_packetCount.chatPacket, 0));
     SendMonitorData(dfMONITOR_DATA_TYPE_GAME_MOVE_COUNT, std::exchange(_packetCount.movePacket, 0));

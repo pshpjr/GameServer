@@ -16,7 +16,8 @@ namespace psh
 
     void DBThreadWrapper::UpdateCoin(const std::shared_ptr<DBData>& dbData)
     {
-        Enqueue([this, dbData] {
+        Enqueue([this, dbData]
+        {
             try
             {
                 const auto time = conn.Query(
@@ -28,7 +29,8 @@ namespace psh
             catch (const std::exception& e)
             {
                 auto exceptionPtr = std::current_exception();
-                _completeAlert.Enqueue([exceptionPtr] {
+                _completeAlert.Enqueue([exceptionPtr]
+                {
                     std::rethrow_exception(exceptionPtr);
                 });
             }
@@ -37,7 +39,8 @@ namespace psh
 
     void DBThreadWrapper::UpdateLocation(const std::shared_ptr<DBData>& dbData)
     {
-        Enqueue([this, dbData] {
+        Enqueue([this, dbData]
+        {
             try
             {
                 const auto time = conn.Query(
@@ -49,7 +52,8 @@ namespace psh
             catch (const std::exception& e)
             {
                 auto exceptionPtr = std::current_exception();
-                _completeAlert.Enqueue([exceptionPtr] {
+                _completeAlert.Enqueue([exceptionPtr]
+                {
                     std::rethrow_exception(exceptionPtr);
                 });
             }
@@ -58,7 +62,8 @@ namespace psh
 
     void DBThreadWrapper::UpdateHP(const std::shared_ptr<DBData>& dbData)
     {
-        Enqueue([this, dbData] {
+        Enqueue([this, dbData]
+        {
             try
             {
                 const auto time = conn.Query(
@@ -70,7 +75,8 @@ namespace psh
             catch (const std::exception& e)
             {
                 auto exceptionPtr = std::current_exception();
-                _completeAlert.Enqueue([exceptionPtr] {
+                _completeAlert.Enqueue([exceptionPtr]
+                {
                     std::rethrow_exception(exceptionPtr);
                 });
             }
@@ -79,7 +85,8 @@ namespace psh
 
     void DBThreadWrapper::EnterGroup(const std::shared_ptr<DBData>& dbData)
     {
-        Enqueue([this, dbData] {
+        Enqueue([this, dbData]
+        {
             try
             {
                 const auto time = conn.Query(
@@ -91,7 +98,8 @@ namespace psh
             catch (const std::exception& e)
             {
                 auto exceptionPtr = std::current_exception();
-                _completeAlert.Enqueue([exceptionPtr] {
+                _completeAlert.Enqueue([exceptionPtr]
+                {
                     std::rethrow_exception(exceptionPtr);
                 });
             }
@@ -100,7 +108,8 @@ namespace psh
 
     void DBThreadWrapper::SaveAll(std::shared_ptr<DBData> dbData, std::function<void()> callback)
     {
-        Enqueue([this, dbData = std::move(dbData), callback= std::move(callback)] {
+        Enqueue([this, dbData = std::move(dbData), callback= std::move(callback)]
+        {
             try
             {
                 const auto time = conn.Query(
@@ -118,7 +127,8 @@ namespace psh
             catch (const std::exception& e)
             {
                 auto exceptionPtr = std::current_exception();
-                _completeAlert.Enqueue([exceptionPtr] {
+                _completeAlert.Enqueue([exceptionPtr]
+                {
                     std::rethrow_exception(exceptionPtr);
                 });
             }

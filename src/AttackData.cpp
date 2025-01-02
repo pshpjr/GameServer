@@ -123,12 +123,12 @@ namespace psh
         thread_local ModernObjectPool<CircleRange> circlePool(100);
     }
 
-    int ATTACK::getSquarePoolSzie()
+    int ATTACK::GetSquarePoolSzie()
     {
         return rangePool::squarePool.Size();
     }
 
-    int ATTACK::getCirclePoolSzie()
+    int ATTACK::GetCirclePoolSzie()
     {
         return rangePool::circlePool.Size();
     }
@@ -142,7 +142,7 @@ namespace psh
         return rangePool::squarePool.Cast<Range>(std::move(range));
     }
 
-    RangeUnique ATTACK::CalculateRangeByItemID(FVector location, TemplateID id)
+    RangeUnique ATTACK::CalculateRangeByItemId(FVector location, TemplateID id)
     {
         auto range = rangePool::circlePool.Alloc(location, 30.0f);
         return rangePool::circlePool.Cast<Range>(std::move(range));

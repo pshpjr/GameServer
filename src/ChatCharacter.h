@@ -12,6 +12,7 @@ namespace psh
     class MoveComponent;
     class MonsterAiComponent;
 
+    //이동과 공격 기능이 추가된 게임 오브젝트
     class ChatCharacter : public GameObject
     {
         friend class MonsterAiComponent;
@@ -44,7 +45,7 @@ namespace psh
 
         void Hit(DamageInfo info);
 
-        bool isDead() const;
+        bool IsDead() const;
 
         void Revive();
 
@@ -55,11 +56,13 @@ namespace psh
         * 주로 아이템 생성할 때 사용.
         * 죽은 이유 저장하기.
         */
-        virtual void DieImpl() {};
+        virtual void DieImpl()
+        {
+        };
         int Hp();
 
         void MakeCreatePacket(SendBuffer& buffer, bool spawn) const override;
-        void SetAI(unique<MonsterAiComponent> component);
+        void SetAi(unique<MonsterAiComponent> component);
 
     protected:
         int _hp = 100;

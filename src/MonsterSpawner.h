@@ -21,21 +21,19 @@ namespace psh
     class MonsterSpawner : public Updatable
     {
     public:
-        ;
 
+        //외부에서 생성자 호출 시 알림.
         [[deprecated("Use GetSpawner func instead")]]
         MonsterSpawner(ServerType type, Field& field, GameMap<ObjectID, shared<GameObject>>& monsterMap
                        , MonsterAi::TargetSelector selector);
 
         // 공용 (public) 멤버 함수
-        /**
-         * 주기적으로 몬스터를 스폰합니다.
-         * @param deltaTime Delta 시간
-         */
+
+        //주기적으로 몬스터를 스폰.
         void Update(int deltaTime) override;
 
         /**
-         * 특정 서버 타입에 맞는 스포너를 반환합니다.
+         * 특정 서버 타입에 맞는 스포너를 반환
          * @param type 서버 타입
          * @param field 필드 객체
          * @param monsterMap 몬스터 맵

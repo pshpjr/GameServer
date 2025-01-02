@@ -9,8 +9,11 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /DEBUG")
 endif ()
 
+
 #optick 라이브러리 관련 설정.
+
 target_compile_definitions(NetLib PRIVATE USE_OPTICK=1)
+
 
 add_executable(CMakeServer
         Range.cpp
@@ -43,10 +46,20 @@ add_executable(CMakeServer
         AiComponent.h
         ThreadPool.cpp
         ThreadPool.h
+        DatabaseManager.cpp
+        DatabaseManager.h
+        FieldData.h
 )
 
-target_include_directories(CMakeServer PRIVATE ../../packetParser)
+target_include_directories(CMakeServer PRIVATE ./Common)
 
 target_compile_definitions(CMakeServer PRIVATE PSH_SERVER)
 
 target_link_libraries(CMakeServer PRIVATE NetLib)
+
+if (POLICY CMP0167)
+    cmake_policy(SET CMP0167 NEW)
+endif ()
+
+find_package(Boost REQUIRED NO_MODULE)
+target_include_directories(CMakeServer PRIVATE ${Boost_INCLUDE_DIRS})

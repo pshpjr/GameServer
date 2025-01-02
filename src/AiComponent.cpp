@@ -32,7 +32,7 @@ bool psh::MonsterAiComponent::IsReturning()
 
 void psh::MonsterAiComponent::Update(int delta)
 {
-    if (_owner->isDead())
+    if (_owner->IsDead())
     {
         return;
     }
