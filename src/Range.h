@@ -10,6 +10,7 @@ namespace psh
 {
     struct Sector;
 
+    //범위 판정을 위한 객체
     class Range {
         IS_INTERFACE(Range)
 
@@ -23,6 +24,7 @@ namespace psh
 
         [[nodiscard]] virtual Range &operator+=(FVector vector) = 0;
 
+        //만약 화면에 그리고 싶다면
         virtual void DrawRangeIntoBuffer(SendBuffer &buffer) const
         {
         }

@@ -30,6 +30,9 @@ namespace psh
         int32 circlePool{};
     };
 
+    //네트워크 송수신 담당
+    //데이터베이스 정보 담당
+    //TODO: DB 딴 쪽으로 빼기
     class Server final : public IOCP
     {
         struct DefaultSetting {};

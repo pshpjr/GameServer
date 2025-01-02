@@ -3,6 +3,7 @@
 
 namespace psh
 {
+    //일정 시간이 흘렀는지 확인하는 클래스
     class Timer : public Updatable
     {
     public:

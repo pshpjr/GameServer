@@ -5,6 +5,7 @@
 
 namespace psh
 {
+    //서버 시작시 필요한 정보들
     struct ServerInitData
     {
         std::string gameDBIP;

@@ -3,7 +3,9 @@
 #include <vector>
 #include "Sector.h"
 
+//이동, 주변 전부 전송 등 필요한 오프셋 정의
 struct SEND_OFFSETS {
+    //이동시 사용. 이동 방향에 따른 오프셋 선택 위함.
     static int getDirectionIndex(psh::Sector delta)
     {
         constexpr int DIRECTION_MAP[3][3] = {

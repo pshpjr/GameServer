@@ -16,6 +16,7 @@ namespace psh
     using PlayerRef = std::shared_ptr<Player>;
     class DBThreadWrapper;
 
+    //DBData 가지고 있고, 패킷 전송용 세션 있음.
     class Player final : public ChatCharacter
     {
     public:
@@ -37,6 +38,8 @@ namespace psh
         }
 
         void DieImpl() override;
+
+        //DB에 데이터 전부 백업
         void UpdateDBData();
 
         [[nodiscard]] AccountNo AccountNumber() const

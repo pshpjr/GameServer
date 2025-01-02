@@ -3,6 +3,7 @@
 
 namespace psh
 {
+    //랜덤 함수 래핑
     struct RandomUtil {
         //fix seed for debug
         inline static thread_local auto gen = std::mt19937(0); // NOLINT(*-msc51-cpp)

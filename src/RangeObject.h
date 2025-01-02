@@ -11,7 +11,7 @@ namespace psh
 namespace psh
 {
     //외부에서 RangeObject에게 특정 obj가 올라갔다고 알려줘야 함. 
-    //rangeObject의 개수가 더 적을 것이기 때문.
+    //rangeObject의 개수가 더 적을 것이라 예상함
     class RangeObject : public GameObject
     {
     public:
@@ -36,6 +36,7 @@ namespace psh
     };
 
     //지금은 플레이어랑만 상호작용 함.
+    //상호작용 후 바로 사라지는 종류의 객체들 (아이템)
     class SingleInteractionObject : public GameObject
     {
     public :
@@ -51,6 +52,7 @@ namespace psh
         PoolPtr<Range> _range;
     };
 
+    //아이템은 일정 시간이 지나면 사라짐
     class Item : public SingleInteractionObject
     {
     public :

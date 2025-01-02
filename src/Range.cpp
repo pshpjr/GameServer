@@ -47,6 +47,7 @@ namespace psh
     }
 
 
+    //성능 최적화를 위해 회전 시 점을 옮기는 게 아니라 회전 정보를 저장함.
     bool SquareRange::Contains(const FVector p) const noexcept
     {
         auto point = p;
