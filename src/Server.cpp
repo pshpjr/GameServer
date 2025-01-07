@@ -66,8 +66,9 @@ namespace psh
         _threadPool.enqueue([accountNo, this] {
             try
             {
+                //나중에 계정이 엄청나게 많아진다면 파티션 걸어서 성능 올릴 수 있을까?
                 auto& conn = GetGameDbConnection();
-                conn.Query("Update account set LoginState = 0 where (AccountNo = %d)", accountNo);
+                conn.QueryFormat("Update account set LoginState = 0 where (AccountNo = %d)", accountNo);
                 conn.reset();
             }
             catch (std::exception& e)
@@ -199,7 +200,8 @@ namespace psh
             try
             {
                 auto& conn = GetGameDbConnection();
-                conn.Query("select AccountNo, ID, PASS,LoginState from account where ID = '%s'", cid.c_str());
+                //ID를 인덱스 설정 안 했었지만, UQ라 자동 생성된 인덱스 타고 있었음.
+                conn.QueryFormat("select AccountNo, ID, PASS,LoginState from account where ID = '%s'", cid.c_str());
 
                 auto loginResult = SendBuffer::Alloc();
 
@@ -262,7 +264,8 @@ namespace psh
 
             try
             {
-                conn.Query(
+                //(PlayerNo, accountNo)가 키라서 인덱스 안 탈줄 알았는데 accountNo가 fk라 인덱스 생겨 있었음.
+                conn.QueryFormat(
                     "select Nick,HP,Coins,CharType,ServerType,LocationX,LocationY from mydb.player where AccountNo = %d"
                     , AccountNo);
 
@@ -300,7 +303,7 @@ namespace psh
                 }
                 else
                 {
-                    conn.Query("Update account set LoginState = 1 where (AccountNo = %d)", AccountNo);
+                    conn.QueryFormat("Update account set LoginState = 1 where (AccountNo = %d)", AccountNo);
                     conn.reset();
                 }
 

@@ -20,7 +20,8 @@ namespace psh
         {
             try
             {
-                const auto time = conn.Query(
+                //지금은 모든 계정에 캐릭터가 하나라 Pid 0으로 설정함.
+                const auto time = conn.QueryFormat(
                     "UPDATE `mydb`.`player` SET `Coins` = '%d' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
                     , dbData->Coin(), dbData->AccountNum());
                 _data.delaySum += time;
@@ -43,7 +44,7 @@ namespace psh
         {
             try
             {
-                const auto time = conn.Query(
+                const auto time = conn.QueryFormat(
                     "UPDATE `mydb`.`player` SET `LocationX` = '%f', `LocationY` = '%f' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
                     , dbData->Location().X, dbData->Location().Y, dbData->AccountNum());
                 _data.delaySum += time;
@@ -66,7 +67,7 @@ namespace psh
         {
             try
             {
-                const auto time = conn.Query(
+                const auto time = conn.QueryFormat(
                     "UPDATE `mydb`.`player` SET `HP` = '%d' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
                     , dbData->Hp(), dbData->AccountNum());
                 _data.delaySum += time;
@@ -89,7 +90,7 @@ namespace psh
         {
             try
             {
-                const auto time = conn.Query(
+                const auto time = conn.QueryFormat(
                     "UPDATE `mydb`.`player` SET `ServerType` = '%d', `LocationX` = '%f', `LocationY` = '%f' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
                     , dbData->ServerType(), dbData->Location().X, dbData->Location().Y, dbData->AccountNum());
                 _data.delaySum += time;
@@ -112,7 +113,7 @@ namespace psh
         {
             try
             {
-                const auto time = conn.Query(
+                const auto time = conn.QueryFormat(
                     "UPDATE `mydb`.`player` SET `HP` = '%d', `ServerType` = '%d', `LocationX` = '%f', `LocationY` = '%f' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
                     , dbData->Hp(), dbData->ServerType(), dbData->Location().X, dbData->Location().Y
                     , dbData->AccountNum());

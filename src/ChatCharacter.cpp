@@ -41,6 +41,7 @@ void psh::ChatCharacter::OnUpdate(int delta)
         skill.second.timer.Update(delta);
     }
 
+//TODO: 이런 컴포넌트들이 객체 안에 있으면 안 될 것 같음.
     _movementComponent->Update(delta);
     if (_aiComponent)
     {
