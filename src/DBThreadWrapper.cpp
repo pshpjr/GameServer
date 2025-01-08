@@ -5,6 +5,17 @@
 
 #include "optick.h"
 
+
+/*
+ *
+ * MYSQL 성능 테스트 해 봤을 때 저장 프로시저가 더 느림
+ * UPDATE, SELECT 반반 섞어 진행했고, 6커넥션 66667 쿼리 기준
+ * 30.6251s, 32.0638s 차이. 한 5%?
+ * 너무 단순한 쿼리라 저장 프로시저 호출에 들어가는 오버헤드가 더 큰 듯
+ * 로직 분리의 이유가 없다면 지금은 필요 없다.
+ *
+ */
+
 namespace psh
 {
     DBThreadWrapper::~DBThreadWrapper()
@@ -22,7 +33,7 @@ namespace psh
             {
                 //지금은 모든 계정에 캐릭터가 하나라 Pid 0으로 설정함.
                 const auto time = conn.QueryFormat(
-                    "UPDATE `mydb`.`player` SET `Coins` = '%d' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
+                "UPDATE `mydb`.`player` SET `Coins` = `{}` WHERE (`PlayerId` = 0) and (`AccountNo` = `{}`);"
                     , dbData->Coin(), dbData->AccountNum());
                 _data.delaySum += time;
                 conn.reset();
@@ -45,7 +56,7 @@ namespace psh
             try
             {
                 const auto time = conn.QueryFormat(
-                    "UPDATE `mydb`.`player` SET `LocationX` = '%f', `LocationY` = '%f' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
+                    "UPDATE `mydb`.`player` SET `LocationX` = '{}', `LocationY` = '{}' WHERE (`PlayerId` = '0') and (`AccountNo` = '{}');"
                     , dbData->Location().X, dbData->Location().Y, dbData->AccountNum());
                 _data.delaySum += time;
                 conn.reset();
@@ -68,7 +79,7 @@ namespace psh
             try
             {
                 const auto time = conn.QueryFormat(
-                    "UPDATE `mydb`.`player` SET `HP` = '%d' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
+                    "UPDATE `mydb`.`player` SET `HP` = '{}' WHERE (`PlayerId` = '0') and (`AccountNo` = '{}');"
                     , dbData->Hp(), dbData->AccountNum());
                 _data.delaySum += time;
                 conn.reset();
@@ -91,7 +102,7 @@ namespace psh
             try
             {
                 const auto time = conn.QueryFormat(
-                    "UPDATE `mydb`.`player` SET `ServerType` = '%d', `LocationX` = '%f', `LocationY` = '%f' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
+                    "UPDATE `mydb`.`player` SET `ServerType` = '{}', `LocationX` = '{}', `LocationY` = '{}' WHERE (`PlayerId` = '0') and (`AccountNo` = '{}');"
                     , dbData->ServerType(), dbData->Location().X, dbData->Location().Y, dbData->AccountNum());
                 _data.delaySum += time;
                 conn.reset();
@@ -114,7 +125,7 @@ namespace psh
             try
             {
                 const auto time = conn.QueryFormat(
-                    "UPDATE `mydb`.`player` SET `HP` = '%d', `ServerType` = '%d', `LocationX` = '%f', `LocationY` = '%f' WHERE (`PlayerId` = '0') and (`AccountNo` = '%lld');"
+                    "UPDATE `mydb`.`player` SET `HP` = '{}', `ServerType` = '{}', `LocationX` = '{}', `LocationY` = '{}' WHERE (`PlayerId` = '0') and (`AccountNo` = '{}');"
                     , dbData->Hp(), dbData->ServerType(), dbData->Location().X, dbData->Location().Y
                     , dbData->AccountNum());
                 _data.delaySum += time;

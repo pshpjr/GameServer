@@ -11,7 +11,14 @@
 
 namespace psh::MonsterAi
 {
-    const TargetSelector PveTargetSelector = [](TargetRequest request, Field& field)-> std::weak_ptr<GameObject> {
+    const TargetSelector NoBattleTargetSelector = [](TargetRequest request, Field& field)-> std::weak_ptr<GameObject>
+    {
+        return {};
+    };
+
+
+    const TargetSelector PveTargetSelector = [](TargetRequest request, Field& field)-> std::weak_ptr<GameObject>
+    {
         float curMax = 1000;
         std::weak_ptr<GameObject> target;
 
@@ -27,7 +34,8 @@ namespace psh::MonsterAi
         return target;
     };
 
-    const TargetSelector PvpTargetSelector = [](TargetRequest request, Field& field)-> std::weak_ptr<GameObject> {
+    const TargetSelector PvpTargetSelector = [](TargetRequest request, Field& field)-> std::weak_ptr<GameObject>
+    {
         float curMax = 1000;
         std::weak_ptr<GameObject> target;
 
@@ -59,5 +67,19 @@ namespace psh::MonsterAi
 
         return target;
     };
-}
 
+    TargetSelector GetTargetSelectorByType(ServerType type)
+    {
+        switch (type)
+        {
+        case ServerType::Pvp:
+            return PvpTargetSelector;
+        case ServerType::End:
+        case ServerType::Hard:
+            return PveTargetSelector;
+
+        default: ;
+        }
+        return NoBattleTargetSelector;
+    }
+}

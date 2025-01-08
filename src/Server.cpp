@@ -58,7 +58,7 @@ namespace psh
             {
                 return;
             }
-
+            //shared_ptr을 복사하지 않고 처리하고 싶었음. 이 블럭 내부에서만 사용할거니까
             const auto& dbData = it->second;
             accountNo = dbData->AccountNum();
             _dbData.erase(it);
@@ -68,7 +68,7 @@ namespace psh
             {
                 //나중에 계정이 엄청나게 많아진다면 파티션 걸어서 성능 올릴 수 있을까?
                 auto& conn = GetGameDbConnection();
-                conn.QueryFormat("Update account set LoginState = 0 where (AccountNo = %d)", accountNo);
+                conn.QueryFormat("Update account set LoginState = 0 where (AccountNo = {})", accountNo);
                 conn.reset();
             }
             catch (std::exception& e)
@@ -201,7 +201,8 @@ namespace psh
             {
                 auto& conn = GetGameDbConnection();
                 //ID를 인덱스 설정 안 했었지만, UQ라 자동 생성된 인덱스 타고 있었음.
-                conn.QueryFormat("select AccountNo, ID, PASS,LoginState from account where ID = '%s'", cid.c_str());
+                //account 테이블의 클러스터 인덱스를 ID로 건다면?
+                conn.QueryFormat("select AccountNo, ID, PASS,LoginState from account where ID = '{}'", cid.c_str());
 
                 auto loginResult = SendBuffer::Alloc();
 
@@ -266,7 +267,7 @@ namespace psh
             {
                 //(PlayerNo, accountNo)가 키라서 인덱스 안 탈줄 알았는데 accountNo가 fk라 인덱스 생겨 있었음.
                 conn.QueryFormat(
-                    "select Nick,HP,Coins,CharType,ServerType,LocationX,LocationY from mydb.player where AccountNo = %d"
+                    "select Nick,HP,Coins,CharType,ServerType,LocationX,LocationY from mydb.player where AccountNo = {}"
                     , AccountNo);
 
                 if (!conn.next())
@@ -303,7 +304,7 @@ namespace psh
                 }
                 else
                 {
-                    conn.QueryFormat("Update account set LoginState = 1 where (AccountNo = %d)", AccountNo);
+                    conn.QueryFormat("Update account set LoginState = 1 where (AccountNo = {})", AccountNo);
                     conn.reset();
                 }
 
