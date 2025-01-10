@@ -28,6 +28,7 @@ namespace psh
         int32 dbDequeue{};
         int32 squarePool{};
         int32 circlePool{};
+        int32 maxPlayersInSector{};
     };
 
     //네트워크 송수신 담당
@@ -84,6 +85,6 @@ namespace psh
         DWORD _dbTlsId;
         std::atomic<uint64> _dbErrorCount;
         SessionID _monitorSession = InvalidSessionID();
-        ThreadPool _threadPool{8};
+        ThreadPool _threadPool{1};
     };
 }

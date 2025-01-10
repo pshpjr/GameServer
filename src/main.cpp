@@ -20,6 +20,10 @@ int main()
 
         const auto server = std::make_unique<psh::Server>();
         psh::Server::SetDisableClickAndClose();
+        server->SetDefaultTimeout(0);
+
+
+
         server->Start();
 
         server->Wait();
@@ -30,6 +34,8 @@ int main()
 
         std::cin.get();
     }
+
+
 
     return 0;
 }

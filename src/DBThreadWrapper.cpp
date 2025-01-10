@@ -33,7 +33,7 @@ namespace psh
             {
                 //지금은 모든 계정에 캐릭터가 하나라 Pid 0으로 설정함.
                 const auto time = conn.QueryFormat(
-                "UPDATE `mydb`.`player` SET `Coins` = `{}` WHERE (`PlayerId` = 0) and (`AccountNo` = `{}`);"
+                "UPDATE `mydb`.`player` SET `Coins` = {} WHERE (`PlayerId` = 0) and (`AccountNo` = {});"
                     , dbData->Coin(), dbData->AccountNum());
                 _data.delaySum += time;
                 conn.reset();
@@ -56,7 +56,7 @@ namespace psh
             try
             {
                 const auto time = conn.QueryFormat(
-                    "UPDATE `mydb`.`player` SET `LocationX` = '{}', `LocationY` = '{}' WHERE (`PlayerId` = '0') and (`AccountNo` = '{}');"
+                    "UPDATE `mydb`.`player` SET `LocationX` = `{}`, `LocationY` = `{}` WHERE (`PlayerId` = '0') and (`AccountNo` = `{}`);"
                     , dbData->Location().X, dbData->Location().Y, dbData->AccountNum());
                 _data.delaySum += time;
                 conn.reset();
@@ -79,7 +79,7 @@ namespace psh
             try
             {
                 const auto time = conn.QueryFormat(
-                    "UPDATE `mydb`.`player` SET `HP` = '{}' WHERE (`PlayerId` = '0') and (`AccountNo` = '{}');"
+                    "UPDATE `mydb`.`player` SET `HP` = {} WHERE (`PlayerId` = 0) and (`AccountNo` = {});"
                     , dbData->Hp(), dbData->AccountNum());
                 _data.delaySum += time;
                 conn.reset();
@@ -102,7 +102,7 @@ namespace psh
             try
             {
                 const auto time = conn.QueryFormat(
-                    "UPDATE `mydb`.`player` SET `ServerType` = '{}', `LocationX` = '{}', `LocationY` = '{}' WHERE (`PlayerId` = '0') and (`AccountNo` = '{}');"
+                    "UPDATE `mydb`.`player` SET `ServerType` = {:d}, `LocationX` = {}, `LocationY` = {} WHERE (`PlayerId` = '0') and (`AccountNo` = {});"
                     , dbData->ServerType(), dbData->Location().X, dbData->Location().Y, dbData->AccountNum());
                 _data.delaySum += time;
                 conn.reset();
@@ -125,7 +125,7 @@ namespace psh
             try
             {
                 const auto time = conn.QueryFormat(
-                    "UPDATE `mydb`.`player` SET `HP` = '{}', `ServerType` = '{}', `LocationX` = '{}', `LocationY` = '{}' WHERE (`PlayerId` = '0') and (`AccountNo` = '{}');"
+                    "UPDATE `mydb`.`player` SET `HP` = {}, `ServerType` = {:d}, `LocationX` = {}, `LocationY` = {} WHERE (`PlayerId` = 0) and (`AccountNo` = {});"
                     , dbData->Hp(), dbData->ServerType(), dbData->Location().X, dbData->Location().Y
                     , dbData->AccountNum());
                 _data.delaySum += time;

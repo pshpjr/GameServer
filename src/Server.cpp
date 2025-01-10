@@ -1,5 +1,7 @@
 #include "Server.h"
 
+#include <DBException.h>
+
 #include <dpp/exception.h>
 
 #include "DBConnection.h"
@@ -16,8 +18,8 @@ namespace psh
 {
     Server::Server()
         : _groups(static_cast<std::vector<GroupID>::size_type>(ServerType::End), GroupID::InvalidGroupID())
-        , _monitors{static_cast<std::vector<GroupID>::size_type>(ServerType::End)}
-        , _dbTlsId(TlsAlloc())
+          , _monitors{static_cast<std::vector<GroupID>::size_type>(ServerType::End)}
+          , _dbTlsId(TlsAlloc())
     {
         _serverSettings.Init(L"GameSettings.txt");
         _serverSettings.GetValue(L"db.GameDBIP", _initData.gameDBIP);
@@ -63,7 +65,8 @@ namespace psh
             accountNo = dbData->AccountNum();
             _dbData.erase(it);
         }
-        _threadPool.enqueue([accountNo, this] {
+        _threadPool.enqueue([accountNo, this]
+        {
             try
             {
                 //나중에 계정이 엄청나게 많아진다면 파티션 걸어서 성능 올릴 수 있을까?
@@ -105,6 +108,20 @@ namespace psh
 
     void Server::OnMonitorRun()
     {
+        if (GetAsyncKeyState('P') & 0x8000)
+        {
+            std::cout << "START CAPUTRE\n";
+            OPTICK_START_CAPTURE();
+        }
+
+        if (GetAsyncKeyState('S') & 0x8000)
+        {
+            std::cout << "END CAPUTRE\n";
+            OPTICK_STOP_CAPTURE();
+            OPTICK_SAVE_CAPTURE("dup.opt");
+        }
+
+
         if (_initData.consoleMonitor)
         {
             PrintMonitorString();
@@ -114,13 +131,13 @@ namespace psh
                 L"----------------------------------------------------------------------------------\n"
                 , L"", L"Content", L"");
 
-            for (const auto& [id, workTime, queued, jobTps,maxWork,dbErr,players,dbDeq,circle, square] : _monitors)
+            for (const auto& [id, workTime, queued, jobTps,maxWork,dbErr,players,dbDeq,circle, square, maxPlayerInSector] : _monitors)
             {
                 monitorStr.append(std::format(L"+  {:<7s} : {:>5d}, {:<7s} : {:>5}, {:<7s} : {:>5d}, {:<7s} : {:>5d}\n"
                                               , L"ID", id, L"WORK", workTime, L"DBErr", dbErr, L"MaxWork", maxWork));
-                monitorStr.append(std::format(L"+  {:<7s} : {:>5d}, {:<7s} : {:>5d}, {:<7s} : {:>5d}, {:<7s} : {:>5d}\n"
+                monitorStr.append(std::format(L"+  {:<7s} : {:>5d}, {:<7s} : {:>5d}, {:<7s} : {:>5d}, {:<7s} : {:>5d}, {:<7s} : {:>5d}\n"
                                               , L"QUEUED", queued, L"JobTps", jobTps, L"Players", players, L"DBDequeue"
-                                              , dbDeq));
+                                              , dbDeq, L"MaxPlayersInSector", maxPlayerInSector));
                 monitorStr.append(
                     L"----------------------------------------------------------------------------------\n");
             }
@@ -195,8 +212,8 @@ namespace psh
         const String id = playerID.ToString();
         const std::string cid = util::WToS(id);
 
-
-        _threadPool.enqueue([cid, playerID, playerPass, sessionId, this] {
+        _threadPool.enqueue([cid, playerID, playerPass, sessionId, this]
+        {
             try
             {
                 auto& conn = GetGameDbConnection();
@@ -231,13 +248,22 @@ namespace psh
                         MakeLogin_ResLogin(loginResult, accountNo, playerID, eLoginResult::LoginSuccess, SessionKey());
                     }
                 }
+                SetTimeout(sessionId, 30000);
                 SendPacket(sessionId, loginResult);
             }
-            catch (const std::exception& e)
+            catch (const DBErr& e)
             {
                 DisconnectSession(sessionId);
+                size_t requiredSize = 0;
+                mbstowcs_s(&requiredSize, nullptr, 0, e.what(), 0);
+
+                std::wstring result(requiredSize, L'\0');
+
+                // 실제 문자열 변환 수행
+                size_t convertedChars = 0;
+                mbstowcs_s(&convertedChars, &result[0], requiredSize, e.what(), _TRUNCATE);
                 _connectionLogger.Write(L"DBError", CLogger::LogLevel::Debug, L"DBErr disconnect LoginLogin : %s"
-                                        , e.what());
+                                        , result.c_str());
             }
         });
     }
@@ -260,7 +286,8 @@ namespace psh
         }
 
 
-        _threadPool.enqueue([AccountNo, sessionId, this] {
+        _threadPool.enqueue([AccountNo, sessionId, this]
+        {
             auto& conn = GetGameDbConnection();
 
             try
@@ -324,8 +351,10 @@ namespace psh
             catch (const std::exception& e)
             {
                 DisconnectSession(sessionId);
-                _connectionLogger.Write(L"DBError", CLogger::LogLevel::Debug, L"DBErr disconnect GameLogin : %s"
+                std::cout << "DBFail " << AccountNo << std::endl;
+                _connectionLogger.Write(L"DBError", CLogger::LogLevel::System, L"DBErr disconnect GameLogin : %s"
                                         , e.what());
+                conn.reset();
             }
         });
     }

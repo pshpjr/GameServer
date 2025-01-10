@@ -188,6 +188,19 @@ namespace psh
             return MAP_SIZE;
         }
 
+        [[nodiscard]] short MaxObjInSector() const
+        {
+            int objMax = 0;
+            for (auto& v : _map)
+            {
+                for (auto& i : v)
+                {
+                    objMax = std::max(static_cast<unsigned long long>(objMax),i.size());
+                }
+            }
+            return objMax;
+        }
+
         /**
          * 저장된 객체의 수를 리턴함.
          * @return 저장된 객체 개수

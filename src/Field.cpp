@@ -30,24 +30,26 @@
 psh::Field::Field(Server& server, const ServerInitData& data, const ServerType type, MonitorData& monitor, short mapSize
                   , short sectorSize)
     : _dbCompAlert{std::make_unique<SPSCQueue<std::function<void()>, 1024>>()}
-    , _dbThread{
-        std::make_unique<DBThreadWrapper>(*_dbCompAlert, data.gameDBIP.c_str(), data.gameDBPort, data.gameDBID.c_str()
-                                          , data.gameDBPwd.c_str(), "mydb")
-    }
-    , _monitorData{monitor}
-    , _server(server)
-    , _initData(data)
-    , _groupType(type)
-    , _playerMap{std::make_unique<MapType>(mapSize, sectorSize)}
-    , _monsterMap{std::make_unique<MapType>(mapSize, sectorSize)}
-    , _itemMap{std::make_unique<MapType>(mapSize, sectorSize)}
-    , _victimSelect{victim_select::GetVictimByServerType(type)}
-    , _useMonitor{_initData.UseMonitorServer}
-    , _nextDBSend(std::chrono::steady_clock::now())
-    , _prevUpdate(std::chrono::steady_clock::now())
-    , _logger{std::make_unique<CLogger>(std::format(L"field_{}", static_cast<int>(type)).c_str())}
-    , _spawner{std::move(MonsterSpawner::GetSpawner(type, *this, *_monsterMap))}
-    , _fieldSize(mapSize) {}
+      , _dbThread{
+          std::make_unique<DBThreadWrapper>(*_dbCompAlert, data.gameDBIP.c_str(), data.gameDBPort, data.gameDBID.c_str()
+                                            , data.gameDBPwd.c_str(), "mydb")
+      }
+      , _monitorData{monitor}
+      , _server(server)
+      , _initData(data)
+      , _groupType(type)
+      , _playerMap{std::make_unique<MapType>(mapSize, sectorSize)}
+      , _monsterMap{std::make_unique<MapType>(mapSize, sectorSize)}
+      , _itemMap{std::make_unique<MapType>(mapSize, sectorSize)}
+      , _victimSelect{victim_select::GetVictimByServerType(type)}
+      , _useMonitor{_initData.UseMonitorServer}
+      , _nextDBSend(std::chrono::steady_clock::now())
+      , _prevUpdate(std::chrono::steady_clock::now())
+      , _logger{std::make_unique<CLogger>(std::format(L"field_{}", static_cast<int>(type)).c_str())}
+      , _spawner{std::move(MonsterSpawner::GetSpawner(type, *this, *_monsterMap))}
+      , _fieldSize(mapSize)
+{
+}
 
 psh::Field::~Field() = default;
 
@@ -80,7 +82,6 @@ void psh::Field::OnEnter(SessionID id)
     {
         OPTICK_EVENT("PlayerInsert");
         _players.insert({id, std::move(playerPtr)});
-        _iocp->SetTimeout(id, 30000);
     }
 }
 
@@ -108,6 +109,7 @@ void psh::Field::OnLeave(const SessionID id, int wsaErrCode)
 
 void psh::Field::ProcessDatabaseAlerts()
 {
+    OPTICK_EVENT("Database Alert");
     std::function<void()> job;
     while (_dbCompAlert->Dequeue(job))
     {
@@ -129,21 +131,12 @@ void psh::Field::ProcessDatabaseAlerts()
 void psh::Field::OnUpdate(const int milli)
 {
     using namespace std::chrono;
+    UpdateContent(milli);
 
-    {
-        OPTICK_EVENT("Field Update");
-        UpdateContent(milli);
-    }
+    InsertWaitObjectInMap();
 
-    {
-        OPTICK_EVENT("InsertObject");
-        InsertWaitObjectInMap();
-    }
+    CleanupDeleteWait();
 
-    {
-        OPTICK_EVENT("DeleteObject");
-        CleanupDeleteWait();
-    }
 
     //_fps++;
 
@@ -152,22 +145,14 @@ void psh::Field::OnUpdate(const int milli)
         _spawner->Update(milli);
     }
 
-
-    {
-        OPTICK_EVENT("Database Alert");
-        ProcessDatabaseAlerts();
-    }
+    ProcessDatabaseAlerts();
 
 
     if (steady_clock::now() < _nextDBSend)
     {
         return;
     }
-
-    {
-        OPTICK_EVENT("Send Monitor");
-        SendMonitor();
-    }
+    SendMonitor();
 
     _nextDBSend += 1s;
     //_fps = 0;
@@ -378,7 +363,7 @@ psh::AttackResult psh::Field::ProcessAttack(AttackInfo info)
 
 // 특정 오브젝트 타입에 대한 시야 반환
 psh::Field::ViewType psh::Field::GetObjectView(ViewObjectType type, const FVector& location
-                                                , std::span<const Sector> offsets)
+                                               , std::span<const Sector> offsets)
 {
     OPTICK_EVENT();
     std::vector<MapType::SectorView> returnView;
@@ -443,6 +428,7 @@ void psh::Field::DestroyActor(shared<GameObject>&& obj)
 // 대기 중인 오브젝트를 필드에 삽입
 void psh::Field::InsertWaitObjectInMap()
 {
+    OPTICK_EVENT();
     while (!_createWaits.empty())
     {
         auto obj = _createWaits.front();
@@ -482,6 +468,7 @@ psh::GameMap<psh::ObjectID, psh::shared<psh::GameObject>>* psh::Field::FindObjec
 // 삭제 대기 중인 오브젝트 정리
 void psh::Field::CleanupDeleteWait()
 {
+    OPTICK_EVENT();
     while (!_delWaits.empty())
     {
         auto obj = _delWaits.front();
@@ -506,6 +493,7 @@ psh::ObjectID psh::Field::NextObjectId()
 // 필드 내 오브젝트 업데이트
 void psh::Field::UpdateContent(const int deltaMs)
 {
+    OPTICK_EVENT();
     for (auto& obj : _objects)
     {
         obj->Update(deltaMs);
@@ -525,6 +513,8 @@ void psh::Field::SendMonitor()
     _monitorData.dbDequeue = dequeue;
     _monitorData.squarePool = ATTACK::GetSquarePoolSzie();
     _monitorData.circlePool = ATTACK::GetCirclePoolSzie();
+    _monitorData.maxPlayersInSector = _playerMap->MaxObjInSector();
+
     if (!_useMonitor)
     {
         return;
