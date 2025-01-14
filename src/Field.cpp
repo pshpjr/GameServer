@@ -429,6 +429,14 @@ void psh::Field::AddActor(const shared<GameObject>& obj)
 // 오브젝트 삭제 대기 목록에 추가
 void psh::Field::DestroyActor(shared<GameObject>& obj)
 {
+    if (obj->Valid() == false)
+    {
+        _logger->Write(L"DoubleDelete", CLogger::LogLevel::Invalid
+                       , L"DoubleDelete. type : %d, remove reason : %d, templateID : %d, field : %d"
+                       , obj->ObjectType(), obj->RemoveReason(), obj->TemplateId(), _groupType);
+        return;
+    }
+
     obj->Valid(false);
     _delWaits.emplace_back(obj);
 }
@@ -510,7 +518,10 @@ void psh::Field::UpdateContent(const int deltaMs)
     OPTICK_EVENT();
     for (auto& obj : _objects)
     {
-        obj->Update(deltaMs);
+        if (obj->Valid())
+        {
+            obj->Update(deltaMs);
+        }
     }
 }
 
