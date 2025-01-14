@@ -110,7 +110,7 @@ void psh::Item::OnUpdate(int delta)
     SingleInteractionObject::OnUpdate(delta);
     _life.Update(delta);
 
-    if (_life.IsExpired())
+    if (_life.IsExpired() && Valid())
     {
         _field.DestroyActor(shared_from_this());
     }
