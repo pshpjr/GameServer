@@ -271,13 +271,20 @@ void psh::Field::RecvMove(const SessionID sessionId, CRecvBuffer& buffer)
         return;
     }
 
+    //더미는 자기가 죽었는지 모름
     if (player->Valid() == false)
     {
+        auto moveBuffer = SendBuffer::Alloc();
+        MakeGame_ResMove(moveBuffer, player->ObjectId(), player->ObjectType(), player->Location());
+        SendPacket(player->SessionId(), moveBuffer);
         return;
     }
 
     _playerMap->ClampLocationToMap(location);
 
+    //더미 로직에 따라 정확히 같은 위치 이동을 요청하기도 함
+    //이 경우 nan이 떠서 따로 처리해줌.
+    //실제로 옮기진 않고 받았다고 응답만 함.
     if (location == player->Location())
     {
         auto moveBuffer = SendBuffer::Alloc();
@@ -305,13 +312,20 @@ void psh::Field::RecvAttack(const SessionID sessionId, CRecvBuffer& buffer)
         return;
     }
 
+    //더미는 자기가 죽었는지 모름. 패킷 검증 위해서 더미에게만 전송
     if (player->Valid() == false)
     {
+        auto attackBuffer = SendBuffer::Alloc();
+        MakeGame_ResAttack(attackBuffer, player->ObjectId(), type, dir);
+        SendPacket(player->SessionId(), attackBuffer);
         return;
     }
 
+    //더미가 생각할 때 쿨타임이 끝났는데 서버가 생각할 땐 아닌 경우. 이것도 패킷 검증 위한 것
     if (player->IsCooldownEndDebug(type) == false)
     {
+        _logger->Write(L"RecvAttack", CLogger::LogLevel::Invalid, L"recvAttack. not cooldown end. Obj : %d",
+                       player->ObjectId());
         auto attackBuffer = SendBuffer::Alloc();
         MakeGame_ResAttack(attackBuffer, player->ObjectId(), type, dir);
         SendPacket(player->SessionId(), attackBuffer);

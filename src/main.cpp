@@ -2,16 +2,13 @@
 
 #include "AttackData.h"
 #include "DBConnection.h"
-#include "ProcessMonitor.h"
 #include "Server.h"
 #include "TableData.h"
-#include "optick.config.h"
 // auto& manager = ProfileManager::Get();
 
 
 int main()
 {
-    SessionID id = InvalidSessionID();
     try
     {
         DBConnection::LibInit();

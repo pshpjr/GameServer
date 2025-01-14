@@ -219,6 +219,7 @@ namespace psh
                 auto& conn = GetGameDbConnection();
                 //ID를 인덱스 설정 안 했었지만, UQ라 자동 생성된 인덱스 타고 있었음.
                 //account 테이블의 클러스터 인덱스를 ID로 건다면?
+                //지금은 로그인에서 1회 ID 조회, 로그아웃에서 Account 1회 조회 하고 있음. 접근 횟수가 작으니까 키 크기 작은걸로
                 conn.QueryFormat("select AccountNo, ID, PASS,LoginState from account where ID = '{}'", cid.c_str());
 
                 auto loginResult = SendBuffer::Alloc();

@@ -160,7 +160,7 @@ private:
     std::chrono::steady_clock::time_point _prevUpdate{};
 
     std::unique_ptr<CLogger> _logger = nullptr;
-    std::unique_ptr<MonsterSpawner> _spawner = nullptr;
+    std::shared_ptr<MonsterSpawner> _spawner = nullptr;
 
     long _groupSessionCount = 0;
     long _fps = 0;

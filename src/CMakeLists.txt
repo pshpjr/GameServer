@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     message(STATUS "MSVC")
     add_compile_options(-translateInclude)
@@ -12,7 +12,7 @@ endif ()
 
 #optick 라이브러리 관련 설정.
 
-target_compile_definitions(NetLib PRIVATE USE_OPTICK=1)
+#target_compile_definitions(NetLib PRIVATE USE_OPTICK=1)
 
 
 add_executable(CMakeServer
