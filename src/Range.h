@@ -8,89 +8,83 @@
 
 namespace psh
 {
-    struct Sector;
+	struct Sector;
 
-    //범위 판정을 위한 객체
-    class Range {
-        IS_INTERFACE(Range)
+	//범위 판정을 위한 객체
+	class Range
+	{
+		IS_INTERFACE(Range)
 
-        [[nodiscard]] virtual bool Contains(FVector p) const noexcept = 0;
+		[[nodiscard]] virtual bool Contains(FVector p) const noexcept = 0;
 
-        /**
-         * 
-         * @return 해당 객체가 있는 섹터를 판별하기 위한 점들을 반환. 이로 구한 섹터는 중복될 수 있음.
-         */
-        [[nodiscard]] virtual std::list<FVector> GetCoordinates() const = 0;
+		/**
+		 * 
+		 * @return 해당 객체가 있는 섹터를 판별하기 위한 점들을 반환. 이로 구한 섹터는 중복될 수 있음.
+		 */
+		[[nodiscard]] virtual std::list<FVector> GetCoordinates() const = 0;
 
-        [[nodiscard]] virtual Range &operator+=(FVector vector) = 0;
+		[[nodiscard]] virtual Range& operator+=(FVector vector) = 0;
 
-        //만약 화면에 그리고 싶다면
-        virtual void DrawRangeIntoBuffer(SendBuffer &buffer) const
-        {
-        }
+		//만약 화면에 그리고 싶다면
+		virtual void DrawRangeIntoBuffer(SendBuffer& buffer) const
+		{
+		}
 
-        virtual void printInfo(std::ostream &os) const
-        {
-        };
+		virtual void printInfo(std::ostream& os) const
+		{
+		};
 
-        friend std::ostream &operator<<(std::ostream &stream, const Range &range)
-        {
-            range.printInfo(stream);
-            return stream;
-        }
-    };
-
-
-    class SquareRange final : public Range {
-    public:
-        explicit SquareRange(FVector p1);
-
-        SquareRange(FVector p1, FVector p2);
-
-        void Rotate(FVector rotation, FVector origin = {0, 0}) noexcept;
-
-        [[nodiscard]] bool Contains(FVector p) const noexcept override;
-
-        [[nodiscard]] [[deprecated]] bool oldContaion(FVector p) const noexcept;
+		friend std::ostream& operator<<(std::ostream& stream, const Range& range)
+		{
+			range.printInfo(stream);
+			return stream;
+		}
+	};
 
 
-        [[nodiscard]] std::list<FVector> GetCoordinates() const override;
+	class SquareRange final : public Range
+	{
+	public:
+		explicit SquareRange(FVector p1);
 
-        [[nodiscard]] SquareRange &operator+=(FVector vector) override;
+		SquareRange(FVector p1, FVector p2);
 
-        void DrawRangeIntoBuffer(SendBuffer &buffer) const override;
+		void Rotate(FVector rotation, FVector origin = {0, 0}) noexcept;
 
-        void printInfo(std::ostream &os) const override;
+		[[nodiscard]] bool Contains(FVector p) const noexcept override;
 
-    private:
-        struct Rotation {
-            FVector rotation;
-            FVector origin;
-        };
+		[[nodiscard]] std::list<FVector> GetCoordinates() const override;
 
-        FVector _p1{};
-        FVector _p2{};
-        std::array<FVector, 4> _points{};
-        std::list<FVector> _midPoints{};
-        std::list<Rotation> _rotations{};
-    };
+		[[nodiscard]] SquareRange& operator+=(FVector vector) override;
 
+		void DrawRangeIntoBuffer(SendBuffer& buffer) const override;
 
-    class CircleRange final : public Range {
-    public:
-        CircleRange(const FVector &point, float radius);
+		void printInfo(std::ostream& os) const override;
 
-        [[nodiscard]] bool Contains(FVector p) const noexcept override;
+	private:
+		float _xLen;
+		float _yLen;
+		FVector _p1{};
+		FVector _p2{};
+		std::array<FVector, 4> _points{};
+	};
 
-        [[nodiscard]] std::list<FVector> GetCoordinates() const override;
+	class CircleRange final : public Range
+	{
+	public:
+		CircleRange(const FVector& point, float radius);
 
-        [[nodiscard]] Range &operator+=(FVector vector) override;
+		[[nodiscard]] bool Contains(FVector p) const noexcept override;
 
-    private:
-        FVector _point;
-        float _radius;
-        std::list<FVector> _keyPoints;
-    };
+		[[nodiscard]] std::list<FVector> GetCoordinates() const override;
 
-    using RangeUnique = std::unique_ptr<Range, std::function<void(Range *)> >;
+		[[nodiscard]] Range& operator+=(FVector vector) override;
+
+	private:
+		FVector _point;
+		float _radius;
+		std::list<FVector> _keyPoints;
+	};
+
+	using RangeUnique = std::unique_ptr<Range, std::function<void(Range*)>>;
 }
