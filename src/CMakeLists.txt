@@ -29,6 +29,7 @@ add_executable(CMakeServer
         Monster.cpp
         main.cpp
         ChatCharacter.cpp
+        ChannelManager.cpp
         GameDataLoader.cpp
         TextFileReader.cpp
         flat_unordered_set.cpp
@@ -61,5 +62,5 @@ if (POLICY CMP0167)
     cmake_policy(SET CMP0167 NEW)
 endif ()
 
-find_package(Boost REQUIRED NO_MODULE)
-target_include_directories(CMakeServer PRIVATE ${Boost_INCLUDE_DIRS})
+#find_package(Boost REQUIRED NO_MODULE)
+#target_include_directories(CMakeServer PRIVATE ${Boost_INCLUDE_DIRS})

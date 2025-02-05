@@ -18,3 +18,5 @@ cmake-build-debug
 cmake-build-release
 vcpkg_installed
 /NetLib.i
+/.vs
+/cmake-build-relwithdebinfo
