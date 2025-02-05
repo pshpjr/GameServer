@@ -9,6 +9,8 @@
 #include "SPSCQueue.h"
 #include "SocketTypes.h"
 
+class CLogger;
+
 namespace psh
 {
     class Server;
@@ -19,7 +21,7 @@ namespace psh
     class DBThreadWrapper
     {
         using jobQ = SPSCQueue<std::function<void()>, 1024>;
-
+        struct DbTask;
     public:
         struct MonitorData
         {
@@ -30,15 +32,11 @@ namespace psh
             int32 err = 0;
         };
 
-        DBThreadWrapper(jobQ& compAlert, LPCSTR IP, Port port, LPCSTR ID, LPCSTR PWD, LPCSTR Schema)
-            : conn(IP, port, ID, PWD, Schema)
-              , dbThread(&DBThreadWrapper::DBWorkerFunc, this)
-              , _jobQueue(std::make_unique<jobQ>())
-              , _completeAlert{compAlert}
-        {
-        }
+        DBThreadWrapper(jobQ& compAlert, LPCSTR IP, Port port, LPCSTR ID, LPCSTR PWD, LPCSTR Schema);
 
         ~DBThreadWrapper();
+
+        void Execute(DbTask task);
 
         void UpdateCoin(const std::shared_ptr<DBData>& dbData);
         void UpdateLocation(const std::shared_ptr<DBData>& dbData);
@@ -75,17 +73,17 @@ namespace psh
         void DBWorkerFunc();
 
         //대부분 읽기만 함.
+        std::unique_ptr<CLogger> _logger = nullptr;
         std::atomic<bool> dbThreadRunning{true};
         std::unique_ptr<jobQ> _jobQueue;
-        DBConnection conn;
+        DBConnection _conn;
         jobQ& _completeAlert;
         MonitorData _data;
-
+        std::jthread dbThread;
         //여기서 새 캐시라인. 항상 오프셋 확인할 것.
 
         //hasData, _oldData는 쓰기 경합이 많으니 따로 두자.
-        atomicMonitorData _oldData;
-        std::jthread dbThread;
+        alignas(64) atomicMonitorData _oldData;
 
         //oldData 수정시 경합 적게 따로 둠.
         alignas(64) std::atomic<bool> hasData = false;

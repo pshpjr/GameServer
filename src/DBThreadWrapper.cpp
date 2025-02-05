@@ -18,6 +18,23 @@
 
 namespace psh
 {
+    namespace
+    {
+        constexpr const char* DB_NAME = "mydb";
+        constexpr const char* PLAYER_TABLE = "player";
+        constexpr int SLOW_QUERY_THRESHOLD_MS = 500;
+    }
+
+
+    DBThreadWrapper::DBThreadWrapper(jobQ& compAlert, LPCSTR IP, Port port, LPCSTR ID, LPCSTR PWD, LPCSTR Schema):
+        _logger(std::make_unique<CLogger>(L"DBThreadWrapper.txt"))
+        , _jobQueue(std::make_unique<jobQ>())
+        , _conn(IP, port, ID, PWD, Schema)
+        , _completeAlert{compAlert}
+        , dbThread(&DBThreadWrapper::DBWorkerFunc, this)
+    {
+    }
+
     DBThreadWrapper::~DBThreadWrapper()
     {
         dbThreadRunning.store(false, std::memory_order_release);
@@ -25,127 +42,105 @@ namespace psh
         hasData.notify_one();
     }
 
-    void DBThreadWrapper::UpdateCoin(const std::shared_ptr<DBData>& dbData)
+    struct DBThreadWrapper::DbTask
     {
-        Enqueue([this, dbData]
+        std::string description;
+        std::string query;
+        std::function<void()> callback;
+
+        DbTask(std::string desc, std::string q, std::function<void(void)> cb) : description(std::move(desc)),
+            query(std::move(q)), callback(std::move(cb))
+        {
+        }
+    };
+
+    void DBThreadWrapper::Execute(DbTask task)
+    {
+        Enqueue([this, task = std::move(task)]()
         {
             try
             {
-                //지금은 모든 계정에 캐릭터가 하나라 Pid 0으로 설정함.
-                const auto time = conn.QueryFormat(
-                "UPDATE `mydb`.`player` SET `Coins` = {} WHERE (`PlayerId` = 0) and (`AccountNo` = {});"
-                    , dbData->Coin(), dbData->AccountNum());
-                _data.delaySum += time;
-                conn.reset();
+                auto queryTime = _conn.QueryFormat(task.query);
+
+                if (queryTime.count() > SLOW_QUERY_THRESHOLD_MS)
+                {
+                    // 멀티스레드 환경이고, 파일 접근 동시에 할 수 있음.
+                    _logger->Write(L"Slow", CLogger::LogLevel::Debug, L"%S slow %lld ms, Query: %S",
+                                   task.description.c_str(), queryTime.count(), task.query.c_str());
+                }
+                _data.delaySum += queryTime;
+
+                if (task.callback)
+                {
+                    _completeAlert.Enqueue(std::move(task.callback));
+                }
             }
             catch (const std::exception& e)
             {
+                _logger->Write(L"Error", CLogger::LogLevel::Error, L"DB operation failed: %S, Query: %S, Error: %S",
+                               task.description.c_str(), task.query.c_str(), e.what());
                 auto exceptionPtr = std::current_exception();
                 _completeAlert.Enqueue([exceptionPtr]
                 {
                     std::rethrow_exception(exceptionPtr);
                 });
             }
+            // RAII 방식으로 연결 관리가 되면 여기서 reset() 불필요
+            _conn.reset();
+        });
+    }
+
+    void DBThreadWrapper::UpdateCoin(const std::shared_ptr<DBData>& dbData)
+    {
+        Execute(DbTask{
+            "UpdateCoin",
+            std::format("UPDATE `{}`.`{}` SET `Coins` = {} WHERE (`PlayerId` = 0) and (`AccountNo` = {});",
+                        DB_NAME, PLAYER_TABLE, dbData->Coin(), dbData->AccountNum()),
+            {}
         });
     }
 
     void DBThreadWrapper::UpdateLocation(const std::shared_ptr<DBData>& dbData)
     {
-        Enqueue([this, dbData]
-        {
-            try
-            {
-                const auto time = conn.QueryFormat(
-                    "UPDATE `mydb`.`player` SET `LocationX` = `{}`, `LocationY` = `{}` WHERE (`PlayerId` = '0') and (`AccountNo` = `{}`);"
-                    , dbData->Location().X, dbData->Location().Y, dbData->AccountNum());
-                _data.delaySum += time;
-                conn.reset();
-            }
-            catch (const std::exception& e)
-            {
-                auto exceptionPtr = std::current_exception();
-                _completeAlert.Enqueue([exceptionPtr]
-                {
-                    std::rethrow_exception(exceptionPtr);
-                });
-            }
-        });
+        Execute(DbTask(
+            "UpdateLocation",
+            std::format(
+                "UPDATE `{}`.`{}` SET `LocationX` = {}, `LocationY` = {} WHERE (`PlayerId` = 0) and (`AccountNo` = {});",
+                DB_NAME, PLAYER_TABLE, dbData->Location().X, dbData->Location().Y, dbData->AccountNum()),
+            {}));
     }
 
     void DBThreadWrapper::UpdateHP(const std::shared_ptr<DBData>& dbData)
     {
-        Enqueue([this, dbData]
-        {
-            try
-            {
-                const auto time = conn.QueryFormat(
-                    "UPDATE `mydb`.`player` SET `HP` = {} WHERE (`PlayerId` = 0) and (`AccountNo` = {});"
-                    , dbData->Hp(), dbData->AccountNum());
-                _data.delaySum += time;
-                conn.reset();
-            }
-            catch (const std::exception& e)
-            {
-                auto exceptionPtr = std::current_exception();
-                _completeAlert.Enqueue([exceptionPtr]
-                {
-                    std::rethrow_exception(exceptionPtr);
-                });
-            }
-        });
+        Execute(DbTask(
+            "UpdateHP",
+            std::format("UPDATE `{}`.`{}` SET `HP` = {} WHERE (`PlayerId` = 0) and (`AccountNo` = {});",
+                        DB_NAME, PLAYER_TABLE, dbData->Hp(), dbData->AccountNum()),
+            {}));
     }
 
     void DBThreadWrapper::EnterGroup(const std::shared_ptr<DBData>& dbData)
     {
-        Enqueue([this, dbData]
-        {
-            try
-            {
-                const auto time = conn.QueryFormat(
-                    "UPDATE `mydb`.`player` SET `ServerType` = {:d}, `LocationX` = {}, `LocationY` = {} WHERE (`PlayerId` = '0') and (`AccountNo` = {});"
-                    , dbData->ServerType(), dbData->Location().X, dbData->Location().Y, dbData->AccountNum());
-                _data.delaySum += time;
-                conn.reset();
-            }
-            catch (const std::exception& e)
-            {
-                auto exceptionPtr = std::current_exception();
-                _completeAlert.Enqueue([exceptionPtr]
-                {
-                    std::rethrow_exception(exceptionPtr);
-                });
-            }
-        });
+        Execute(DbTask(
+            "EnterGroup",
+            std::format(
+                "UPDATE `{}`.`{}` SET `ServerType` = {}, `LocationX` = {}, `LocationY` = {} WHERE (`PlayerId` = 0) and (`AccountNo` = {});",
+                DB_NAME, PLAYER_TABLE, static_cast<int>(dbData->ServerType()), dbData->Location().X,
+                dbData->Location().Y, dbData->AccountNum()),
+            {}));
     }
 
     void DBThreadWrapper::SaveAll(std::shared_ptr<DBData> dbData, std::function<void()> callback)
     {
-        Enqueue([this, dbData = std::move(dbData), callback= std::move(callback)]
-        {
-            try
-            {
-                const auto time = conn.QueryFormat(
-                    "UPDATE `mydb`.`player` SET `HP` = {}, `ServerType` = {:d}, `LocationX` = {}, `LocationY` = {} WHERE (`PlayerId` = 0) and (`AccountNo` = {});"
-                    , dbData->Hp(), dbData->ServerType(), dbData->Location().X, dbData->Location().Y
-                    , dbData->AccountNum());
-                _data.delaySum += time;
-                conn.reset();
-
-                if (callback)
-                {
-                    _completeAlert.Enqueue(callback);
-                }
-            }
-            catch (const std::exception& e)
-            {
-                auto exceptionPtr = std::current_exception();
-                _completeAlert.Enqueue([exceptionPtr]
-                {
-                    std::rethrow_exception(exceptionPtr);
-                });
-            }
-        });
+        Execute(DbTask(
+            "SaveAll",
+            std::format(
+                "UPDATE `{}`.`{}` SET `HP` = {}, `ServerType` = {}, `LocationX` = {}, `LocationY` = {} WHERE (`PlayerId` = 0) and (`AccountNo` = {});",
+                DB_NAME, PLAYER_TABLE, dbData->Hp(), static_cast<int>(dbData->ServerType()), dbData->Location().X,
+                dbData->Location().Y, dbData->AccountNum()),
+            callback));
     }
+
 
     void DBThreadWrapper::Enqueue(const std::function<void()>& func)
     {
@@ -155,7 +150,11 @@ namespace psh
         }
 
         OPTICK_EVENT()
-        _jobQueue->Enqueue(func);
+        while (_jobQueue->Enqueue(func) == false)
+        {
+            _logger->Write(L"DBThread", CLogger::LogLevel::System, L"DBThreadWrapper::Enqueue failed");
+            std::this_thread::yield();
+        }
 
         _data.enqueue++;
         if (_data.enqueue >= 10)
