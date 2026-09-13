@@ -1,4 +1,9 @@
-cmake_minimum_required(VERSION 3.28)
+﻿cmake_minimum_required(VERSION 3.28)
+
+option(NETLIB_ENABLE_TRACY "Enable Tracy profiler integration" OFF)
+if(NETLIB_ENABLE_TRACY)
+    list(APPEND VCPKG_MANIFEST_FEATURES tracy)
+endif()
 
 project(CMakeServer)
 
