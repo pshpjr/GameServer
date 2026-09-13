@@ -11,7 +11,6 @@
 #include <mutex>
 #include <shared_mutex>
 #include "MonitorProtocol.h"
-#include "optick.h"
 #include "PacketGenerated.h"
 #include "Utility.h"
 #include "ChannelManager.h"
@@ -102,20 +101,6 @@ namespace psh
 
 	void Server::OnMonitorRun()
 	{
-		if (GetAsyncKeyState('P') & 0x8000)
-		{
-			std::cout << "START CAPUTRE\n";
-			OPTICK_START_CAPTURE();
-		}
-
-		if (GetAsyncKeyState('S') & 0x8000)
-		{
-			std::cout << "END CAPUTRE\n";
-			OPTICK_STOP_CAPTURE();
-			OPTICK_SAVE_CAPTURE("dup.opt");
-		}
-
-
 		if (_initData.consoleMonitor)
 		{
 			PrintMonitorString();

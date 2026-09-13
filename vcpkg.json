@@ -3,17 +3,38 @@
   "version-string": "0.1",
   "dependencies": [
     "boost",
-    "gtest",
+    "curl",
+    "fmt",
+    "libiconv",
+    "libmysql",
+    "tomlplusplus",
+    {
+      "name": "range-v3",
+      "version>=": "0.12.0#2"
+    },
+    {
+      "name": "gtest",
+      "version>=": "1.15.2"
+    },
     {
       "name": "redis-plus-plus",
       "features": [
         "cxx17"
       ]
-    },
-    "curl",
-    "libmysql",
-    "libiconv",
-    "tomlplusplus",
-    "fmt"
-  ]
+    }
+  ],
+  "features": {
+    "tracy": {
+      "description": "Enable optional Tracy profiling",
+      "dependencies": [
+        {
+          "name": "tracy",
+          "default-features": false,
+          "features": [
+            "on-demand"
+          ]
+        }
+      ]
+    }
+  }
 }

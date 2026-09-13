@@ -3,7 +3,7 @@
 #include "Server.h"
 #include <exception>
 
-#include "optick.h"
+#include "Profiler.h"
 
 
 /*
@@ -149,7 +149,7 @@ namespace psh
             ASSERT_CRASH(false, "Enqueue when DB end");
         }
 
-        OPTICK_EVENT()
+        PRO_FUNCTION();
         while (_jobQueue->Enqueue(func) == false)
         {
             _logger->Write(L"DBThread", Logger::LogLevel::System, L"DBThreadWrapper::Enqueue failed");
@@ -169,6 +169,7 @@ namespace psh
 
     void DBThreadWrapper::DBWorkerFunc()
     {
+        PRO_THREAD("DB Worker");
         while (dbThreadRunning.load(std::memory_order::memory_order_acquire))
         {
             hasData.wait(false, std::memory_order::memory_order_acquire);
