@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Field.cpp
  *
  * 서버 내에서 필드(맵) 로직을 담당하는 클래스 구현
@@ -12,7 +12,7 @@
 #include "Field.h"
 #include <memory>
 #include "Profiler.h"
-#include "CLogger.h"
+#include "Logger.h"
 #include "DBData.h"
 #include "DBThreadWrapper.h"
 #include "GameObject.h"
@@ -44,7 +44,7 @@ psh::Field::Field(Server& server, const ServerInitData& data, const ServerType t
 	  , _useMonitor{_initData.UseMonitorServer}
 	  , _nextDBSend(std::chrono::steady_clock::now())
 	  , _prevUpdate(std::chrono::steady_clock::now())
-	  , _logger{std::make_unique<CLogger>(std::format(L"field_{}", static_cast<int>(type)).c_str())}
+	  , _logger{std::make_unique<Logger>(std::format(L"field_{}", static_cast<int>(type)).c_str())}
 	  , _spawner{std::move(MonsterSpawner::GetSpawner(type, *this, *_monsterMap))}
 	  , _fieldSize(mapSize)
 {
@@ -93,7 +93,7 @@ void psh::Field::OnLeave(const SessionID id, int wsaErrCode)
 
 	if (wsaErrCode == 121)
 	{
-		_logger->Write(L"ServerLeave", CLogger::LogLevel::Debug, L"Session Leave with 121:%d "
+		_logger->Write(L"ServerLeave", Logger::LogLevel::Debug, L"Session Leave with 121:%d "
 		               , playerPtr->AccountNumber());
 	}
 
@@ -158,7 +158,7 @@ void psh::Field::OnUpdate(const int milli)
 }
 
 // 클라이언트로부터 받은 패킷 처리
-void psh::Field::OnRecv(const SessionID id, CRecvBuffer& recvBuffer)
+void psh::Field::OnRecv(const SessionID id, RecvBuffer& recvBuffer)
 {
 	OPTICK_EVENT();
 	ePacketType type;
@@ -192,7 +192,7 @@ void psh::Field::OnRecv(const SessionID id, CRecvBuffer& recvBuffer)
 }
 
 // 클라이언트의 레벨 변경 요청을 처리
-void psh::Field::RecvReqLevelChange(const SessionID id, CRecvBuffer& recvBuffer)
+void psh::Field::RecvReqLevelChange(const SessionID id, RecvBuffer& recvBuffer)
 {
 	AccountNo accountNo;
 	ServerType type;
@@ -214,7 +214,7 @@ void psh::Field::RecvReqLevelChange(const SessionID id, CRecvBuffer& recvBuffer)
 }
 
 // 플레이어의 위치 변경 완료를 처리
-void psh::Field::RecvChangeComp(const SessionID id, CRecvBuffer& recvBuffer)
+void psh::Field::RecvChangeComp(const SessionID id, RecvBuffer& recvBuffer)
 {
 	OPTICK_EVENT();
 	AccountNo accountNo;
@@ -229,7 +229,7 @@ void psh::Field::RecvChangeComp(const SessionID id, CRecvBuffer& recvBuffer)
 }
 
 // 플레이어의 채팅 메시지 처리
-void psh::Field::RecvChat(const SessionID id, CRecvBuffer& recvBuffer)
+void psh::Field::RecvChat(const SessionID id, RecvBuffer& recvBuffer)
 {
 	OPTICK_EVENT();
 	auto& [_, player] = *_players.find(id);
@@ -238,7 +238,7 @@ void psh::Field::RecvChat(const SessionID id, CRecvBuffer& recvBuffer)
 
 	if (player == nullptr)
 	{
-		_logger->Write(L"Disconnect", CLogger::LogLevel::Invalid, L"recvChat. Not Found Player. SessionID : %d", id);
+		_logger->Write(L"Disconnect", Logger::LogLevel::Invalid, L"recvChat. Not Found Player. SessionID : %d", id);
 		_iocp->DisconnectSession(id);
 		return;
 	}
@@ -254,7 +254,7 @@ void psh::Field::RecvChat(const SessionID id, CRecvBuffer& recvBuffer)
 }
 
 // 플레이어 이동 요청 처리
-void psh::Field::RecvMove(const SessionID sessionId, CRecvBuffer& buffer)
+void psh::Field::RecvMove(const SessionID sessionId, RecvBuffer& buffer)
 {
 	OPTICK_EVENT();
 	auto& [_, player] = *_players.find(sessionId);
@@ -264,7 +264,7 @@ void psh::Field::RecvMove(const SessionID sessionId, CRecvBuffer& buffer)
 
 	if (player == nullptr)
 	{
-		_logger->Write(L"Disconnect", CLogger::LogLevel::Invalid, L"recvMove. Not Found Player. SessionID : %d"
+		_logger->Write(L"Disconnect", Logger::LogLevel::Invalid, L"recvMove. Not Found Player. SessionID : %d"
 		               , sessionId);
 		_iocp->DisconnectSession(sessionId);
 		return;
@@ -296,7 +296,7 @@ void psh::Field::RecvMove(const SessionID sessionId, CRecvBuffer& buffer)
 }
 
 // 플레이어 공격 요청 처리
-void psh::Field::RecvAttack(const SessionID sessionId, CRecvBuffer& buffer)
+void psh::Field::RecvAttack(const SessionID sessionId, RecvBuffer& buffer)
 {
 	OPTICK_EVENT();
 	auto& [_, player] = *_players.find(sessionId);
@@ -306,7 +306,7 @@ void psh::Field::RecvAttack(const SessionID sessionId, CRecvBuffer& buffer)
 
 	if (player == nullptr)
 	{
-		_logger->Write(L"Disconnect", CLogger::LogLevel::Invalid, L"recvAttack. Not Found Player. SessionID : %d"
+		_logger->Write(L"Disconnect", Logger::LogLevel::Invalid, L"recvAttack. Not Found Player. SessionID : %d"
 		               , sessionId);
 		return;
 	}
@@ -323,7 +323,7 @@ void psh::Field::RecvAttack(const SessionID sessionId, CRecvBuffer& buffer)
 	//더미가 생각할 때 쿨타임이 끝났는데 서버가 생각할 땐 아닌 경우. 이것도 패킷 검증 위한 것
 	if (player->IsCooldownEndDebug(type) == false)
 	{
-		_logger->Write(L"RecvAttack", CLogger::LogLevel::Invalid, L"recvAttack. not cooldown end. Obj : %d",
+		_logger->Write(L"RecvAttack", Logger::LogLevel::Invalid, L"recvAttack. not cooldown end. Obj : %d",
 		               player->ObjectId());
 		auto attackBuffer = SendBuffer::Alloc();
 		MakeGame_ResAttack(attackBuffer, player->ObjectId(), type, dir);
@@ -363,7 +363,7 @@ void psh::Field::OnCreate()
 {
 	String extraName = L"Group";
 	extraName += std::to_wstring(static_cast<int>(static_cast<long>(GetGroupID())));
-	_logger = std::make_unique<CLogger>(extraName.c_str());
+	_logger = std::make_unique<Logger>(extraName.c_str());
 }
 
 // 공격 처리 로직
@@ -429,7 +429,7 @@ void psh::Field::DestroyActor(shared<GameObject>& obj)
 {
 	if (obj->Valid() == false)
 	{
-		_logger->Write(L"DoubleDelete", CLogger::LogLevel::Invalid
+		_logger->Write(L"DoubleDelete", Logger::LogLevel::Invalid
 		               , L"DoubleDelete. type : %d, remove reason : %d, templateID : %d, field : %d"
 		               , obj->ObjectType(), obj->RemoveReason(), obj->TemplateId(), _groupType);
 		return;

@@ -1,9 +1,9 @@
-﻿#pragma once
+#pragma once
 
 #include "Common/ContentTypes.h" //BYTE 종속성
 // ReSharper disable once CppInconsistentNaming
 enum en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE : BYTE;
-class CLogger;
+class Logger;
 
 // 전방선언
 namespace psh
@@ -77,7 +77,7 @@ namespace psh
 
 		void OnUpdate(int milli) override;
 
-		void OnRecv(SessionID id, CRecvBuffer& recvBuffer) override;
+		void OnRecv(SessionID id, RecvBuffer& recvBuffer) override;
 
 		void OnCreate() override;
 
@@ -120,15 +120,15 @@ namespace psh
 		void SendMonitor();
 
 		//패킷 수신 관련 함수
-		void RecvReqLevelChange(SessionID id, CRecvBuffer& recv_buffer);
+		void RecvReqLevelChange(SessionID id, RecvBuffer& recv_buffer);
 
-		void RecvChangeComp(SessionID id, CRecvBuffer& recvBuffer);
+		void RecvChangeComp(SessionID id, RecvBuffer& recvBuffer);
 
-		void RecvChat(SessionID id, CRecvBuffer& recvBuffer);
+		void RecvChat(SessionID id, RecvBuffer& recvBuffer);
 
-		void RecvMove(SessionID sessionId, CRecvBuffer& buffer);
+		void RecvMove(SessionID sessionId, RecvBuffer& buffer);
 
-		void RecvAttack(SessionID sessionId, CRecvBuffer& buffer);
+		void RecvAttack(SessionID sessionId, RecvBuffer& buffer);
 
 		void SendLogin() const;
 
@@ -161,7 +161,7 @@ namespace psh
 		std::chrono::steady_clock::time_point _nextDBSend{};
 		std::chrono::steady_clock::time_point _prevUpdate{};
 
-		std::unique_ptr<CLogger> _logger = nullptr;
+		std::unique_ptr<Logger> _logger = nullptr;
 		std::shared_ptr<MonsterSpawner> _spawner = nullptr;
 
 		long _groupSessionCount = 0;

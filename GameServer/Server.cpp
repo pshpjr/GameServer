@@ -69,13 +69,13 @@ namespace psh
 			}
 			catch (std::exception& e)
 			{
-				_connectionLogger.Write(L"DBError", CLogger::LogLevel::Debug, L"DBErr OnDisconnect  : %s"
+				_connectionLogger.Write(L"DBError", Logger::LogLevel::Debug, L"DBErr OnDisconnect  : %s"
 				                        , e.what());
 			}
 		});
 	}
 
-	void Server::OnRecvPacket(SessionID sessionId, CRecvBuffer& buffer)
+	void Server::OnRecvPacket(SessionID sessionId, RecvBuffer& buffer)
 	{
 		ePacketType type;
 		buffer >> type;
@@ -181,7 +181,7 @@ namespace psh
 	}
 
 	//로그인 서버 겸용으로 쓰다가 나중에 제거.
-	void Server::OnLoginLogin(SessionID sessionId, CRecvBuffer& buffer)
+	void Server::OnLoginLogin(SessionID sessionId, RecvBuffer& buffer)
 	{
 		//printf(format("Login to LoginServer {:d} \n", sessionId.id).c_str());
 		using namespace psh;
@@ -243,13 +243,13 @@ namespace psh
 				// 실제 문자열 변환 수행
 				size_t convertedChars = 0;
 				mbstowcs_s(&convertedChars, &result[0], requiredSize, e.what(), _TRUNCATE);
-				_connectionLogger.Write(L"DBError", CLogger::LogLevel::Debug, L"DBErr disconnect LoginLogin : %s"
+				_connectionLogger.Write(L"DBError", Logger::LogLevel::Debug, L"DBErr disconnect LoginLogin : %s"
 				                        , result.c_str());
 			}
 		});
 	}
 
-	void Server::OnLogin(SessionID sessionId, CRecvBuffer& buffer)
+	void Server::OnLogin(SessionID sessionId, RecvBuffer& buffer)
 	{
 		//printf(format("Login to GameServer {:d} \n", sessionId.id).c_str());
 		using namespace psh;
@@ -281,7 +281,7 @@ namespace psh
 				if (!conn.next())
 				{
 					_dbErrorCount.fetch_add(1, std::memory_order_relaxed);
-					_connectionLogger.Write(L"DB", CLogger::LogLevel::Debug, L"DBFail : %d ", AccountNo);
+					_connectionLogger.Write(L"DB", Logger::LogLevel::Debug, L"DBFail : %d ", AccountNo);
 					DisconnectSession(sessionId);
 					return;
 				}
@@ -304,7 +304,7 @@ namespace psh
 				}
 				if (result == false)
 				{
-					_connectionLogger.Write(L"DB", CLogger::LogLevel::Debug, L"Cannot create DBData. %d %d %s"
+					_connectionLogger.Write(L"DB", Logger::LogLevel::Debug, L"Cannot create DBData. %d %d %s"
 					                        , AccountNo
 					                        , serverType, nick.ToString());
 					DisconnectSession(sessionId);
@@ -333,7 +333,7 @@ namespace psh
 			{
 				DisconnectSession(sessionId);
 				std::cout << "DBFail " << AccountNo << std::endl;
-				_connectionLogger.Write(L"DBError", CLogger::LogLevel::System, L"DBErr disconnect GameLogin : %s"
+				_connectionLogger.Write(L"DBError", Logger::LogLevel::System, L"DBErr disconnect GameLogin : %s"
 				                        , e.what());
 				conn.reset();
 			}

@@ -1,4 +1,4 @@
-﻿// ReSharper disable CppParameterMayBeConst
+// ReSharper disable CppParameterMayBeConst
 #pragma once
 
 #include <future>
@@ -9,7 +9,7 @@
 #include "SPSCQueue.h"
 #include "SocketTypes.h"
 
-class CLogger;
+class Logger;
 
 namespace psh
 {
@@ -73,7 +73,7 @@ namespace psh
         void DBWorkerFunc();
 
         //대부분 읽기만 함.
-        std::unique_ptr<CLogger> _logger = nullptr;
+        std::unique_ptr<Logger> _logger = nullptr;
         std::atomic<bool> dbThreadRunning{true};
         std::unique_ptr<jobQ> _jobQueue;
         DBConnection _conn;

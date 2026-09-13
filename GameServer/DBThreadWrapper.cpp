@@ -1,4 +1,4 @@
-﻿#include "DBThreadWrapper.h"
+#include "DBThreadWrapper.h"
 #include "Player.h"
 #include "Server.h"
 #include <exception>
@@ -27,7 +27,7 @@ namespace psh
 
 
     DBThreadWrapper::DBThreadWrapper(jobQ& compAlert, LPCSTR IP, Port port, LPCSTR ID, LPCSTR PWD, LPCSTR Schema):
-        _logger(std::make_unique<CLogger>(L"DBThreadWrapper.txt"))
+        _logger(std::make_unique<Logger>(L"DBThreadWrapper.txt"))
         , _jobQueue(std::make_unique<jobQ>())
         , _conn(IP, port, ID, PWD, Schema)
         , _completeAlert{compAlert}
@@ -65,7 +65,7 @@ namespace psh
                 if (queryTime.count() > SLOW_QUERY_THRESHOLD_MS)
                 {
                     // 멀티스레드 환경이고, 파일 접근 동시에 할 수 있음.
-                    _logger->Write(L"Slow", CLogger::LogLevel::Debug, L"%S slow %lld ms, Query: %S",
+                    _logger->Write(L"Slow", Logger::LogLevel::Debug, L"%S slow %lld ms, Query: %S",
                                    task.description.c_str(), queryTime.count(), task.query.c_str());
                 }
                 _data.delaySum += queryTime;
@@ -77,7 +77,7 @@ namespace psh
             }
             catch (const std::exception& e)
             {
-                _logger->Write(L"Error", CLogger::LogLevel::Error, L"DB operation failed: %S, Query: %S, Error: %S",
+                _logger->Write(L"Error", Logger::LogLevel::Error, L"DB operation failed: %S, Query: %S, Error: %S",
                                task.description.c_str(), task.query.c_str(), e.what());
                 auto exceptionPtr = std::current_exception();
                 _completeAlert.Enqueue([exceptionPtr]
@@ -152,7 +152,7 @@ namespace psh
         OPTICK_EVENT()
         while (_jobQueue->Enqueue(func) == false)
         {
-            _logger->Write(L"DBThread", CLogger::LogLevel::System, L"DBThreadWrapper::Enqueue failed");
+            _logger->Write(L"DBThread", Logger::LogLevel::System, L"DBThreadWrapper::Enqueue failed");
             std::this_thread::yield();
         }
 

@@ -2,7 +2,7 @@
 #include <shared_mutex>
 
 #include <vector>
-#include "CLogger.h"
+#include "Logger.h"
 #include "ContentTypes.h"
 #include "IOCP.h"
 #include "ServerInitData.h"
@@ -32,7 +32,7 @@ namespace psh
 		void OnConnect(SessionID sessionId, const SockAddr_in& info) override;
 		void OnDisconnect(SessionID sessionId, int wsaErrCode) override;
 
-		void OnRecvPacket(SessionID sessionId, CRecvBuffer& buffer) override;
+		void OnRecvPacket(SessionID sessionId, RecvBuffer& buffer) override;
 		void OnMonitorRun() override;
 
 		std::shared_ptr<DBData> GetDbData(SessionID id);
@@ -51,15 +51,15 @@ namespace psh
 		void SendLogin();
 
 
-		void OnLoginLogin(SessionID sessionId, CRecvBuffer& buffer);
-		void OnLogin(SessionID sessionId, CRecvBuffer& buffer);
+		void OnLoginLogin(SessionID sessionId, RecvBuffer& buffer);
+		void OnLogin(SessionID sessionId, RecvBuffer& buffer);
 
 		[[nodiscard]] DBConnection& GetGameDbConnection();
 
 		//1 : dbData, 2 : dbConnection
 		USE_MANY_LOCKS(2)
 
-		CLogger _connectionLogger{L"Server", CLogger::LogLevel::Debug};
+		Logger _connectionLogger{L"Server", Logger::LogLevel::Debug};
 		SessionMap<std::shared_ptr<DBData>> _dbData;
 
 		std::unique_ptr<ChannelManager> _channelManager;
