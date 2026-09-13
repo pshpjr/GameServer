@@ -1,6 +1,14 @@
 {
-  "name" : "net-lib",
-  "version-string" : "0.1",
-  "dependencies" : [ "boost", "gtest" ]
-
+  "name": "net-lib",
+  "version-string": "0.1",
+  "dependencies": [
+    "boost",
+    "gtest",
+    {
+      "name": "redis-plus-plus",
+      "features": [
+        "cxx17"
+      ]
+    }
+  ]
 }
