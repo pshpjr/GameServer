@@ -1,0 +1,13 @@
+[db]
+GameDBIP = "127.0.0.1"
+GameDBPort = 3306
+GameDBID = "game"
+GameDBPwd = "password"
+
+MonitorIP = "127.0.0.1"
+MonitorPort = 9000
+useMonitorServer = true
+
+[game]
+useConsoleMonitor = false
+useMonsterAI = true

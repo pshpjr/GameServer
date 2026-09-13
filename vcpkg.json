@@ -12,6 +12,7 @@
     },
     "curl",
     "libmysql",
-    "libiconv"
+    "libiconv",
+    "tomlplusplus"
   ]
 }

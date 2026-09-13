@@ -21,7 +21,7 @@ namespace psh
 	Server::Server()
 	{
 		util::TlsAlloc(_dbTlsId);
-		_serverSettings.Init(L"GameSettings.txt");
+		_serverSettings.Init(L"GameSettings.toml");
 		_serverSettings.GetValue(L"db.GameDBIP", _initData.gameDBIP);
 		_serverSettings.GetValue(L"db.GameDBPort", _initData.gameDBPort);
 		_serverSettings.GetValue(L"db.GameDBID", _initData.gameDBID);
