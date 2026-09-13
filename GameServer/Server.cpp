@@ -8,7 +8,8 @@
 #include "DBData.h"
 #include "Field.h"
 #include "GameMap.h"
-#include "LockGuard.h"
+#include <mutex>
+#include <shared_mutex>
 #include "MonitorProtocol.h"
 #include "optick.h"
 #include "PacketGenerated.h"
