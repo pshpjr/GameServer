@@ -68,7 +68,7 @@ namespace psh
 
 		SettingParser _serverSettings;
 		ServerInitData _initData;
-		DWORD _dbTlsId;
+		util::TlsKey _dbTlsId;
 		std::atomic<uint64> _dbErrorCount;
 		SessionID _monitorSession = InvalidSessionID();
 		ThreadPool _threadPool{1};

@@ -18,8 +18,8 @@
 namespace psh
 {
 	Server::Server()
-		: _dbTlsId(TlsAlloc())
 	{
+		util::TlsAlloc(_dbTlsId);
 		_serverSettings.Init(L"GameSettings.txt");
 		_serverSettings.GetValue(L"db.GameDBIP", _initData.gameDBIP);
 		_serverSettings.GetValue(L"db.GameDBPort", _initData.gameDBPort);
@@ -342,7 +342,7 @@ namespace psh
 
 	DBConnection& Server::GetGameDbConnection()
 	{
-		void* tlsValue = TlsGetValue(_dbTlsId);
+		void* tlsValue = util::TlsGet(_dbTlsId);
 
 		if (tlsValue == nullptr)
 		{
@@ -352,7 +352,7 @@ namespace psh
 				                                               , _initData.gameDBID.c_str()
 				                                               , _initData.gameDBPwd.c_str(), "mydb"));
 			}
-			TlsSetValue(_dbTlsId, tlsValue);
+		util::TlsSet(_dbTlsId, tlsValue);
 		}
 		return *static_cast<DBConnection*>(tlsValue);
 	}
