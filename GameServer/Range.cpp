@@ -1,4 +1,4 @@
-﻿#include "Range.h"
+#include "Range.h"
 
 #include <format>
 #include <fstream>
@@ -8,6 +8,12 @@
 
 namespace psh
 {
+    namespace
+    {
+        float Dot(FVector lhs, FVector rhs) noexcept { return lhs.X * rhs.X + lhs.Y * rhs.Y; }
+        FVector Mid(FVector lhs, FVector rhs) noexcept { return (lhs + rhs) / 2.0f; }
+    }
+
 	SquareRange::SquareRange(FVector p1) : SquareRange{{0, 0}, p1}
 	{
 	}
@@ -62,7 +68,7 @@ namespace psh
 			Mid(_points[0], _points[1]),
 			Mid(_points[1], _points[2]),
 			Mid(_points[2], _points[3]),
-			Mid(_points[3], _points[4])
+			Mid(_points[3], _points[0])
 		};
 	}
 

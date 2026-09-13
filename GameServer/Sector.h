@@ -42,7 +42,7 @@ namespace psh
         }
 
 
-        friend static Sector Clamp(const Sector target, const short min, const short max)
+        friend Sector Clamp(const Sector target, const short min, const short max)
         {
             return {std::clamp(target.x, min, max), std::clamp(target.y, min, max)};
         }

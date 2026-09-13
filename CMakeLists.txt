@@ -11,5 +11,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # FetchContent 모듈 포함
 
 add_subdirectory(NetLib)
-add_subdirectory(src)
-
+add_subdirectory(GameServer)

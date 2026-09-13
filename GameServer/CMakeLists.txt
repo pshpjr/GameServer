@@ -52,7 +52,7 @@ add_executable(CMakeServer
         FieldData.h
 )
 
-target_include_directories(CMakeServer PRIVATE ./Common)
+target_include_directories(CMakeServer PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/Common)
 
 target_compile_definitions(CMakeServer PRIVATE PSH_SERVER)
 
