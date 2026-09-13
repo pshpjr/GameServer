@@ -13,6 +13,7 @@
     "curl",
     "libmysql",
     "libiconv",
-    "tomlplusplus"
+    "tomlplusplus",
+    "fmt"
   ]
 }
