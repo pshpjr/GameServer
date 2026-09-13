@@ -9,6 +9,8 @@
       "features": [
         "cxx17"
       ]
-    }
+    },
+    "curl",
+    "libmysql"
   ]
 }

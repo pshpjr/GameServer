@@ -2,7 +2,7 @@
 
 #include <DBException.h>
 
-#include <dpp/exception.h>
+
 
 #include "DBConnection.h"
 #include "DBData.h"
