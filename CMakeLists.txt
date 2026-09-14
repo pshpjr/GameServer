@@ -17,3 +17,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(NetLib)
 add_subdirectory(GameServer)
+add_subdirectory(Dummy)

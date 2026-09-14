@@ -2,6 +2,8 @@
 
 ## 빌드
 
+빌드 전에 저장소 루트에서 `git submodule update --init --recursive`를 실행해 서브모듈도 로딩해야 합니다.
+
 CMake 3.28 이상, Ninja, vcpkg 필요.
 `VCPKG_ROOT` 설정 필요
 
