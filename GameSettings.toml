@@ -6,8 +6,8 @@ GameDBPwd = "password"
 
 MonitorIP = "127.0.0.1"
 MonitorPort = 9000
-useMonitorServer = true
+useMonitorServer = false
 
 [game]
-useConsoleMonitor = false
+useConsoleMonitor = true
 useMonsterAI = true
