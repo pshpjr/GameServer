@@ -6,3 +6,6 @@
 	path = src/Common
 	url = https://github.com/pshpjr/GameServer-CommonDatas.git
 	branch = main
+[submodule "Dummy"]
+	path = Dummy
+	url = https://github.com/pshpjr/Dummy.git

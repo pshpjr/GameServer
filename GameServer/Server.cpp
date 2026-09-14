@@ -14,6 +14,8 @@
 #include "PacketGenerated.h"
 #include "Utility.h"
 #include "ChannelManager.h"
+#include "Rand.h"
+#include <atomic>
 
 namespace psh
 {
@@ -190,6 +192,7 @@ namespace psh
 
 				auto loginResult = SendBuffer::Alloc();
 
+				/* DB 없는 테스트 동안 기존 인증 처리를 보존한다.
 				if (!conn.next())
 				{
 					MakeLogin_ResLogin(loginResult, 0, playerID, eLoginResult::InvalidId, SessionKey());
@@ -215,6 +218,10 @@ namespace psh
 						MakeLogin_ResLogin(loginResult, accountNo, playerID, eLoginResult::LoginSuccess, SessionKey());
 					}
 				}
+				*/
+				static std::atomic<AccountNo> nextAccountNo{1};
+				MakeLogin_ResLogin(loginResult, nextAccountNo.fetch_add(1, std::memory_order_relaxed),
+				                   playerID, eLoginResult::LoginSuccess, SessionKey());
 				SetTimeout(sessionId, 30000);
 				SendPacket(sessionId, loginResult);
 			}
@@ -264,6 +271,7 @@ namespace psh
 					"select Nick,HP,Coins,CharType,ServerType,LocationX,LocationY from mydb.player where AccountNo = {}"
 					, AccountNo);
 
+				/* DB 없는 테스트 동안 기존 조회 처리를 보존한다.
 				if (!conn.next())
 				{
 					_dbErrorCount.fetch_add(1, std::memory_order_relaxed);
@@ -278,6 +286,14 @@ namespace psh
 				char charType = conn.getChar(3);
 				char serverType = conn.getChar(4);
 				FVector location = {conn.getFloat(5), conn.getFloat(6)};
+				*/
+				Nickname nick("TestPlayer");
+				int hp = 100;
+				int coins = 0;
+				char charType = static_cast<char>(RandomUtil::Rand(0, 3));
+				char serverType = static_cast<char>(RandomUtil::Rand(
+					static_cast<int>(ServerType::Village), static_cast<int>(ServerType::End) - 1));
+				FVector location = {RandomUtil::Rand(0.0f, 6400.0f), RandomUtil::Rand(0.0f, 6400.0f)};
 
 				conn.reset();
 
