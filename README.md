@@ -1,5 +1,14 @@
 # MMORPG 프로젝트
 
+## 빌드
+
+CMake 3.28 이상, Ninja, vcpkg 필요.
+`VCPKG_ROOT` 설정 필요
+
+```powershell
+git submodule update --init --recursive
+$env:VCPKG_ROOT = 'C:/vcpkg' # 실제 설치 경로로 변경
+```
 ## 구현 영상
 [컨텐츠 설명 영상][content_youtube]
 
