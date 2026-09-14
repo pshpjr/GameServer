@@ -20,7 +20,7 @@ psh::ChannelManager::~ChannelManager() = default;
 
 GroupID psh::ChannelManager::GetGroupIDByType(ServerType type)
 {
-	auto index = psh::RandomUtil::Rand(0, _groups[type].size());
+	auto index = psh::RandomUtil::Rand(0, _groups[type].size() - 1);
 	return _groups[type][index];
 }
 
