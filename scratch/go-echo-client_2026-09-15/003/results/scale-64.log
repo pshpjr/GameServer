@@ -1,0 +1,17 @@
+target=127.0.0.1:26001 sessions=64/4096 batch=32 delay=0s reconnect=false timeout=3s GOMAXPROCS=16
+RTT measures a complete batch, including client/OS/network time. Ctrl+C stops.
+active=64 connections=64 errors=0 tx=3801121 pkt/s rx=3799170 pkt/s rx=36.23 MiB/s goroutines=67
+  batch RTT avg=0.537ms p95<=2.048ms max(all)=3.082ms | write=0.017ms echo-wait=0.519ms local=0.000ms pause=0.000ms
+  client-scheduler p95<=0.000ms (runnable wait)
+active=64 connections=64 errors=0 tx=4020933 pkt/s rx=4020933 pkt/s rx=38.35 MiB/s goroutines=67
+  batch RTT avg=0.509ms p95<=2.048ms max(all)=3.082ms | write=0.017ms echo-wait=0.493ms local=0.000ms pause=0.000ms
+  client-scheduler p95<=0.000ms (runnable wait)
+active=64 connections=64 errors=0 tx=4008522 pkt/s rx=4008458 pkt/s rx=38.23 MiB/s goroutines=67
+  batch RTT avg=0.511ms p95<=2.048ms max(all)=3.082ms | write=0.017ms echo-wait=0.494ms local=0.000ms pause=0.000ms
+  client-scheduler p95<=0.000ms (runnable wait)
+active=64 connections=64 errors=0 tx=3990727 pkt/s rx=3990759 pkt/s rx=38.06 MiB/s goroutines=67
+  batch RTT avg=0.513ms p95<=2.048ms max(all)=10.304ms | write=0.016ms echo-wait=0.496ms local=0.000ms pause=0.000ms
+  client-scheduler p95<=0.000ms (runnable wait)
+active=0 connections=64 errors=0 tx=3947466 pkt/s rx=3948202 pkt/s rx=37.65 MiB/s goroutines=3
+  batch RTT avg=0.518ms p95<=2.048ms max(all)=10.304ms | write=0.016ms echo-wait=0.502ms local=0.000ms pause=0.000ms
+total sent=19768672 validated=19767424 batches=617732 connections=64 errors=0

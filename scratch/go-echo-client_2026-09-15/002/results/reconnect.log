@@ -1,0 +1,9 @@
+target=127.0.0.1:26001 sessions=4/32 batch=32 delay=0s reconnect=true timeout=3s GOMAXPROCS=16
+RTT measures a complete batch, including client/OS/network time. Ctrl+C stops.
+active=0 connections=4 errors=0 tx=481784 pkt/s rx=481784 pkt/s rx=4.59 MiB/s goroutines=7
+  batch RTT avg=0.066ms p95<=1.024ms max(all)=0.630ms | write=0.017ms echo-wait=0.049ms local=0.000ms pause=0.000ms
+active=0 connections=8 errors=0 tx=454784 pkt/s rx=454784 pkt/s rx=4.34 MiB/s goroutines=7
+  batch RTT avg=0.070ms p95<=1.024ms max(all)=0.852ms | write=0.018ms echo-wait=0.052ms local=0.000ms pause=0.000ms
+active=0 connections=12 errors=0 tx=556850 pkt/s rx=556850 pkt/s rx=5.31 MiB/s goroutines=3
+  batch RTT avg=0.057ms p95<=1.024ms max(all)=0.852ms | write=0.017ms echo-wait=0.041ms local=0.000ms pause=0.000ms
+total sent=1493632 validated=1493632 batches=46676 connections=12 errors=0
