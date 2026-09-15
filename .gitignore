@@ -20,3 +20,6 @@ vcpkg_installed
 /NetLib.i
 /.vs
 /cmake-build-relwithdebinfo
+
+# Archived build outputs and nested worktrees; scripts and reports remain visible.
+/scratch/*/[0-9][0-9][0-9]/artifacts/
