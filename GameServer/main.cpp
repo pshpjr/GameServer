@@ -1,14 +1,18 @@
 ﻿#define PROFILE
 
 #include "AttackData.h"
+#include "BuildVersion.h"
+#include "CrashDump.h"
 #include "DBConnection.h"
 #include "Server.h"
 #include "TableData.h"
+#include <cstdlib>
 // auto& manager = ProfileManager::Get();
 
 
 int main()
 {
+    CrashDump::SetBuildInfo(BuildVersion::Metadata);
     try
     {
         DBConnection::LibInit();
@@ -16,6 +20,11 @@ int main()
         psh::ATTACK::Init();
 
         const auto server = std::make_unique<psh::Server>();
+        if (!server->Init())
+        {
+            std::cerr << "Failed to initialize the game server." << std::endl;
+            return EXIT_FAILURE;
+        }
         psh::Server::SetDisableClickAndClose();
         server->SetDefaultTimeout(0);
 

@@ -19,3 +19,7 @@ add_subdirectory(NetLib)
 add_subdirectory(GameServer)
 add_subdirectory(Dummy)
 add_subdirectory(NetLibTest_Echo)
+
+include(cmake/BuildVersion.cmake)
+target_build_version(CMakeServer SUBMODULES NetLib src/Common)
+target_build_version(Dummy SUBMODULES NetLib src/Common Dummy)
