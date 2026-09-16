@@ -1,0 +1,27 @@
+# Include order: matching header, project, third-party, C++, C/system.
+BasedOnStyle: Microsoft
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 120
+AccessModifierOffset: -4
+IncludeBlocks: Regroup
+IncludeIsMainRegex: '$'
+SortIncludes: CaseSensitive
+IncludeCategories:
+  - Regex: '^[<"](boost/|fmt/|curl/|sw/|hiredis/|mysql/|toml\+\+/|tracy/|gtest/|gmock/|easy/|externalHeader/|concurrentqueue\.h|optick\.h|iconv\.h)'
+    Priority: 20
+  - Regex: '^"'
+    Priority: 10
+  # NetLib also uses angle brackets for project headers.
+  - Regex: '^<(Types|Protocol|LockFreeFixedQueue|TLSLockFreeQueue)\.h>'
+    Priority: 10
+  # Winsock must precede Windows.h; keep both in the system group.
+  - Regex: '^<[Ww][Ii][Nn][Ss][Oo][Cc][Kk]2\.h>'
+    Priority: 40
+    SortPriority: 39
+  - Regex: '^<(cassert|ccomplex|cctype|cerrno|cfenv|cfloat|cinttypes|ciso646|climits|clocale|cmath|csetjmp|csignal|cstdalign|cstdarg|cstdbool|cstddef|cstdint|cstdio|cstdlib|cstring|ctgmath|ctime|cuchar|cwchar|cwctype)>|^<.*\.h>'
+    Priority: 40
+  - Regex: '^<'
+    Priority: 30
+

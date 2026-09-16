@@ -1,0 +1,102 @@
+[
+  {
+    "sessions": 64,
+    "runsPerVersion": 3,
+    "beforeRxMedian": 5082241.066666666,
+    "afterRxMedian": 5088300.066666666,
+    "rxChangePct": 0.1192190594763387,
+    "beforeRttMedianMs": 0.40286454326133503,
+    "afterRttMedianMs": 0.40239605702761166,
+    "rttChangePct": -0.11628877287904738,
+    "beforeRxMin": 5074758.466666667,
+    "beforeRxMax": 5093311.8,
+    "afterRxMin": 5073823.866666666,
+    "afterRxMax": 5092580.133333334,
+    "beforeServerCpuMedianPct": 24.912805569082376,
+    "afterServerCpuMedianPct": 24.976521434070655,
+    "beforeClientCpuMedianPct": 27.972517064456664,
+    "afterClientCpuMedianPct": 27.71355838173648,
+    "paired": [
+      {
+        "round": 1,
+        "rxChangePct": -0.16561984938507912,
+        "rttChangePct": 0.1159130409387421
+      },
+      {
+        "round": 2,
+        "rxChangePct": -0.09839832176253838,
+        "rttChangePct": 0.11549930803520514
+      },
+      {
+        "round": 3,
+        "rxChangePct": 0.35118255940116416,
+        "rttChangePct": -0.3308131519722868
+      }
+    ]
+  },
+  {
+    "sessions": 512,
+    "runsPerVersion": 4,
+    "beforeRxMedian": 4942383.5,
+    "afterRxMedian": 4947164.433333334,
+    "rxChangePct": 0.09673335412627715,
+    "beforeRttMedianMs": 3.3147206620856577,
+    "afterRttMedianMs": 3.3115775820941282,
+    "rttChangePct": -0.09482186621275757,
+    "beforeRxMin": 4931573.6,
+    "beforeRxMax": 4948962.266666667,
+    "afterRxMin": 4940520.2,
+    "afterRxMax": 4954039.266666667,
+    "beforeServerCpuMedianPct": 24.937786565188837,
+    "afterServerCpuMedianPct": 24.92304545541067,
+    "beforeClientCpuMedianPct": 27.620685128987645,
+    "afterClientCpuMedianPct": 27.797043424365164,
+    "paired": [
+      {
+        "round": 1,
+        "rxChangePct": 0.022740023517764385,
+        "rttChangePct": -0.016711775080235913
+      },
+      {
+        "round": 2,
+        "rxChangePct": -0.17058256280366724,
+        "rttChangePct": 0.17159535397268666
+      },
+      {
+        "round": 3,
+        "rxChangePct": 0.23887986185571197,
+        "rttChangePct": -0.2375064182373654
+      },
+      {
+        "round": 4,
+        "rxChangePct": 0.38725164722270833,
+        "rttChangePct": -0.3888283283202232
+      }
+    ]
+  },
+  {
+    "sessions": 1024,
+    "runsPerVersion": 1,
+    "beforeRxMedian": 4899114.0,
+    "afterRxMedian": 4903793.933333334,
+    "rxChangePct": 0.09552611621883589,
+    "beforeRttMedianMs": 6.688435685554571,
+    "afterRttMedianMs": 6.6819348573904875,
+    "rttChangePct": -0.09719504634130294,
+    "beforeRxMin": 4899114.0,
+    "beforeRxMax": 4899114.0,
+    "afterRxMin": 4903793.933333334,
+    "afterRxMax": 4903793.933333334,
+    "beforeServerCpuMedianPct": 24.855450185864886,
+    "afterServerCpuMedianPct": 24.901595667332778,
+    "beforeClientCpuMedianPct": 27.31065517732171,
+    "afterClientCpuMedianPct": 27.325515944754137,
+    "paired": [
+      {
+        "round": 1,
+        "rxChangePct": 0.09552611621883589,
+        "rttChangePct": -0.09719504634130294
+      }
+    ]
+  }
+]

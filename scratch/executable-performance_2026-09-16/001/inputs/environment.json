@@ -1,0 +1,111 @@
+{
+  "measurement": {
+    "started": "2026-09-16T14:29:41.0510184+09:00",
+    "adguardProcesses": "absent",
+    "adguardServices": [],
+    "before": "792bd0a80642ed67025ab2f8a338a040df6b14f7",
+    "after": "679c517d969387e003912c450c985f25ec67302b",
+    "client": "004",
+    "gomaxprocs": "default 16",
+    "port": 26001,
+    "batch": 32,
+    "delay": "0",
+    "durationSeconds": 22,
+    "steadyTicks": "6..20",
+    "cpuDenominator": 16,
+    "scenarios": [
+      "512 sessions, 4 pairs AB BA AB BA",
+      "64 sessions, 3 pairs AB BA AB",
+      "1024 sessions, 1 pair diagnostic"
+    ]
+  },
+  "endState": {
+    "observed": "2026-09-16T14:38:37.4696997+09:00",
+    "adguardProcesses": [],
+    "adguardServices": [],
+    "remainingBenchmarkProcesses": []
+  },
+  "cpu": {
+    "Name": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+    "NumberOfCores": 8,
+    "NumberOfLogicalProcessors": 16
+  },
+  "os": {
+    "Caption": "Microsoft Windows 11 Pro",
+    "Version": "10.0.26200",
+    "BuildNumber": "26200",
+    "TotalVisibleMemorySize": 33193816
+  },
+  "echoServerCommit": "95ddb7df4407e9a77b73932aa8c4b095213946e9",
+  "build": {
+    "triplet": "x64-windows",
+    "releaseFlags": "/O2 /Ob2 /DNDEBUG",
+    "toolchain": "C:/Program Files/Microsoft Visual Studio/18/Community/VC/vcpkg/scripts/buildsystems/vcpkg.cmake",
+    "compiler": "MSVC 19.51.36257.0",
+    "architecture": "x64",
+    "manifestInstall": false,
+    "tracy": false,
+    "vcpkgInstalledDir": "build/audit-deps",
+    "type": "Release",
+    "generator": "Ninja",
+    "concurrency": 4,
+    "workers": 4,
+    "cxxStandard": 20
+  },
+  "binaries": [
+    {
+      "role": "before",
+      "commit": "792bd0a80642ed67025ab2f8a338a040df6b14f7",
+      "localPath": "artifacts/server-before/NetLibTest_Echo.exe",
+      "sha256": "C698A12BF8F250E2A07ABEDDE0601A23EB196B8E13095C14E395A9B75F9E9CAB"
+    },
+    {
+      "role": "runtime",
+      "commit": null,
+      "localPath": "artifacts/server-before/fmt.dll",
+      "sha256": "3D06669880F3F746EE712BBB59103BA5BA7C49E2F92FAA343C1C0DC3C97FFD98"
+    },
+    {
+      "role": "after",
+      "commit": "679c517d969387e003912c450c985f25ec67302b",
+      "localPath": "artifacts/server-after/NetLibTest_Echo.exe",
+      "sha256": "29E2517C1A65F4A6DFDC36E22206384E5E535B36E36707440A0B0B5C7ADCC9D4"
+    },
+    {
+      "role": "runtime",
+      "commit": null,
+      "localPath": "artifacts/server-after/fmt.dll",
+      "sha256": "3D06669880F3F746EE712BBB59103BA5BA7C49E2F92FAA343C1C0DC3C97FFD98"
+    },
+    {
+      "role": "historical",
+      "commit": "ba9a847b00b30b1c06c1cef1eb585aab788347c3",
+      "localPath": "artifacts/server-earliest/NetLibTest_Echo.exe",
+      "sha256": "1570888F02E31D71F9056D7AFF629FB1C0383A32E6D8740D1AA817549178E431"
+    },
+    {
+      "role": "runtime",
+      "commit": null,
+      "localPath": "artifacts/server-earliest/fmt.dll",
+      "sha256": "3D06669880F3F746EE712BBB59103BA5BA7C49E2F92FAA343C1C0DC3C97FFD98"
+    },
+    {
+      "role": "client-004",
+      "commit": null,
+      "localPath": "artifacts/client/echo-client.exe",
+      "sha256": "832F14993B6A94CA8BBCCB1C215862C6341A372FF1066CFB49F5A759C97CDC9D"
+    },
+    {
+      "role": "client-003",
+      "commit": null,
+      "localPath": "artifacts/client/echo-client-003.exe",
+      "sha256": "C267E29BDA44EE95AA655046E00D9B36FCEC1B075F74CF804D193FC72841363B"
+    }
+  ],
+  "localEvidenceArchive": {
+    "sha256": "71C3154F32A917FEE3225B86FD2EDC3B9CEFD13B0F993C13FD8F487BE6C8BE5E",
+    "entries": 101,
+    "path": "artifacts/final-measurements.zip"
+  },
+  "cleanup": "Keep compact final evidence in Git; local binaries and compressed detailed measurements are ignored. Duplicate committed source snapshots, intermediate builds and superseded diagnostic outputs were removed at user request."
+}
