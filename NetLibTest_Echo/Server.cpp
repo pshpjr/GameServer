@@ -38,7 +38,7 @@ namespace psh
             << " value=" << value << " error=" << error << std::endl;
     }
 
-    void Server::OnConnect(SessionID sessionId, const SockAddr_in&)
+    void Server::OnConnect(SessionID sessionId, const SockAddr&)
     {
         Trace("connect", sessionId);
     }

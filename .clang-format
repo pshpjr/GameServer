@@ -5,6 +5,26 @@ TabWidth: 4
 UseTab: Never
 ColumnLimit: 120
 AccessModifierOffset: -4
+
+# Keep namespace bodies indented and use the brace layout prevalent in C++ sources.
+NamespaceIndentation: All
+BreakBeforeBraces: Allman
+IndentCaseLabels: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+FixNamespaceComments: false
+
+# Match declarations such as GameObject* owner and const FVector& location.
+PointerAlignment: Left
+ReferenceAlignment: Left
+SpaceBeforeParens: ControlStatements
+
+# Put each constructor initializer on its own line, with the comma at its start.
+BreakConstructorInitializers: BeforeComma
+PackConstructorInitializers: Never
+ConstructorInitializerIndentWidth: 4
+
 IncludeBlocks: Regroup
 IncludeIsMainRegex: '$'
 SortIncludes: CaseSensitive
@@ -13,8 +33,8 @@ IncludeCategories:
     Priority: 20
   - Regex: '^"'
     Priority: 10
-  # NetLib also uses angle brackets for project headers.
-  - Regex: '^<(Types|Protocol|LockFreeFixedQueue|TLSLockFreeQueue)\.h>'
+  # Some project headers (for example PacketGenerated.h) use angle brackets.
+  - Regex: '^<[A-Z][A-Za-z0-9_]*\.h>'
     Priority: 10
   # Winsock must precede Windows.h; keep both in the system group.
   - Regex: '^<[Ww][Ii][Nn][Ss][Oo][Cc][Kk]2\.h>'

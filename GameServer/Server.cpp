@@ -1,4 +1,5 @@
 #include "Server.h"
+#include "Utility.h"
 
 #include <DBException.h>
 
@@ -38,7 +39,7 @@ namespace psh
 
 	Server::~Server() = default;
 
-	void Server::OnConnect(SessionID sessionId, const SockAddr_in& info)
+	void Server::OnConnect(SessionID sessionId, const SockAddr& info)
 	{
 		//printf(format("Connect {:d} \n",sessionId.id).c_str());
 	}
@@ -96,7 +97,7 @@ namespace psh
 			OnLogin(sessionId, buffer);
 			break;
 		default:
-			__debugbreak();
+			psh::util::DebugBreak();
 			break;
 		}
 	}
@@ -127,7 +128,7 @@ namespace psh
 				SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_SEND_TPS, GetSendTps());
 				SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_RECV_TPS, GetRecvTps());
 				SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_DISCONNECT_TPS, GetDisconnectPerSec());
-				SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_SESSIONS, GetSessions());
+				SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_SESSIONS, GetSessionCount());
 			}
 		}
 
@@ -156,7 +157,7 @@ namespace psh
 	void Server::SendMonitorData(const en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, const int value)
 	{
 		auto buffer = SendBuffer::Alloc();
-		buffer << en_PACKET_SS_MONITOR_DATA_UPDATE << static_cast<WORD>(1) <<
+		buffer << en_PACKET_SS_MONITOR_DATA_UPDATE << static_cast<psh::uint16>(1) <<
 			static_cast<char>(0) << type << value << static_cast<int>(time(nullptr));
 		SendPacket(_monitorSession, buffer);
 	}
@@ -164,7 +165,7 @@ namespace psh
 	void Server::SendLogin()
 	{
 		auto buffer = SendBuffer::Alloc();
-		buffer << en_PACKET_SS_MONITOR_LOGIN << static_cast<WORD>(1) << static_cast<char>(0);
+		buffer << en_PACKET_SS_MONITOR_LOGIN << static_cast<psh::uint16>(1) << static_cast<char>(0);
 		SendPacket(_monitorSession, buffer);
 	}
 
@@ -228,16 +229,8 @@ namespace psh
 			catch (const DBErr& e)
 			{
 				DisconnectSession(sessionId);
-				size_t requiredSize = 0;
-				mbstowcs_s(&requiredSize, nullptr, 0, e.what(), 0);
-
-				std::wstring result(requiredSize, L'\0');
-
-				// 실제 문자열 변환 수행
-				size_t convertedChars = 0;
-				mbstowcs_s(&convertedChars, &result[0], requiredSize, e.what(), _TRUNCATE);
 				_connectionLogger.Write(L"DBError", Logger::LogLevel::Debug, L"DBErr disconnect LoginLogin : %s"
-				                        , result.c_str());
+				                        , e.what());
 			}
 		});
 	}

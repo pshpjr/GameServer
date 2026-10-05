@@ -6,9 +6,9 @@
 #include "DBConnection.h"
 #include "Server.h"
 #include "TableData.h"
+
 #include <cstdlib>
 // auto& manager = ProfileManager::Get();
-
 
 int main()
 {
@@ -25,10 +25,7 @@ int main()
             std::cerr << "Failed to initialize the game server." << std::endl;
             return EXIT_FAILURE;
         }
-        psh::Server::SetDisableClickAndClose();
         server->SetDefaultTimeout(0);
-
-
 
         server->Start();
 

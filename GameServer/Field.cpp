@@ -589,7 +589,7 @@ void psh::Field::SendMonitor()
 void psh::Field::SendLogin() const
 {
 	auto buffer = SendBuffer::Alloc();
-	buffer << en_PACKET_SS_MONITOR_LOGIN << static_cast<WORD>(static_cast<long>(GetGroupID())) << static_cast<char>(
+	buffer << en_PACKET_SS_MONITOR_LOGIN << static_cast<psh::uint16>(static_cast<long>(GetGroupID())) << static_cast<char>(
 		static_cast<long>(GetGroupID()));
 	_server.SendPacket(_monitorSession, buffer);
 }
@@ -599,7 +599,7 @@ void psh::Field::SendMonitorData(const en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE typ
 {
 	PRO_FUNCTION();
 	auto buffer = SendBuffer::Alloc();
-	buffer << en_PACKET_SS_MONITOR_DATA_UPDATE << static_cast<WORD>(static_cast<long>(GetGroupID())) << static_cast<
+	buffer << en_PACKET_SS_MONITOR_DATA_UPDATE << static_cast<psh::uint16>(static_cast<long>(GetGroupID())) << static_cast<
 		char>(static_cast<long>(
 		GetGroupID())) << type << value << static_cast<int>(time(nullptr));
 	_server.SendPacket(_monitorSession, buffer);

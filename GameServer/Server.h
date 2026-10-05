@@ -8,7 +8,7 @@
 #include "ServerInitData.h"
 #include "SettingParser.h"
 #include "ThreadPool.h"
-enum en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE : BYTE;
+enum en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE : psh::uint8;
 class DBConnection;
 
 namespace psh
@@ -29,7 +29,7 @@ namespace psh
 	public:
 		Server();
 		~Server() override;
-		void OnConnect(SessionID sessionId, const SockAddr_in& info) override;
+		void OnConnect(SessionID sessionId, const SockAddr& info) override;
 		void OnDisconnect(SessionID sessionId, int wsaErrCode) override;
 
 		void OnRecvPacket(SessionID sessionId, RecvBuffer& buffer) override;

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Common/ContentTypes.h" //BYTE 종속성
+#include "Common/ContentTypes.h" //psh::uint8 종속성
 // ReSharper disable once CppInconsistentNaming
-enum en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE : BYTE;
+enum en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE : psh::uint8;
 class Logger;
 
 // 전방선언

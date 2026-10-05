@@ -5,6 +5,8 @@
 #include "Rand.h"
 #include "Server.h"
 
+#include <fmt/base.h>
+
 psh::ChannelManager::ChannelManager(Server* server, GroupManager* manager, ServerInitData data)
 	: _groupManager{
 		  manager
@@ -26,12 +28,8 @@ GroupID psh::ChannelManager::GetGroupIDByType(ServerType type)
 
 void psh::ChannelManager::PrintChanalsState()
 {
-	auto monitorStr = std::format(
-		L"==================================================================================\n"
-		L" {:<11s}{:^55s}{:>11s}\n"
-		L"----------------------------------------------------------------------------------\n"
-		, L"", L"Content", L"");
-
-
-	wprintf(monitorStr.c_str());
+    fmt::print("==================================================================================\n"
+               " {:<11s}{:^55s}{:>11s}\n"
+               "----------------------------------------------------------------------------------\n",
+               "", "Content", "");
 }
