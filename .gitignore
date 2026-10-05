@@ -23,3 +23,7 @@ vcpkg_installed
 
 # Archived build outputs and nested worktrees; scripts and reports remain visible.
 /scratch/*/[0-9][0-9][0-9]/artifacts/
+Folder.DotSettings
+Folder.DotSettings.user
+GameServer.Naming.DotSettings
+Tasks.md

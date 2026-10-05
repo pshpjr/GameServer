@@ -1,9 +1,0 @@
-target=127.0.0.1:26001 sessions=2/32 batch=4096 delay=0s reconnect=false timeout=3s GOMAXPROCS=16
-RTT measures a complete batch, including client/OS/network time. Ctrl+C stops.
-session: echo read: read tcp 127.0.0.1:64952->127.0.0.1:26001: wsarecv: An existing connection was forcibly closed by the remote host.
-active=1 connections=2 errors=1 tx=3574353 pkt/s rx=3566164 pkt/s rx=34.01 MiB/s goroutines=4
-  batch RTT avg=1.923ms p95<=4.096ms max(all)=2.910ms | write=0.023ms echo-wait=1.900ms local=0.009ms pause=0.000ms
-active=0 connections=2 errors=2 tx=1972616 pkt/s rx=1972616 pkt/s rx=18.81 MiB/s goroutines=3
-session: echo read: read tcp 127.0.0.1:64951->127.0.0.1:26001: wsarecv: An existing connection was forcibly closed by the remote host.
-  batch RTT avg=2.028ms p95<=4.096ms max(all)=2.910ms | write=0.045ms echo-wait=1.983ms local=0.000ms pause=0.000ms
-total sent=3670016 validated=3661824 batches=894 connections=2 errors=2
