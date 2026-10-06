@@ -15,7 +15,7 @@ namespace psh
     Server::Server(std::uint16_t port, bool trace) : IOCP(), _trace(trace)
     {
         // A zero static key selects the unencrypted, two-byte LAN header.
-        if (!Init(L"0.0.0.0", port, 128, 4, 4, 0))
+        if (!Init(Ip::Any(), port, 128, 4, 4, 0))
         {
             throw std::runtime_error("Failed to initialize the echo server.");
         }

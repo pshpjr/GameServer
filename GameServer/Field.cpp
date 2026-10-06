@@ -187,7 +187,7 @@ void psh::Field::OnRecv(const SessionID id, RecvBuffer& recvBuffer)
 		RecvChat(id, recvBuffer);
 		break;
 	default:
-		DebugBreak();
+		psh::util::DebugBreak();
 		break;
 	}
 }
@@ -540,7 +540,12 @@ void psh::Field::SendMonitor()
 
 	if (_monitorSession == InvalidSessionID())
 	{
-		auto client = _server.GetClientSession(_initData.MonitorServerIP, _initData.MonitorServerPort);
+		const auto ip = Ip::Parse(_initData.MonitorServerIP);
+		if (!ip.has_value())
+		{
+			return;
+		}
+		auto client = _server.GetClientSession(*ip, _initData.MonitorServerPort);
 		if (client.HasError())
 		{
 			return;

@@ -1,4 +1,4 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param(
     [ValidateSet('Debug', 'Release')][string]$Configuration = 'Debug',
     [string]$VcpkgRoot = $env:VCPKG_ROOT,
@@ -17,7 +17,7 @@ $vsPath = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Comp
 if (-not $vsPath) { throw 'Visual Studio C++ x64 tools are required.' }
 Import-Module (Join-Path $vsPath 'Common7/Tools/Microsoft.VisualStudio.DevShell.dll')
 Enter-VsDevShell -VsInstallPath $vsPath -SkipAutomaticLocation -DevCmdArguments '-arch=x64 -host_arch=x64' | Out-Null
-if (-not $BuildDirectory) { $BuildDirectory = Join-Path $sourceRoot "out/build/verified-$Configuration" }
+if (-not $BuildDirectory) { $BuildDirectory = Join-Path $sourceRoot "../out/build/verified-$Configuration" }
 $tracyValue = if ($Tracy) { 'ON' } else { 'OFF' }
 $configureArgs = @('-S', $sourceRoot, '-B', $BuildDirectory, '-G', 'Ninja',
     "-DCMAKE_BUILD_TYPE=$Configuration", "-DCMAKE_TOOLCHAIN_FILE=$toolchain",

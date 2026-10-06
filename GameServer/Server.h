@@ -28,6 +28,7 @@ namespace psh
 
 	public:
 		Server();
+		bool Init();
 		~Server() override;
 		void OnConnect(SessionID sessionId, const SockAddr& info) override;
 		void OnDisconnect(SessionID sessionId, int wsaErrCode) override;

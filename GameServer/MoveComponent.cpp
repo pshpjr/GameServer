@@ -91,7 +91,7 @@ namespace psh
     {
         const float distanceToDestination = (_destination - _owner.Location()).Size();
 
-        if (isnan(distanceToDestination))
+        if (std::isnan(distanceToDestination))
         {
             MoveStop();
             return;

@@ -78,7 +78,7 @@ void psh::MonsterAiComponent::Update(int delta)
         _owner->MoveStop();
 
         auto attackDir = (targetLocation - location).Normalize();
-        attackDir = isnan(attackDir.X) ? _owner->ViewDirection() : attackDir;
+        attackDir = std::isnan(attackDir.X) ? _owner->ViewDirection() : attackDir;
 
         _owner->Attack(curSkill.id, attackDir);
         _curAttackIndex = (_curAttackIndex + 1) % _skills.size();

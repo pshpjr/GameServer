@@ -3,6 +3,7 @@
 
 #include <future>
 #include <memory>
+#include <thread>
 
 #include "DBConnection.h"
 #include "GroupTypes.h"

@@ -88,7 +88,7 @@ namespace psh::victim_select
         return AttackResult::Invalid;
     };
 
-    VictimSelectFunction victim_select::GetVictimByServerType(ServerType type)
+    VictimSelectFunction GetVictimByServerType(ServerType type)
     {
         switch (type)
         {

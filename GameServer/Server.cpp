@@ -39,6 +39,25 @@ namespace psh
 
 	Server::~Server() = default;
 
+	bool Server::Init()
+	{
+		SettingParser settings;
+		settings.Init();
+		String ipText;
+		settings.GetValue(L"basic.ip", ipText);
+		const auto ip = Ip::Parse(ipText);
+		if (!ip.has_value())
+		{
+			return false;
+		}
+		settings.GetValue(L"basic.port", _port);
+		settings.GetValue(L"basic.backlog", _backlog);
+		settings.GetValue(L"basic.runningThreads", _maxNetThread);
+		settings.GetValue(L"basic.workerThreads", _maxWorkerThread);
+		settings.GetValue(L"basic.staticKey", _staticKey);
+		return IOCP::Init(*ip, _port, _backlog, _maxNetThread, _maxWorkerThread, _staticKey);
+	}
+
 	void Server::OnConnect(SessionID sessionId, const SockAddr& info)
 	{
 		//printf(format("Connect {:d} \n",sessionId.id).c_str());
@@ -86,7 +105,7 @@ namespace psh
 		switch (type)
 		{
 		case None:
-			DebugBreak();
+			util::DebugBreak();
 			break;
 		case eLogin_ReqLogin:
 			OnLoginLogin(sessionId, buffer);
@@ -113,7 +132,12 @@ namespace psh
 		{
 			if (_monitorSession == InvalidSessionID())
 			{
-				auto client = GetClientSession(_initData.MonitorServerIP, _initData.MonitorServerPort);
+				const auto ip = Ip::Parse(_initData.MonitorServerIP);
+				if (!ip.has_value())
+				{
+					return;
+				}
+				auto client = GetClientSession(*ip, _initData.MonitorServerPort);
 				if (client.HasError())
 				{
 					return;

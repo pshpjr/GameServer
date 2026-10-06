@@ -144,7 +144,7 @@ namespace psh
 
     void DBThreadWrapper::Enqueue(const std::function<void()>& func)
     {
-        if (dbThreadRunning.load(std::memory_order::memory_order_acquire) == false)
+        if (dbThreadRunning.load(std::memory_order::acquire) == false)
         {
             ASSERT_CRASH(false, "Enqueue when DB end");
         }
@@ -163,16 +163,16 @@ namespace psh
             _data.enqueue = 0;
         }
 
-        hasData.store(true, std::memory_order::memory_order_release);
+        hasData.store(true, std::memory_order::release);
         hasData.notify_one();
     }
 
     void DBThreadWrapper::DBWorkerFunc()
     {
         PRO_THREAD("DB Worker");
-        while (dbThreadRunning.load(std::memory_order::memory_order_acquire))
+        while (dbThreadRunning.load(std::memory_order::acquire))
         {
-            hasData.wait(false, std::memory_order::memory_order_acquire);
+            hasData.wait(false, std::memory_order::acquire);
 
             std::function<void()> task;
             while (_jobQueue->Dequeue(task))
