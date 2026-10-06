@@ -9,6 +9,10 @@
     "libmysql",
     "tomlplusplus",
     {
+      "name": "liburing",
+      "platform": "linux"
+    },
+    {
       "name": "range-v3",
       "version>=": "0.12.0#2"
     },
