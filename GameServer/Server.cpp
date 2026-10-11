@@ -105,7 +105,7 @@ namespace psh
 		switch (type)
 		{
 		case None:
-			util::DebugBreak();
+            util::DebugBreak();
 			break;
 		case eLogin_ReqLogin:
 			OnLoginLogin(sessionId, buffer);
@@ -154,12 +154,6 @@ namespace psh
 				SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_DISCONNECT_TPS, GetDisconnectPerSec());
 				SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_SESSIONS, GetSessionCount());
 			}
-		}
-
-
-		if (GetAsyncKeyState(VK_HOME))
-		{
-			Stop();
 		}
 	}
 
