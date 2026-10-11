@@ -2,7 +2,6 @@
   "name": "net-lib",
   "version-string": "0.1",
   "dependencies": [
-    "boost",
     "curl",
     "fmt",
     "libiconv",

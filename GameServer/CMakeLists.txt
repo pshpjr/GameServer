@@ -59,8 +59,6 @@ if (POLICY CMP0167)
     cmake_policy(SET CMP0167 NEW)
 endif ()
 
-#find_package(Boost REQUIRED NO_MODULE)
-#target_include_directories(CMakeServer PRIVATE ${Boost_INCLUDE_DIRS})
 # Configuration files are visible in the IDE and deployed beside the executable.
 file(GLOB GAME_SERVER_CONFIG_FILES CONFIGURE_DEPENDS
     "${CMAKE_SOURCE_DIR}/*.toml"
