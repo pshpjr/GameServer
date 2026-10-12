@@ -5,6 +5,7 @@
 #include "CloseSignalHandler.h"
 #include "CrashDump.h"
 #include "DBConnection.h"
+#include "ExceptionTrace.h"
 #include "Server.h"
 #include "TableData.h"
 
@@ -13,9 +14,10 @@
 
 int main()
 {
-    CrashDump::SetBuildInfo(BuildVersion::Metadata);
-    try
+    int exitCode = EXIT_SUCCESS;
+    psh::util::RunWithTrace("CMakeServer main", [&]
     {
+        CrashDump::SetBuildInfo(BuildVersion::Metadata);
         psh::Server* serverpt = nullptr;
         psh::util::CloseSignalListener listener(
             [&serverpt]()
@@ -36,7 +38,8 @@ int main()
         if (!server->Init())
         {
             std::cerr << "Failed to initialize the game server." << std::endl;
-            return EXIT_FAILURE;
+            exitCode = EXIT_FAILURE;
+            return;
         }
 
         server->SetDefaultTimeout(0);
@@ -44,17 +47,8 @@ int main()
         server->Start();
 
         server->Wait();
-    }
-    catch (const std::exception& e)
-    {
-        std::cout << "Unhandled Exception : " << e.what() << '\n';
-
-        std::cin.get();
-    }
-
-
-
-    return 0;
+    });
+    return exitCode;
 }
 
 

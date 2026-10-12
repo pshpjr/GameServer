@@ -1,4 +1,5 @@
 #include "DBThreadWrapper.h"
+#include "ExceptionTrace.h"
 #include "Player.h"
 #include "Server.h"
 #include <exception>
@@ -31,7 +32,10 @@ namespace psh
         , _jobQueue(std::make_unique<jobQ>())
         , _conn(IP, port, ID, PWD, Schema)
         , _completeAlert{compAlert}
-        , dbThread(&DBThreadWrapper::DBWorkerFunc, this)
+        , dbThread([this]
+          {
+              util::RunWithTrace("DB worker", [this] { DBWorkerFunc(); });
+          })
     {
     }
 
