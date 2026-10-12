@@ -1,0 +1,18 @@
+# 실행: docker compose up -d
+# release 실행: GAMESERVER_IMAGE=ghcr.io/pshpjr/gameserver:release docker compose up -d
+# 먼저 Linux Docker 호스트에서 sudo bash scripts/configure-core-dumps.sh를 실행합니다.
+services:
+  gameserver:
+    image: ${GAMESERVER_IMAGE:-ghcr.io/pshpjr/gameserver:dev}
+    working_dir: /opt/gameserver
+    command: ["./CMakeServer"]
+    ulimits:
+      core:
+        soft: -1
+        hard: -1
+    volumes:
+      - type: bind
+        source: ${GAMESERVER_DUMP_DIR:-./dumps}
+        target: /dumps
+        bind:
+          create_host_path: true

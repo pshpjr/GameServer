@@ -1,0 +1,43 @@
+# 빌드 버전 생성기는 Git 정보가 없는 소스 복사본도 지원합니다.
+**/.git
+.github
+.vs
+.idea
+scratch
+task.md
+Tasks.md
+
+# 호스트의 빌드 산출물과 로컬 의존성은 Linux 이미지에서 제외합니다.
+**/out
+**/build
+**/Build
+**/cmake-build-*
+**/vcpkg_installed
+**/packages
+**/CMakeFiles
+**/CMakeCache.txt
+**/CMakeScripts
+**/Testing
+**/CTestTestfile.cmake
+**/cmake_install.cmake
+**/install_manifest.txt
+**/compile_commands.json
+**/CMakeUserPresets.json
+**/CMakeLists.txt.user
+**/_deps
+**/__pycache__
+**/*.pyc
+**/*.obj
+**/*.o
+**/*.pdb
+**/*.ilk
+**/*.exe
+**/*.dll
+
+# 로컬 인증 정보와 환경 설정 파일을 제외합니다.
+.env
+.env.*
+# 호스트에 보관하는 크래시 덤프는 빌드 컨텍스트에 포함하지 않습니다.
+dumps
+**/*.pem
+**/*.key
