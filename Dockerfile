@@ -125,3 +125,24 @@ ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
 
 # 산출물 경로: /workspace/out/build/<BUILD_PRESET>
 CMD ["/bin/bash"]
+
+# 실행 이미지는 빌드 도구와 소스 없이 실행 파일과 런타임 의존성만 포함한다.
+FROM ubuntu:26.04 AS runtime
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        ca-certificates libstdc++6 libgcc-s1 locales \
+    && localedef -i ko_KR -f UTF-8 ko_KR.UTF-8 \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /runtime
+
+FROM runtime AS local-gameserver
+ARG BUILD_PRESET=linux-Release
+COPY --from=build /workspace/out/build/${BUILD_PRESET}/GameServer/CMakeServer /opt/gameserver/CMakeServer
+COPY --from=build /workspace/GameServer/*.toml /runtime/
+CMD ["/opt/gameserver/CMakeServer"]
+
+FROM runtime AS local-dummy
+ARG BUILD_PRESET=linux-Release
+COPY --from=build /workspace/out/build/${BUILD_PRESET}/Dummy/Dummy /opt/dummy
+COPY --from=build /workspace/GameServer/Dummy/DummySetting.toml /workspace/GameServer/Dummy/chatData.txt /runtime/
+CMD ["/opt/dummy"]
