@@ -1,0 +1,10 @@
+[db]
+GameDBIP = "mysql"
+GameDBPort = 3306
+GameDBID = "game"
+GameDBPwd = "password"
+
+
+[game]
+useConsoleMonitor = true
+useMonsterAI = true
