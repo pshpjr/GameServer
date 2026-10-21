@@ -1,0 +1,4 @@
+# 덤프와 Tracy 원본은 크기가 커서 로컬에만 둔다.
+*.dmp
+*.tracy
+__pycache__/

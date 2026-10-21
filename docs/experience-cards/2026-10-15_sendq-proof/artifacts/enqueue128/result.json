@@ -1,0 +1,60 @@
+{
+  "seconds": 300,
+  "port": 21339,
+  "shutdown": {
+    "dummy": {
+      "pid": 15292,
+      "unexpected_exit": 1,
+      "elapsed": 0.0,
+      "intentional_termination": true
+    },
+    "server": {
+      "pid": 22596,
+      "exit_code": 0,
+      "elapsed": 0.89
+    }
+  },
+  "target": {
+    "unix_ms": "1792033333529",
+    "reason": "enqueue-failed-no-reservation",
+    "queue": "00000219B00A73C0",
+    "session": "29836347531335402",
+    "generation": "3",
+    "capacity": "128",
+    "head": "573",
+    "tail": "701",
+    "head_sequence": "574",
+    "ready": "128",
+    "failures": "1",
+    "last_failed_ticket": "701",
+    "failed_sequence": "574",
+    "reserved": "2979",
+    "published": "2979",
+    "consumed": "2851",
+    "active_before": "1",
+    "active_after": "1",
+    "epoch_before": "15873",
+    "epoch_after": "15873"
+  },
+  "target_observed": true,
+  "load_seconds": 56.463640800000576,
+  "dumps": [
+    {
+      "reason": "enqueue-failure",
+      "pid": 22596,
+      "unix_start": 1792033333.5517993,
+      "seconds": 0.416912317276001
+    }
+  ],
+  "completed_load": true,
+  "peak_sessions": 4987,
+  "responses": 182271,
+  "load_observed": true,
+  "enqueue_failure_observed": true,
+  "passed": true,
+  "send_enqueue_failure": 5,
+  "send_queue_stall": 0,
+  "send_clear": 9376,
+  "send_reuse": 5887,
+  "stack_collection": "THREADS=38 ERRORS=0"
+}

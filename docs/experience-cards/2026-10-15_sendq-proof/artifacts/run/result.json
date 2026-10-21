@@ -1,0 +1,56 @@
+{
+  "seconds": 300,
+  "port": 21337,
+  "shutdown": {
+    "dummy": {
+      "pid": 12172,
+      "unexpected_exit": 1,
+      "elapsed": 0.0,
+      "intentional_termination": true
+    },
+    "server": {
+      "pid": 23144,
+      "timeout": true,
+      "exit_code": null,
+      "elapsed": 6.168
+    }
+  },
+  "target": {
+    "unix_ms": "1792028260892",
+    "reason": "RealSend-confirm",
+    "queue": "000001F53EFC6FC0",
+    "session": "872572427803039155",
+    "generation": "3",
+    "head": "1539",
+    "tail": "1552",
+    "occupied": "12",
+    "active_before": "0",
+    "active_after": "0",
+    "epoch_before": "15097356",
+    "epoch_after": "15097356",
+    "slots": "00001111111111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "target_observed": true,
+  "load_seconds": 33.2975776999956,
+  "dumps": [
+    {
+      "reason": "send-stall",
+      "pid": 23144,
+      "unix_start": 1792028261.2037797,
+      "seconds": 0.8304409980773926
+    },
+    {
+      "reason": "shutdown",
+      "pid": 23144,
+      "unix_start": 1792028267.7678037,
+      "seconds": 0.7996628284454346
+    }
+  ],
+  "completed_load": true,
+  "peak_sessions": 4940,
+  "responses": 100985,
+  "load_observed": true,
+  "passed": false,
+  "diagnostic_verdict": "verified",
+  "legacy_passed_meaning": "Normal shutdown check; false is expected when stalled server requires forced termination."
+}

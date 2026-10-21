@@ -1,0 +1,22 @@
+name,src_file,src_line,total_ns,total_perc,counts,mean_ns,min_ns,max_ns,std_ns
+psh::Field::ProcessAttack,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\GameServer\Field.cpp,375,988001341,0.317829,31847,31023,7444,7388740,97860.786291
+psh::Field::CleanupDeleteWait,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\GameServer\Field.cpp,494,489313,0.000157,4002,122,20,80117,1307.123901
+psh::Field::InsertWaitObjectInMap,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\GameServer\Field.cpp,454,746304,0.000240,4002,186,30,55911,1286.955935
+psh::Field::GetObjectViewByPoint,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\GameServer\Field.cpp,405,599363123,0.192809,45716,13110,3376,4201271,54480.658550
+Session::TryAcquireSendFlag,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\NetLib\src\Session.cpp,464,713295190,0.229459,4623137,154,50,6953359,4836.362114
+Group::Update,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\NetLib\src\Group.cpp,101,9692840580,3.118081,3153,3074164,2275,240699490,7421054.275786
+Session::RealSend,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\NetLib\src\Session.cpp,636,31845588298,10.244380,2230649,14276,4067,10730003,44538.971125
+IOCP::ProcessBuffer,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\NetLib\src\NormalIOCP.cpp,335,483398170,0.155504,2392488,202,50,5169612,6681.078691
+psh::Field::OnRecv,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\GameServer\Field.cpp,164,8054564222,2.591066,31246,257779,41308,8615000,350792.861421
+psh::Field::BroadcastToPlayer,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\GameServer\Field.cpp,342,6893470185,2.217554,31847,216455,26911,8184026,319450.083007
+HandleJob,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\NetLib\src\Group.cpp,182,8156206679,2.623763,31246,261032,42621,8631311,353172.397703
+psh::Field::GetObjectView,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\GameServer\Field.cpp,383,434898422,0.139902,31847,13655,4589,4091548,49743.436449
+Group::Enqueue,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\NetLib\src\Group.cpp,61,12711301,0.004089,31246,406,50,231804,1970.749619
+psh::Field::RecvAttack,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\GameServer\Field.cpp,304,8014252348,2.578098,31246,256488,40727,8602129,350022.631832
+Group::OnUpdate,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\NetLib\src\Group.cpp,142,1493278730,0.480372,4002,373133,431,14518378,660982.725179
+psh::Field::UpdateContent,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\GameServer\Field.cpp,519,1482354175,0.476857,4002,370403,40,14515052,660442.192997
+IOCP::SendPacket,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\NetLib\src\NormalIOCP.cpp,238,4851144024,1.560560,2392488,2027,401,7168426,22309.088374
+Database Alert,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\GameServer\Field.cpp,112,2076161,0.000668,4002,518,50,77905,1758.010381
+Executor callback,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\NetLib\src\WindowsExecutor.cpp,204,44962745887,14.464026,4495697,10001,351,240701264,215449.598972
+Group::Process,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\NetLib\src\Group.cpp,129,9688996431,3.116845,5589,1733583,180,240697817,5777876.151856
+psh::Field::SendMonitor,D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\GameServer\Field.cpp,532,38659,0.000012,40,966,421,1864,336.107927

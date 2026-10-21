@@ -1,0 +1,700 @@
+
+THREAD tid=27472 pid=23144
+CONTEXT rip=00007ffd640259c4 rsp=0000008c348ff4c8 rbp=000001f5328eb176
+000 pc=00007ffd640259c4 sp=0000008c348ff4c8 ZwWaitForAlertByThreadId+0x14
+001 pc=00007ffd63f2ca73 sp=0000008c348ff4d0 RtlWaitOnAddress+0x213
+002 pc=00007ffd6153e158 sp=0000008c348ff540 WaitOnAddress+0x38
+003 pc=00007ffd3ecd14f1 sp=0000008c348ff580 _std_atomic_wait_direct+0x31
+004 pc=00007ff7afc727b0 sp=0000008c348ff5c0 std::_Atomic_wait_direct<bool,char>+0x70
+005 pc=00007ff7afc774bf sp=0000008c348ff600 std::_Atomic_storage<bool,1>::wait+0x2f
+006 pc=00007ff7afcd1fdc sp=0000008c348ff630 IOCP::Wait+0x2c
+007 pc=00007ff7afc7ab42 sp=0000008c348ff690 `main'::`2'::<lambda_1>::operator()+0x1f2
+008 pc=00007ff7afc7d464 sp=0000008c348ff7c0 std::invoke<`main'::`2'::<lambda_1> >+0x14
+009 pc=00007ff7afc7ad0c sp=0000008c348ff7f0 ``psh::util::RunWithTrace<`main'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+010 pc=00007ff7afc7aca5 sp=0000008c348ff820 `psh::util::RunWithTrace<`main'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+011 pc=00007ff7afc7b3b2 sp=0000008c348ff870 psh::util::RunWithTrace<`main'::`2'::<lambda_1> >+0x32
+012 pc=00007ff7afc7a91d sp=0000008c348ff8c0 main+0x3d
+013 pc=00007ff7afdd0f79 sp=0000008c348ff910 invoke_main+0x39
+014 pc=00007ff7afdd0e62 sp=0000008c348ff960 __scrt_common_main_seh+0x132
+015 pc=00007ff7afdd0d1e sp=0000008c348ff9d0 __scrt_common_main+0xe
+016 pc=00007ff7afdd100e sp=0000008c348ffa00 mainCRTStartup+0xe
+017 pc=00007ffd6297dda7 sp=0000008c348ffa30 BaseThreadInitThunk+0x17
+018 pc=00007ffd63f3ee4c sp=0000008c348ffa60 RtlUserThreadStart+0x2c
+
+THREAD tid=26220 pid=23144
+CONTEXT rip=00007ffd64025a24 rsp=0000008c349ffb98 rbp=0000000000000000
+000 pc=00007ffd64025a24 sp=0000008c349ffb98 NtWaitForWorkViaWorkerFactory+0x14
+001 pc=00007ffd63ee4d0e sp=0000008c349ffba0 TpCallbackMayRunLong+0x1a0e
+002 pc=00007ffd6297dda7 sp=0000008c349fff00 BaseThreadInitThunk+0x17
+003 pc=00007ffd63f3ee4c sp=0000008c349fff30 RtlUserThreadStart+0x2c
+
+THREAD tid=2544 pid=23144
+CONTEXT rip=00007ffd64025a24 rsp=0000008c34aff528 rbp=0000000000000000
+000 pc=00007ffd64025a24 sp=0000008c34aff528 NtWaitForWorkViaWorkerFactory+0x14
+001 pc=00007ffd63ee4d0e sp=0000008c34aff530 TpCallbackMayRunLong+0x1a0e
+002 pc=00007ffd6297dda7 sp=0000008c34aff890 BaseThreadInitThunk+0x17
+003 pc=00007ffd63f3ee4c sp=0000008c34aff8c0 RtlUserThreadStart+0x2c
+
+THREAD tid=7352 pid=23144
+CONTEXT rip=00007ffd64025a24 rsp=0000008c34bff528 rbp=0000000000000000
+000 pc=00007ffd64025a24 sp=0000008c34bff528 NtWaitForWorkViaWorkerFactory+0x14
+001 pc=00007ffd63ee4d0e sp=0000008c34bff530 TpCallbackMayRunLong+0x1a0e
+002 pc=00007ffd6297dda7 sp=0000008c34bff890 BaseThreadInitThunk+0x17
+003 pc=00007ffd63f3ee4c sp=0000008c34bff8c0 RtlUserThreadStart+0x2c
+
+THREAD tid=28568 pid=23144
+CONTEXT rip=00007ffd64021dd4 rsp=0000008c34cfe7a8 rbp=0000008c34cfe810
+000 pc=00007ffd64021dd4 sp=0000008c34cfe7a8 NtWaitForSingleObject+0x14
+001 pc=00007ffd5fdb951a sp=0000008c34cfe7b0 ?+0x0
+002 pc=00007ffd5fdb8464 sp=0000008c34cfe840 ?+0x0
+003 pc=00007ffd5fdc9428 sp=0000008c34cfe980 Tcpip4_WSHStringToAddress+0xa78
+004 pc=00007ffd61f44c91 sp=0000008c34cfec00 WSAPoll+0x451
+005 pc=00007ffcfbf6df2c sp=0000008c34cfed00 tracy::ListenSocket::Accept+0x7c
+006 pc=00007ffcfbf71166 sp=0000008c34cfee40 tracy::Profiler::Worker+0x796
+007 pc=00007ffcfbf97c14 sp=0000008c34cff730 tracy::Profiler::LaunchWorker+0x14
+008 pc=00007ffcfbf97b8a sp=0000008c34cff760 tracy::Thread::Launch+0x1a
+009 pc=00007ffd6297dda7 sp=0000008c34cff790 BaseThreadInitThunk+0x17
+010 pc=00007ffd63f3ee4c sp=0000008c34cff7c0 RtlUserThreadStart+0x2c
+
+THREAD tid=5192 pid=23144
+CONTEXT rip=00007ffd640223d4 rsp=0000008c34dff638 rbp=0000000000000000
+000 pc=00007ffd640223d4 sp=0000008c34dff638 ZwDelayExecution+0x14
+001 pc=00007ffd63f90fd4 sp=0000008c34dff640 RtlDelayExecution+0x34
+002 pc=00007ffd614eb9c1 sp=0000008c34dff670 SleepEx+0x91
+003 pc=00007ffcfbf9ed52 sp=0000008c34dff700 _Thrd_sleep_for+0x12
+004 pc=00007ffcfbf93d65 sp=0000008c34dff730 std::this_thread::sleep_until<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > >+0x75
+005 pc=00007ffcfbf93cd1 sp=0000008c34dff790 std::this_thread::sleep_for<__int64,std::ratio<1,1000> >+0x21
+006 pc=00007ffcfbf72370 sp=0000008c34dff7d0 tracy::Profiler::CompressWorker+0x360
+007 pc=00007ffcfbf97bb4 sp=0000008c34dff8b0 tracy::Profiler::LaunchCompressWorker+0x14
+008 pc=00007ffcfbf97b8a sp=0000008c34dff8e0 tracy::Thread::Launch+0x1a
+009 pc=00007ffd6297dda7 sp=0000008c34dff910 BaseThreadInitThunk+0x17
+010 pc=00007ffd63f3ee4c sp=0000008c34dff940 RtlUserThreadStart+0x2c
+
+THREAD tid=11300 pid=23144
+CONTEXT rip=00007ffd640223d4 rsp=0000008c34eff8d8 rbp=0000000000000000
+000 pc=00007ffd640223d4 sp=0000008c34eff8d8 ZwDelayExecution+0x14
+001 pc=00007ffd63f90fd4 sp=0000008c34eff8e0 RtlDelayExecution+0x34
+002 pc=00007ffd614eb9c1 sp=0000008c34eff910 SleepEx+0x91
+003 pc=00007ffcfbf9ed52 sp=0000008c34eff9a0 _Thrd_sleep_for+0x12
+004 pc=00007ffcfbf93d65 sp=0000008c34eff9d0 std::this_thread::sleep_until<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > >+0x75
+005 pc=00007ffcfbf93cd1 sp=0000008c34effa30 std::this_thread::sleep_for<__int64,std::ratio<1,1000> >+0x21
+006 pc=00007ffcfbf724e2 sp=0000008c34effa70 tracy::Profiler::SymbolWorker+0x122
+007 pc=00007ffcfbf97be4 sp=0000008c34effb30 tracy::Profiler::LaunchSymbolWorker+0x14
+008 pc=00007ffcfbf97b8a sp=0000008c34effb60 tracy::Thread::Launch+0x1a
+009 pc=00007ffd6297dda7 sp=0000008c34effb90 BaseThreadInitThunk+0x17
+010 pc=00007ffd63f3ee4c sp=0000008c34effbc0 RtlUserThreadStart+0x2c
+
+THREAD tid=20036 pid=23144
+CONTEXT rip=00007ffd640259c4 rsp=0000008c34fff9e8 rbp=0000008c34fffa60
+000 pc=00007ffd640259c4 sp=0000008c34fff9e8 ZwWaitForAlertByThreadId+0x14
+001 pc=00007ffd63f197be sp=0000008c34fff9f0 RtlSleepConditionVariableSRW+0x1de
+002 pc=00007ffd61482a58 sp=0000008c34fffa90 SleepConditionVariableSRW+0x38
+003 pc=00007ffd31a62747 sp=0000008c34fffad0 std::_Winerror_message+0x2e7
+004 pc=00007ffd31a626e3 sp=0000008c34fffb20 std::_Winerror_message+0x283
+005 pc=00007ffd31a62997 sp=0000008c34fffb50 Cnd_wait+0x27
+006 pc=00007ff7afc81874 sp=0000008c34fffb80 std::condition_variable::wait+0x44
+007 pc=00007ff7afcaf204 sp=0000008c34fffbc0 std::condition_variable::wait<```ThreadPool::ThreadPool'::`1'::<lambda_1>::operator()'::`2'::<lambda_1>::operator()'::`5'::<lambda_1> >+0x34
+008 pc=00007ff7afcac1d7 sp=0000008c34fffbf0 ``ThreadPool::ThreadPool'::`1'::<lambda_1>::operator()'::`2'::<lambda_1>::operator()+0xc7
+009 pc=00007ff7afcaf004 sp=0000008c34fffd00 std::invoke<``ThreadPool::ThreadPool'::`1'::<lambda_1>::operator()'::`2'::<lambda_1> >+0x14
+010 pc=00007ff7afcac62c sp=0000008c34fffd30 ``psh::util::RunWithTrace<``ThreadPool::ThreadPool'::`1'::<lambda_1>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+011 pc=00007ff7afcac5c5 sp=0000008c34fffd60 `psh::util::RunWithTrace<``ThreadPool::ThreadPool'::`1'::<lambda_1>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+012 pc=00007ff7afcad262 sp=0000008c34fffdb0 psh::util::RunWithTrace<``ThreadPool::ThreadPool'::`1'::<lambda_1>::operator()'::`2'::<lambda_1> >+0x32
+013 pc=00007ff7afcac0cb sp=0000008c34fffe00 `ThreadPool::ThreadPool'::`1'::<lambda_1>::operator()+0x2b
+014 pc=00007ff7afcaefd4 sp=0000008c34fffe40 std::invoke<`ThreadPool::ThreadPool'::`1'::<lambda_1> >+0x14
+015 pc=00007ff7afcae400 sp=0000008c34fffe70 std::thread::_Invoke<std::tuple<`ThreadPool::ThreadPool'::`1'::<lambda_1> >,0>+0x50
+016 pc=00007ffcfbdf2ec5 sp=0000008c34fffed0 register_onexit_function+0xf5
+017 pc=00007ffd6297dda7 sp=0000008c34ffff30 BaseThreadInitThunk+0x17
+018 pc=00007ffd63f3ee4c sp=0000008c34ffff60 RtlUserThreadStart+0x2c
+
+THREAD tid=12196 pid=23144
+CONTEXT rip=00007ffd640259c4 rsp=0000008c350ffab8 rbp=000001f571aefe00
+000 pc=00007ffd640259c4 sp=0000008c350ffab8 ZwWaitForAlertByThreadId+0x14
+001 pc=00007ffd63f2ca73 sp=0000008c350ffac0 RtlWaitOnAddress+0x213
+002 pc=00007ffd6153e158 sp=0000008c350ffb30 WaitOnAddress+0x38
+003 pc=00007ffd3ecd14f1 sp=0000008c350ffb70 _std_atomic_wait_direct+0x31
+004 pc=00007ff7afc727b0 sp=0000008c350ffbb0 std::_Atomic_wait_direct<bool,char>+0x70
+005 pc=00007ff7afc774bf sp=0000008c350ffbf0 std::_Atomic_storage<bool,1>::wait+0x2f
+006 pc=00007ff7afc6f7a2 sp=0000008c350ffc20 psh::DBThreadWrapper::DBWorkerFunc+0xa2
+007 pc=00007ff7afc6fa67 sp=0000008c350ffcf0 ``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1>::operator()+0x17
+008 pc=00007ff7afc74814 sp=0000008c350ffd20 std::invoke<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >+0x14
+009 pc=00007ff7afc7010c sp=0000008c350ffd50 ``psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+010 pc=00007ff7afc700a5 sp=0000008c350ffd80 `psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+011 pc=00007ff7afc71732 sp=0000008c350ffdd0 psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >+0x32
+012 pc=00007ff7afc6fa0b sp=0000008c350ffe20 `psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()+0x2b
+013 pc=00007ff7afc74844 sp=0000008c350ffe60 std::invoke<`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_> >+0x14
+014 pc=00007ff7afc729e0 sp=0000008c350ffe90 std::thread::_Invoke<std::tuple<`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_> >,0>+0x50
+015 pc=00007ffcfbdf2ec5 sp=0000008c350ffef0 register_onexit_function+0xf5
+016 pc=00007ffd6297dda7 sp=0000008c350fff50 BaseThreadInitThunk+0x17
+017 pc=00007ffd63f3ee4c sp=0000008c350fff80 RtlUserThreadStart+0x2c
+
+THREAD tid=12672 pid=23144
+CONTEXT rip=00007ffd640259c4 rsp=0000008c351ff848 rbp=000001f5752ff600
+000 pc=00007ffd640259c4 sp=0000008c351ff848 ZwWaitForAlertByThreadId+0x14
+001 pc=00007ffd63f2ca73 sp=0000008c351ff850 RtlWaitOnAddress+0x213
+002 pc=00007ffd6153e158 sp=0000008c351ff8c0 WaitOnAddress+0x38
+003 pc=00007ffd3ecd14f1 sp=0000008c351ff900 _std_atomic_wait_direct+0x31
+004 pc=00007ff7afc727b0 sp=0000008c351ff940 std::_Atomic_wait_direct<bool,char>+0x70
+005 pc=00007ff7afc774bf sp=0000008c351ff980 std::_Atomic_storage<bool,1>::wait+0x2f
+006 pc=00007ff7afc6f7a2 sp=0000008c351ff9b0 psh::DBThreadWrapper::DBWorkerFunc+0xa2
+007 pc=00007ff7afc6fa67 sp=0000008c351ffa80 ``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1>::operator()+0x17
+008 pc=00007ff7afc74814 sp=0000008c351ffab0 std::invoke<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >+0x14
+009 pc=00007ff7afc7010c sp=0000008c351ffae0 ``psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+010 pc=00007ff7afc700a5 sp=0000008c351ffb10 `psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+011 pc=00007ff7afc71732 sp=0000008c351ffb60 psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >+0x32
+012 pc=00007ff7afc6fa0b sp=0000008c351ffbb0 `psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()+0x2b
+013 pc=00007ff7afc74844 sp=0000008c351ffbf0 std::invoke<`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_> >+0x14
+014 pc=00007ff7afc729e0 sp=0000008c351ffc20 std::thread::_Invoke<std::tuple<`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_> >,0>+0x50
+015 pc=00007ffcfbdf2ec5 sp=0000008c351ffc80 register_onexit_function+0xf5
+016 pc=00007ffd6297dda7 sp=0000008c351ffce0 BaseThreadInitThunk+0x17
+017 pc=00007ffd63f3ee4c sp=0000008c351ffd10 RtlUserThreadStart+0x2c
+
+THREAD tid=28532 pid=23144
+CONTEXT rip=00007ffd640259c4 rsp=0000008c352ff7b8 rbp=000001f5752ff780
+000 pc=00007ffd640259c4 sp=0000008c352ff7b8 ZwWaitForAlertByThreadId+0x14
+001 pc=00007ffd63f2ca73 sp=0000008c352ff7c0 RtlWaitOnAddress+0x213
+002 pc=00007ffd6153e158 sp=0000008c352ff830 WaitOnAddress+0x38
+003 pc=00007ffd3ecd14f1 sp=0000008c352ff870 _std_atomic_wait_direct+0x31
+004 pc=00007ff7afc727b0 sp=0000008c352ff8b0 std::_Atomic_wait_direct<bool,char>+0x70
+005 pc=00007ff7afc774bf sp=0000008c352ff8f0 std::_Atomic_storage<bool,1>::wait+0x2f
+006 pc=00007ff7afc6f7a2 sp=0000008c352ff920 psh::DBThreadWrapper::DBWorkerFunc+0xa2
+007 pc=00007ff7afc6fa67 sp=0000008c352ff9f0 ``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1>::operator()+0x17
+008 pc=00007ff7afc74814 sp=0000008c352ffa20 std::invoke<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >+0x14
+009 pc=00007ff7afc7010c sp=0000008c352ffa50 ``psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+010 pc=00007ff7afc700a5 sp=0000008c352ffa80 `psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+011 pc=00007ff7afc71732 sp=0000008c352ffad0 psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >+0x32
+012 pc=00007ff7afc6fa0b sp=0000008c352ffb20 `psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()+0x2b
+013 pc=00007ff7afc74844 sp=0000008c352ffb60 std::invoke<`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_> >+0x14
+014 pc=00007ff7afc729e0 sp=0000008c352ffb90 std::thread::_Invoke<std::tuple<`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_> >,0>+0x50
+015 pc=00007ffcfbdf2ec5 sp=0000008c352ffbf0 register_onexit_function+0xf5
+016 pc=00007ffd6297dda7 sp=0000008c352ffc50 BaseThreadInitThunk+0x17
+017 pc=00007ffd63f3ee4c sp=0000008c352ffc80 RtlUserThreadStart+0x2c
+
+THREAD tid=4900 pid=23144
+CONTEXT rip=00007ffd640259c4 rsp=0000008c353ff8d8 rbp=000001f5752ff900
+000 pc=00007ffd640259c4 sp=0000008c353ff8d8 ZwWaitForAlertByThreadId+0x14
+001 pc=00007ffd63f2ca73 sp=0000008c353ff8e0 RtlWaitOnAddress+0x213
+002 pc=00007ffd6153e158 sp=0000008c353ff950 WaitOnAddress+0x38
+003 pc=00007ffd3ecd14f1 sp=0000008c353ff990 _std_atomic_wait_direct+0x31
+004 pc=00007ff7afc727b0 sp=0000008c353ff9d0 std::_Atomic_wait_direct<bool,char>+0x70
+005 pc=00007ff7afc774bf sp=0000008c353ffa10 std::_Atomic_storage<bool,1>::wait+0x2f
+006 pc=00007ff7afc6f7a2 sp=0000008c353ffa40 psh::DBThreadWrapper::DBWorkerFunc+0xa2
+007 pc=00007ff7afc6fa67 sp=0000008c353ffb10 ``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1>::operator()+0x17
+008 pc=00007ff7afc74814 sp=0000008c353ffb40 std::invoke<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >+0x14
+009 pc=00007ff7afc7010c sp=0000008c353ffb70 ``psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+010 pc=00007ff7afc700a5 sp=0000008c353ffba0 `psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+011 pc=00007ff7afc71732 sp=0000008c353ffbf0 psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >+0x32
+012 pc=00007ff7afc6fa0b sp=0000008c353ffc40 `psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()+0x2b
+013 pc=00007ff7afc74844 sp=0000008c353ffc80 std::invoke<`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_> >+0x14
+014 pc=00007ff7afc729e0 sp=0000008c353ffcb0 std::thread::_Invoke<std::tuple<`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_> >,0>+0x50
+015 pc=00007ffcfbdf2ec5 sp=0000008c353ffd10 register_onexit_function+0xf5
+016 pc=00007ffd6297dda7 sp=0000008c353ffd70 BaseThreadInitThunk+0x17
+017 pc=00007ffd63f3ee4c sp=0000008c353ffda0 RtlUserThreadStart+0x2c
+
+THREAD tid=4204 pid=23144
+CONTEXT rip=00007ffd64021dd4 rsp=0000008c354fecf8 rbp=0000008c354fed60
+000 pc=00007ffd64021dd4 sp=0000008c354fecf8 NtWaitForSingleObject+0x14
+001 pc=00007ffd5fdb951a sp=0000008c354fed00 ?+0x0
+002 pc=00007ffd5fdce829 sp=0000008c354fed90 Tcpip6_WSHSetSocketInformation+0x1ad9
+003 pc=00007ffd61f45cae sp=0000008c354ff190 accept+0xfe
+004 pc=00007ff7afd2ff5d sp=0000008c354ff240 Socket::Accept+0x7d
+005 pc=00007ff7afcd4131 sp=0000008c354ff380 IOCP::AcceptThread+0x91
+006 pc=00007ff7afcd978e sp=0000008c354ff540 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+007 pc=00007ff7afcdc710 sp=0000008c354ff570 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+008 pc=00007ff7afcd97e4 sp=0000008c354ff5a0 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+009 pc=00007ff7afcdc79c sp=0000008c354ff5d0 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+010 pc=00007ff7afcdc755 sp=0000008c354ff600 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+011 pc=00007ff7afcd6dd2 sp=0000008c354ff650 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+012 pc=00007ff7afcd6877 sp=0000008c354ff6a0 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+013 pc=00007ff7afcd97be sp=0000008c354ff6e0 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+014 pc=00007ff7afcd77bb sp=0000008c354ff710 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+015 pc=00007ffcfbdf2ec5 sp=0000008c354ff780 register_onexit_function+0xf5
+016 pc=00007ffd6297dda7 sp=0000008c354ff7e0 BaseThreadInitThunk+0x17
+017 pc=00007ffd63f3ee4c sp=0000008c354ff810 RtlUserThreadStart+0x2c
+
+THREAD tid=8540 pid=23144
+CONTEXT rip=00007ffd64021e74 rsp=0000008c355ffa38 rbp=0000000000000000
+000 pc=00007ffd64021e74 sp=0000008c355ffa38 ZwRemoveIoCompletion+0x14
+001 pc=00007ffd61482d5c sp=0000008c355ffa40 GetQueuedCompletionStatus+0x6c
+002 pc=00007ff7afd32f35 sp=0000008c355ffaa0 WindowsExecutor::Run+0x165
+003 pc=00007ff7afcd408b sp=0000008c355ffc00 IOCP::WorkerThread+0x1b
+004 pc=00007ff7afcd978e sp=0000008c355ffc30 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+005 pc=00007ff7afcdc710 sp=0000008c355ffc60 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+006 pc=00007ff7afcd97e4 sp=0000008c355ffc90 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+007 pc=00007ff7afcdc79c sp=0000008c355ffcc0 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+008 pc=00007ff7afcdc755 sp=0000008c355ffcf0 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+009 pc=00007ff7afcd6dd2 sp=0000008c355ffd40 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+010 pc=00007ff7afcd6877 sp=0000008c355ffd90 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+011 pc=00007ff7afcd97be sp=0000008c355ffdd0 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+012 pc=00007ff7afcd77bb sp=0000008c355ffe00 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+013 pc=00007ffcfbdf2ec5 sp=0000008c355ffe70 register_onexit_function+0xf5
+014 pc=00007ffd6297dda7 sp=0000008c355ffed0 BaseThreadInitThunk+0x17
+015 pc=00007ffd63f3ee4c sp=0000008c355fff00 RtlUserThreadStart+0x2c
+
+THREAD tid=18404 pid=23144
+CONTEXT rip=00007ffd64021e74 rsp=0000008c356ff608 rbp=0000000000000000
+000 pc=00007ffd64021e74 sp=0000008c356ff608 ZwRemoveIoCompletion+0x14
+001 pc=00007ffd61482d5c sp=0000008c356ff610 GetQueuedCompletionStatus+0x6c
+002 pc=00007ff7afd32f35 sp=0000008c356ff670 WindowsExecutor::Run+0x165
+003 pc=00007ff7afcd408b sp=0000008c356ff7d0 IOCP::WorkerThread+0x1b
+004 pc=00007ff7afcd978e sp=0000008c356ff800 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+005 pc=00007ff7afcdc710 sp=0000008c356ff830 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+006 pc=00007ff7afcd97e4 sp=0000008c356ff860 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+007 pc=00007ff7afcdc79c sp=0000008c356ff890 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+008 pc=00007ff7afcdc755 sp=0000008c356ff8c0 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+009 pc=00007ff7afcd6dd2 sp=0000008c356ff910 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+010 pc=00007ff7afcd6877 sp=0000008c356ff960 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+011 pc=00007ff7afcd97be sp=0000008c356ff9a0 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+012 pc=00007ff7afcd77bb sp=0000008c356ff9d0 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+013 pc=00007ffcfbdf2ec5 sp=0000008c356ffa40 register_onexit_function+0xf5
+014 pc=00007ffd6297dda7 sp=0000008c356ffaa0 BaseThreadInitThunk+0x17
+015 pc=00007ffd63f3ee4c sp=0000008c356ffad0 RtlUserThreadStart+0x2c
+
+THREAD tid=13348 pid=23144
+CONTEXT rip=00007ffd64021e74 rsp=0000008c357ff2e8 rbp=0000000000000000
+000 pc=00007ffd64021e74 sp=0000008c357ff2e8 ZwRemoveIoCompletion+0x14
+001 pc=00007ffd61482d5c sp=0000008c357ff2f0 GetQueuedCompletionStatus+0x6c
+002 pc=00007ff7afd32f35 sp=0000008c357ff350 WindowsExecutor::Run+0x165
+003 pc=00007ff7afcd408b sp=0000008c357ff4b0 IOCP::WorkerThread+0x1b
+004 pc=00007ff7afcd978e sp=0000008c357ff4e0 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+005 pc=00007ff7afcdc710 sp=0000008c357ff510 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+006 pc=00007ff7afcd97e4 sp=0000008c357ff540 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+007 pc=00007ff7afcdc79c sp=0000008c357ff570 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+008 pc=00007ff7afcdc755 sp=0000008c357ff5a0 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+009 pc=00007ff7afcd6dd2 sp=0000008c357ff5f0 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+010 pc=00007ff7afcd6877 sp=0000008c357ff640 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+011 pc=00007ff7afcd97be sp=0000008c357ff680 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+012 pc=00007ff7afcd77bb sp=0000008c357ff6b0 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+013 pc=00007ffcfbdf2ec5 sp=0000008c357ff720 register_onexit_function+0xf5
+014 pc=00007ffd6297dda7 sp=0000008c357ff780 BaseThreadInitThunk+0x17
+015 pc=00007ffd63f3ee4c sp=0000008c357ff7b0 RtlUserThreadStart+0x2c
+
+THREAD tid=28180 pid=23144
+CONTEXT rip=00007ffd64021e74 rsp=0000008c358ff838 rbp=0000000000000000
+000 pc=00007ffd64021e74 sp=0000008c358ff838 ZwRemoveIoCompletion+0x14
+001 pc=00007ffd61482d5c sp=0000008c358ff840 GetQueuedCompletionStatus+0x6c
+002 pc=00007ff7afd32f35 sp=0000008c358ff8a0 WindowsExecutor::Run+0x165
+003 pc=00007ff7afcd408b sp=0000008c358ffa00 IOCP::WorkerThread+0x1b
+004 pc=00007ff7afcd978e sp=0000008c358ffa30 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+005 pc=00007ff7afcdc710 sp=0000008c358ffa60 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+006 pc=00007ff7afcd97e4 sp=0000008c358ffa90 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+007 pc=00007ff7afcdc79c sp=0000008c358ffac0 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+008 pc=00007ff7afcdc755 sp=0000008c358ffaf0 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+009 pc=00007ff7afcd6dd2 sp=0000008c358ffb40 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+010 pc=00007ff7afcd6877 sp=0000008c358ffb90 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+011 pc=00007ff7afcd97be sp=0000008c358ffbd0 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+012 pc=00007ff7afcd77bb sp=0000008c358ffc00 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+013 pc=00007ffcfbdf2ec5 sp=0000008c358ffc70 register_onexit_function+0xf5
+014 pc=00007ffd6297dda7 sp=0000008c358ffcd0 BaseThreadInitThunk+0x17
+015 pc=00007ffd63f3ee4c sp=0000008c358ffd00 RtlUserThreadStart+0x2c
+
+THREAD tid=16036 pid=23144
+CONTEXT rip=00007ffd64021e74 rsp=0000008c359ff428 rbp=0000000000000000
+000 pc=00007ffd64021e74 sp=0000008c359ff428 ZwRemoveIoCompletion+0x14
+001 pc=00007ffd61482d5c sp=0000008c359ff430 GetQueuedCompletionStatus+0x6c
+002 pc=00007ff7afd32f35 sp=0000008c359ff490 WindowsExecutor::Run+0x165
+003 pc=00007ff7afcd408b sp=0000008c359ff5f0 IOCP::WorkerThread+0x1b
+004 pc=00007ff7afcd978e sp=0000008c359ff620 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+005 pc=00007ff7afcdc710 sp=0000008c359ff650 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+006 pc=00007ff7afcd97e4 sp=0000008c359ff680 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+007 pc=00007ff7afcdc79c sp=0000008c359ff6b0 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+008 pc=00007ff7afcdc755 sp=0000008c359ff6e0 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+009 pc=00007ff7afcd6dd2 sp=0000008c359ff730 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+010 pc=00007ff7afcd6877 sp=0000008c359ff780 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+011 pc=00007ff7afcd97be sp=0000008c359ff7c0 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+012 pc=00007ff7afcd77bb sp=0000008c359ff7f0 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+013 pc=00007ffcfbdf2ec5 sp=0000008c359ff860 register_onexit_function+0xf5
+014 pc=00007ffd6297dda7 sp=0000008c359ff8c0 BaseThreadInitThunk+0x17
+015 pc=00007ffd63f3ee4c sp=0000008c359ff8f0 RtlUserThreadStart+0x2c
+
+THREAD tid=23356 pid=23144
+CONTEXT rip=00007ffd64021e74 rsp=0000008c35aff658 rbp=0000000000000000
+000 pc=00007ffd64021e74 sp=0000008c35aff658 ZwRemoveIoCompletion+0x14
+001 pc=00007ffd61482d5c sp=0000008c35aff660 GetQueuedCompletionStatus+0x6c
+002 pc=00007ff7afd32f35 sp=0000008c35aff6c0 WindowsExecutor::Run+0x165
+003 pc=00007ff7afcd408b sp=0000008c35aff820 IOCP::WorkerThread+0x1b
+004 pc=00007ff7afcd978e sp=0000008c35aff850 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+005 pc=00007ff7afcdc710 sp=0000008c35aff880 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+006 pc=00007ff7afcd97e4 sp=0000008c35aff8b0 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+007 pc=00007ff7afcdc79c sp=0000008c35aff8e0 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+008 pc=00007ff7afcdc755 sp=0000008c35aff910 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+009 pc=00007ff7afcd6dd2 sp=0000008c35aff960 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+010 pc=00007ff7afcd6877 sp=0000008c35aff9b0 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+011 pc=00007ff7afcd97be sp=0000008c35aff9f0 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+012 pc=00007ff7afcd77bb sp=0000008c35affa20 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+013 pc=00007ffcfbdf2ec5 sp=0000008c35affa90 register_onexit_function+0xf5
+014 pc=00007ffd6297dda7 sp=0000008c35affaf0 BaseThreadInitThunk+0x17
+015 pc=00007ffd63f3ee4c sp=0000008c35affb20 RtlUserThreadStart+0x2c
+
+THREAD tid=5484 pid=23144
+CONTEXT rip=00007ffd64021e74 rsp=0000008c35bff368 rbp=0000000000000000
+000 pc=00007ffd64021e74 sp=0000008c35bff368 ZwRemoveIoCompletion+0x14
+001 pc=00007ffd61482d5c sp=0000008c35bff370 GetQueuedCompletionStatus+0x6c
+002 pc=00007ff7afd32f35 sp=0000008c35bff3d0 WindowsExecutor::Run+0x165
+003 pc=00007ff7afcd408b sp=0000008c35bff530 IOCP::WorkerThread+0x1b
+004 pc=00007ff7afcd978e sp=0000008c35bff560 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+005 pc=00007ff7afcdc710 sp=0000008c35bff590 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+006 pc=00007ff7afcd97e4 sp=0000008c35bff5c0 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+007 pc=00007ff7afcdc79c sp=0000008c35bff5f0 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+008 pc=00007ff7afcdc755 sp=0000008c35bff620 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+009 pc=00007ff7afcd6dd2 sp=0000008c35bff670 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+010 pc=00007ff7afcd6877 sp=0000008c35bff6c0 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+011 pc=00007ff7afcd97be sp=0000008c35bff700 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+012 pc=00007ff7afcd77bb sp=0000008c35bff730 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+013 pc=00007ffcfbdf2ec5 sp=0000008c35bff7a0 register_onexit_function+0xf5
+014 pc=00007ffd6297dda7 sp=0000008c35bff800 BaseThreadInitThunk+0x17
+015 pc=00007ffd63f3ee4c sp=0000008c35bff830 RtlUserThreadStart+0x2c
+
+THREAD tid=17856 pid=23144
+CONTEXT rip=00007ffd64021e74 rsp=0000008c35cff4e8 rbp=0000000000000000
+000 pc=00007ffd64021e74 sp=0000008c35cff4e8 ZwRemoveIoCompletion+0x14
+001 pc=00007ffd61482d5c sp=0000008c35cff4f0 GetQueuedCompletionStatus+0x6c
+002 pc=00007ff7afd32f35 sp=0000008c35cff550 WindowsExecutor::Run+0x165
+003 pc=00007ff7afcd408b sp=0000008c35cff6b0 IOCP::WorkerThread+0x1b
+004 pc=00007ff7afcd978e sp=0000008c35cff6e0 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+005 pc=00007ff7afcdc710 sp=0000008c35cff710 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+006 pc=00007ff7afcd97e4 sp=0000008c35cff740 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+007 pc=00007ff7afcdc79c sp=0000008c35cff770 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+008 pc=00007ff7afcdc755 sp=0000008c35cff7a0 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+009 pc=00007ff7afcd6dd2 sp=0000008c35cff7f0 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+010 pc=00007ff7afcd6877 sp=0000008c35cff840 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+011 pc=00007ff7afcd97be sp=0000008c35cff880 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+012 pc=00007ff7afcd77bb sp=0000008c35cff8b0 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+013 pc=00007ffcfbdf2ec5 sp=0000008c35cff920 register_onexit_function+0xf5
+014 pc=00007ffd6297dda7 sp=0000008c35cff980 BaseThreadInitThunk+0x17
+015 pc=00007ffd63f3ee4c sp=0000008c35cff9b0 RtlUserThreadStart+0x2c
+
+THREAD tid=15196 pid=23144
+CONTEXT rip=00007ffd64021e74 rsp=0000008c35dff9b8 rbp=0000000000000000
+000 pc=00007ffd64021e74 sp=0000008c35dff9b8 ZwRemoveIoCompletion+0x14
+001 pc=00007ffd61482d5c sp=0000008c35dff9c0 GetQueuedCompletionStatus+0x6c
+002 pc=00007ff7afd32f35 sp=0000008c35dffa20 WindowsExecutor::Run+0x165
+003 pc=00007ff7afcd408b sp=0000008c35dffb80 IOCP::WorkerThread+0x1b
+004 pc=00007ff7afcd978e sp=0000008c35dffbb0 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+005 pc=00007ff7afcdc710 sp=0000008c35dffbe0 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+006 pc=00007ff7afcd97e4 sp=0000008c35dffc10 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+007 pc=00007ff7afcdc79c sp=0000008c35dffc40 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+008 pc=00007ff7afcdc755 sp=0000008c35dffc70 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+009 pc=00007ff7afcd6dd2 sp=0000008c35dffcc0 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+010 pc=00007ff7afcd6877 sp=0000008c35dffd10 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+011 pc=00007ff7afcd97be sp=0000008c35dffd50 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+012 pc=00007ff7afcd77bb sp=0000008c35dffd80 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+013 pc=00007ffcfbdf2ec5 sp=0000008c35dffdf0 register_onexit_function+0xf5
+014 pc=00007ffd6297dda7 sp=0000008c35dffe50 BaseThreadInitThunk+0x17
+015 pc=00007ffd63f3ee4c sp=0000008c35dffe80 RtlUserThreadStart+0x2c
+
+THREAD tid=11384 pid=23144
+CONTEXT rip=00007ffd64021e74 rsp=0000008c35eff908 rbp=0000000000000000
+000 pc=00007ffd64021e74 sp=0000008c35eff908 ZwRemoveIoCompletion+0x14
+001 pc=00007ffd61482d5c sp=0000008c35eff910 GetQueuedCompletionStatus+0x6c
+002 pc=00007ff7afd32f35 sp=0000008c35eff970 WindowsExecutor::Run+0x165
+003 pc=00007ff7afcd408b sp=0000008c35effad0 IOCP::WorkerThread+0x1b
+004 pc=00007ff7afcd978e sp=0000008c35effb00 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+005 pc=00007ff7afcdc710 sp=0000008c35effb30 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+006 pc=00007ff7afcd97e4 sp=0000008c35effb60 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+007 pc=00007ff7afcdc79c sp=0000008c35effb90 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+008 pc=00007ff7afcdc755 sp=0000008c35effbc0 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+009 pc=00007ff7afcd6dd2 sp=0000008c35effc10 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+010 pc=00007ff7afcd6877 sp=0000008c35effc60 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+011 pc=00007ff7afcd97be sp=0000008c35effca0 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+012 pc=00007ff7afcd77bb sp=0000008c35effcd0 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+013 pc=00007ffcfbdf2ec5 sp=0000008c35effd40 register_onexit_function+0xf5
+014 pc=00007ffd6297dda7 sp=0000008c35effda0 BaseThreadInitThunk+0x17
+015 pc=00007ffd63f3ee4c sp=0000008c35effdd0 RtlUserThreadStart+0x2c
+
+THREAD tid=23148 pid=23144
+CONTEXT rip=00007ffd64021e74 rsp=0000008c35fff868 rbp=0000000000000000
+000 pc=00007ffd64021e74 sp=0000008c35fff868 ZwRemoveIoCompletion+0x14
+001 pc=00007ffd61482d5c sp=0000008c35fff870 GetQueuedCompletionStatus+0x6c
+002 pc=00007ff7afd32f35 sp=0000008c35fff8d0 WindowsExecutor::Run+0x165
+003 pc=00007ff7afcd408b sp=0000008c35fffa30 IOCP::WorkerThread+0x1b
+004 pc=00007ff7afcd978e sp=0000008c35fffa60 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+005 pc=00007ff7afcdc710 sp=0000008c35fffa90 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+006 pc=00007ff7afcd97e4 sp=0000008c35fffac0 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+007 pc=00007ff7afcdc79c sp=0000008c35fffaf0 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+008 pc=00007ff7afcdc755 sp=0000008c35fffb20 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+009 pc=00007ff7afcd6dd2 sp=0000008c35fffb70 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+010 pc=00007ff7afcd6877 sp=0000008c35fffbc0 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+011 pc=00007ff7afcd97be sp=0000008c35fffc00 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+012 pc=00007ff7afcd77bb sp=0000008c35fffc30 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+013 pc=00007ffcfbdf2ec5 sp=0000008c35fffca0 register_onexit_function+0xf5
+014 pc=00007ffd6297dda7 sp=0000008c35fffd00 BaseThreadInitThunk+0x17
+015 pc=00007ffd63f3ee4c sp=0000008c35fffd30 RtlUserThreadStart+0x2c
+
+THREAD tid=25664 pid=23144
+CONTEXT rip=00007ffd64021e74 rsp=0000008c360ff8d8 rbp=0000000000000000
+000 pc=00007ffd64021e74 sp=0000008c360ff8d8 ZwRemoveIoCompletion+0x14
+001 pc=00007ffd61482d5c sp=0000008c360ff8e0 GetQueuedCompletionStatus+0x6c
+002 pc=00007ff7afd32f35 sp=0000008c360ff940 WindowsExecutor::Run+0x165
+003 pc=00007ff7afcd408b sp=0000008c360ffaa0 IOCP::WorkerThread+0x1b
+004 pc=00007ff7afcd978e sp=0000008c360ffad0 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+005 pc=00007ff7afcdc710 sp=0000008c360ffb00 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+006 pc=00007ff7afcd97e4 sp=0000008c360ffb30 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+007 pc=00007ff7afcdc79c sp=0000008c360ffb60 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+008 pc=00007ff7afcdc755 sp=0000008c360ffb90 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+009 pc=00007ff7afcd6dd2 sp=0000008c360ffbe0 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+010 pc=00007ff7afcd6877 sp=0000008c360ffc30 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+011 pc=00007ff7afcd97be sp=0000008c360ffc70 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+012 pc=00007ff7afcd77bb sp=0000008c360ffca0 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+013 pc=00007ffcfbdf2ec5 sp=0000008c360ffd10 register_onexit_function+0xf5
+014 pc=00007ffd6297dda7 sp=0000008c360ffd70 BaseThreadInitThunk+0x17
+015 pc=00007ffd63f3ee4c sp=0000008c360ffda0 RtlUserThreadStart+0x2c
+
+THREAD tid=12560 pid=23144
+CONTEXT rip=00007ffd64021e74 rsp=0000008c361ff348 rbp=0000000000000000
+000 pc=00007ffd64021e74 sp=0000008c361ff348 ZwRemoveIoCompletion+0x14
+001 pc=00007ffd61482d5c sp=0000008c361ff350 GetQueuedCompletionStatus+0x6c
+002 pc=00007ff7afd32f35 sp=0000008c361ff3b0 WindowsExecutor::Run+0x165
+003 pc=00007ff7afcd408b sp=0000008c361ff510 IOCP::WorkerThread+0x1b
+004 pc=00007ff7afcd978e sp=0000008c361ff540 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+005 pc=00007ff7afcdc710 sp=0000008c361ff570 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+006 pc=00007ff7afcd97e4 sp=0000008c361ff5a0 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+007 pc=00007ff7afcdc79c sp=0000008c361ff5d0 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+008 pc=00007ff7afcdc755 sp=0000008c361ff600 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+009 pc=00007ff7afcd6dd2 sp=0000008c361ff650 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+010 pc=00007ff7afcd6877 sp=0000008c361ff6a0 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+011 pc=00007ff7afcd97be sp=0000008c361ff6e0 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+012 pc=00007ff7afcd77bb sp=0000008c361ff710 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+013 pc=00007ffcfbdf2ec5 sp=0000008c361ff780 register_onexit_function+0xf5
+014 pc=00007ffd6297dda7 sp=0000008c361ff7e0 BaseThreadInitThunk+0x17
+015 pc=00007ffd63f3ee4c sp=0000008c361ff810 RtlUserThreadStart+0x2c
+
+THREAD tid=13280 pid=23144
+CONTEXT rip=00007ffd64021e74 rsp=0000008c362ff478 rbp=0000000000000000
+000 pc=00007ffd64021e74 sp=0000008c362ff478 ZwRemoveIoCompletion+0x14
+001 pc=00007ffd61482d5c sp=0000008c362ff480 GetQueuedCompletionStatus+0x6c
+002 pc=00007ff7afd32f35 sp=0000008c362ff4e0 WindowsExecutor::Run+0x165
+003 pc=00007ff7afcd408b sp=0000008c362ff640 IOCP::WorkerThread+0x1b
+004 pc=00007ff7afcd978e sp=0000008c362ff670 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+005 pc=00007ff7afcdc710 sp=0000008c362ff6a0 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+006 pc=00007ff7afcd97e4 sp=0000008c362ff6d0 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+007 pc=00007ff7afcdc79c sp=0000008c362ff700 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+008 pc=00007ff7afcdc755 sp=0000008c362ff730 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+009 pc=00007ff7afcd6dd2 sp=0000008c362ff780 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+010 pc=00007ff7afcd6877 sp=0000008c362ff7d0 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+011 pc=00007ff7afcd97be sp=0000008c362ff810 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+012 pc=00007ff7afcd77bb sp=0000008c362ff840 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+013 pc=00007ffcfbdf2ec5 sp=0000008c362ff8b0 register_onexit_function+0xf5
+014 pc=00007ffd6297dda7 sp=0000008c362ff910 BaseThreadInitThunk+0x17
+015 pc=00007ffd63f3ee4c sp=0000008c362ff940 RtlUserThreadStart+0x2c
+
+THREAD tid=15724 pid=23144
+CONTEXT rip=00007ffd64021e74 rsp=0000008c363ff688 rbp=0000000000000000
+000 pc=00007ffd64021e74 sp=0000008c363ff688 ZwRemoveIoCompletion+0x14
+001 pc=00007ffd61482d5c sp=0000008c363ff690 GetQueuedCompletionStatus+0x6c
+002 pc=00007ff7afd32f35 sp=0000008c363ff6f0 WindowsExecutor::Run+0x165
+003 pc=00007ff7afcd408b sp=0000008c363ff850 IOCP::WorkerThread+0x1b
+004 pc=00007ff7afcd978e sp=0000008c363ff880 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+005 pc=00007ff7afcdc710 sp=0000008c363ff8b0 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+006 pc=00007ff7afcd97e4 sp=0000008c363ff8e0 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+007 pc=00007ff7afcdc79c sp=0000008c363ff910 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+008 pc=00007ff7afcdc755 sp=0000008c363ff940 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+009 pc=00007ff7afcd6dd2 sp=0000008c363ff990 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+010 pc=00007ff7afcd6877 sp=0000008c363ff9e0 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+011 pc=00007ff7afcd97be sp=0000008c363ffa20 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+012 pc=00007ff7afcd77bb sp=0000008c363ffa50 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+013 pc=00007ffcfbdf2ec5 sp=0000008c363ffac0 register_onexit_function+0xf5
+014 pc=00007ffd6297dda7 sp=0000008c363ffb20 BaseThreadInitThunk+0x17
+015 pc=00007ffd63f3ee4c sp=0000008c363ffb50 RtlUserThreadStart+0x2c
+
+THREAD tid=22652 pid=23144
+CONTEXT rip=00007ff7afb876fd rsp=0000008c364fe808 rbp=0000000000000000
+000 pc=00007ff7afb876fd sp=0000008c364fe808 ILT+26360(?_Check_load_memory_orderstdYAXW4memory_order+0x0
+001 pc=00007ff7afcbe4c4 sp=0000008c364fe810 std::_Atomic_storage<int,4>::load+0x34
+002 pc=00007ff7afd2d240 sp=0000008c364fe850 LockFreeFixedQueue<SendBufferImpl *,128>::Dequeue+0x60
+003 pc=00007ff7afd24688 sp=0000008c364fe900 Session::RealSend+0x4b8
+004 pc=00007ff7afd250a0 sp=0000008c364ff390 `Session::Session'::`2'::<lambda_1>::operator()+0x20
+005 pc=00007ff7afd2ba5d sp=0000008c364ff3c0 std::invoke<`Session::Session'::`2'::<lambda_1> &,NetError,unsigned __int64>+0x2d
+006 pc=00007ff7afd26bdf sp=0000008c364ff3f0 std::_Func_impl_no_alloc<`Session::Session'::`2'::<lambda_1>,void,NetError,unsigned __int64>::_Do_call+0x2f
+007 pc=00007ff7afd35bed sp=0000008c364ff420 std::_Func_class<void,NetError,unsigned __int64>::operator()+0x5d
+008 pc=00007ff7afd35ce8 sp=0000008c364ff460 WindowsExecutable::Execute+0xd8
+009 pc=00007ff7afd33ae7 sp=0000008c364ff4d0 `WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1>::operator()+0x17
+010 pc=00007ff7afd34fe4 sp=0000008c364ff500 std::invoke<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >+0x14
+011 pc=00007ff7afd33bcc sp=0000008c364ff530 ``psh::util::RunWithTrace<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+012 pc=00007ff7afd33b65 sp=0000008c364ff560 `psh::util::RunWithTrace<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+013 pc=00007ff7afd34642 sp=0000008c364ff5b0 psh::util::RunWithTrace<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >+0x32
+014 pc=00007ff7afd337bb sp=0000008c364ff600 WindowsExecutor::ExecuteNoThrow+0x7b
+015 pc=00007ff7afd33076 sp=0000008c364ff6d0 WindowsExecutor::Run+0x2a6
+016 pc=00007ff7afcd408b sp=0000008c364ff830 IOCP::WorkerThread+0x1b
+017 pc=00007ff7afcd978e sp=0000008c364ff860 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+018 pc=00007ff7afcdc710 sp=0000008c364ff890 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+019 pc=00007ff7afcd97e4 sp=0000008c364ff8c0 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+020 pc=00007ff7afcdc79c sp=0000008c364ff8f0 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+021 pc=00007ff7afcdc755 sp=0000008c364ff920 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+022 pc=00007ff7afcd6dd2 sp=0000008c364ff970 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+023 pc=00007ff7afcd6877 sp=0000008c364ff9c0 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+024 pc=00007ff7afcd97be sp=0000008c364ffa00 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+025 pc=00007ff7afcd77bb sp=0000008c364ffa30 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+026 pc=00007ffcfbdf2ec5 sp=0000008c364ffaa0 register_onexit_function+0xf5
+027 pc=00007ffd6297dda7 sp=0000008c364ffb00 BaseThreadInitThunk+0x17
+028 pc=00007ffd63f3ee4c sp=0000008c364ffb30 RtlUserThreadStart+0x2c
+
+THREAD tid=11472 pid=23144
+CONTEXT rip=00007ffd64021e74 rsp=0000008c365ff7e8 rbp=0000000000000000
+000 pc=00007ffd64021e74 sp=0000008c365ff7e8 ZwRemoveIoCompletion+0x14
+001 pc=00007ffd61482d5c sp=0000008c365ff7f0 GetQueuedCompletionStatus+0x6c
+002 pc=00007ff7afd32f35 sp=0000008c365ff850 WindowsExecutor::Run+0x165
+003 pc=00007ff7afcd408b sp=0000008c365ff9b0 IOCP::WorkerThread+0x1b
+004 pc=00007ff7afcd978e sp=0000008c365ff9e0 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+005 pc=00007ff7afcdc710 sp=0000008c365ffa10 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+006 pc=00007ff7afcd97e4 sp=0000008c365ffa40 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+007 pc=00007ff7afcdc79c sp=0000008c365ffa70 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+008 pc=00007ff7afcdc755 sp=0000008c365ffaa0 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+009 pc=00007ff7afcd6dd2 sp=0000008c365ffaf0 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+010 pc=00007ff7afcd6877 sp=0000008c365ffb40 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+011 pc=00007ff7afcd97be sp=0000008c365ffb80 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+012 pc=00007ff7afcd77bb sp=0000008c365ffbb0 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+013 pc=00007ffcfbdf2ec5 sp=0000008c365ffc20 register_onexit_function+0xf5
+014 pc=00007ffd6297dda7 sp=0000008c365ffc80 BaseThreadInitThunk+0x17
+015 pc=00007ffd63f3ee4c sp=0000008c365ffcb0 RtlUserThreadStart+0x2c
+
+THREAD tid=28608 pid=23144
+CONTEXT rip=00007ffd64021e74 rsp=0000008c366ff9a8 rbp=0000000000000000
+000 pc=00007ffd64021e74 sp=0000008c366ff9a8 ZwRemoveIoCompletion+0x14
+001 pc=00007ffd61482d5c sp=0000008c366ff9b0 GetQueuedCompletionStatus+0x6c
+002 pc=00007ff7afd32f35 sp=0000008c366ffa10 WindowsExecutor::Run+0x165
+003 pc=00007ff7afcd408b sp=0000008c366ffb70 IOCP::WorkerThread+0x1b
+004 pc=00007ff7afcd978e sp=0000008c366ffba0 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+005 pc=00007ff7afcdc710 sp=0000008c366ffbd0 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+006 pc=00007ff7afcd97e4 sp=0000008c366ffc00 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+007 pc=00007ff7afcdc79c sp=0000008c366ffc30 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+008 pc=00007ff7afcdc755 sp=0000008c366ffc60 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+009 pc=00007ff7afcd6dd2 sp=0000008c366ffcb0 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+010 pc=00007ff7afcd6877 sp=0000008c366ffd00 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+011 pc=00007ff7afcd97be sp=0000008c366ffd40 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+012 pc=00007ff7afcd77bb sp=0000008c366ffd70 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+013 pc=00007ffcfbdf2ec5 sp=0000008c366ffde0 register_onexit_function+0xf5
+014 pc=00007ffd6297dda7 sp=0000008c366ffe40 BaseThreadInitThunk+0x17
+015 pc=00007ffd63f3ee4c sp=0000008c366ffe70 RtlUserThreadStart+0x2c
+
+THREAD tid=9412 pid=23144
+CONTEXT rip=00007ffd64021e74 rsp=0000008c367ff528 rbp=0000000000000000
+000 pc=00007ffd64021e74 sp=0000008c367ff528 ZwRemoveIoCompletion+0x14
+001 pc=00007ffd61482d5c sp=0000008c367ff530 GetQueuedCompletionStatus+0x6c
+002 pc=00007ff7afd32f35 sp=0000008c367ff590 WindowsExecutor::Run+0x165
+003 pc=00007ff7afcd408b sp=0000008c367ff6f0 IOCP::WorkerThread+0x1b
+004 pc=00007ff7afcd978e sp=0000008c367ff720 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+005 pc=00007ff7afcdc710 sp=0000008c367ff750 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+006 pc=00007ff7afcd97e4 sp=0000008c367ff780 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+007 pc=00007ff7afcdc79c sp=0000008c367ff7b0 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+008 pc=00007ff7afcdc755 sp=0000008c367ff7e0 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+009 pc=00007ff7afcd6dd2 sp=0000008c367ff830 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+010 pc=00007ff7afcd6877 sp=0000008c367ff880 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+011 pc=00007ff7afcd97be sp=0000008c367ff8c0 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+012 pc=00007ff7afcd77bb sp=0000008c367ff8f0 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+013 pc=00007ffcfbdf2ec5 sp=0000008c367ff960 register_onexit_function+0xf5
+014 pc=00007ffd6297dda7 sp=0000008c367ff9c0 BaseThreadInitThunk+0x17
+015 pc=00007ffd63f3ee4c sp=0000008c367ff9f0 RtlUserThreadStart+0x2c
+
+THREAD tid=6920 pid=23144
+CONTEXT rip=00007ffd63f2ecc5 rsp=0000008c368fe958 rbp=0000000000000000
+000 pc=00007ffd63f2ecc5 sp=0000008c368fe958 RtlQueryPerformanceCounter+0x5
+001 pc=00007ffd31a647af sp=0000008c368fe960 Query_perf_counter+0xf
+002 pc=00007ff7afc5af0c sp=0000008c368fe9a0 std::chrono::steady_clock::now+0x1c
+003 pc=00007ff7afd24363 sp=0000008c368fea60 Session::RealSend+0x193
+004 pc=00007ff7afd250a0 sp=0000008c368ff4f0 `Session::Session'::`2'::<lambda_1>::operator()+0x20
+005 pc=00007ff7afd2ba5d sp=0000008c368ff520 std::invoke<`Session::Session'::`2'::<lambda_1> &,NetError,unsigned __int64>+0x2d
+006 pc=00007ff7afd26bdf sp=0000008c368ff550 std::_Func_impl_no_alloc<`Session::Session'::`2'::<lambda_1>,void,NetError,unsigned __int64>::_Do_call+0x2f
+007 pc=00007ff7afd35bed sp=0000008c368ff580 std::_Func_class<void,NetError,unsigned __int64>::operator()+0x5d
+008 pc=00007ff7afd35ce8 sp=0000008c368ff5c0 WindowsExecutable::Execute+0xd8
+009 pc=00007ff7afd33ae7 sp=0000008c368ff630 `WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1>::operator()+0x17
+010 pc=00007ff7afd34fe4 sp=0000008c368ff660 std::invoke<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >+0x14
+011 pc=00007ff7afd33bcc sp=0000008c368ff690 ``psh::util::RunWithTrace<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+012 pc=00007ff7afd33b65 sp=0000008c368ff6c0 `psh::util::RunWithTrace<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+013 pc=00007ff7afd34642 sp=0000008c368ff710 psh::util::RunWithTrace<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >+0x32
+014 pc=00007ff7afd337bb sp=0000008c368ff760 WindowsExecutor::ExecuteNoThrow+0x7b
+015 pc=00007ff7afd33076 sp=0000008c368ff830 WindowsExecutor::Run+0x2a6
+016 pc=00007ff7afcd408b sp=0000008c368ff990 IOCP::WorkerThread+0x1b
+017 pc=00007ff7afcd978e sp=0000008c368ff9c0 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+018 pc=00007ff7afcdc710 sp=0000008c368ff9f0 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+019 pc=00007ff7afcd97e4 sp=0000008c368ffa20 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+020 pc=00007ff7afcdc79c sp=0000008c368ffa50 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+021 pc=00007ff7afcdc755 sp=0000008c368ffa80 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+022 pc=00007ff7afcd6dd2 sp=0000008c368ffad0 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+023 pc=00007ff7afcd6877 sp=0000008c368ffb20 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+024 pc=00007ff7afcd97be sp=0000008c368ffb60 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+025 pc=00007ff7afcd77bb sp=0000008c368ffb90 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+026 pc=00007ffcfbdf2ec5 sp=0000008c368ffc00 register_onexit_function+0xf5
+027 pc=00007ffd6297dda7 sp=0000008c368ffc60 BaseThreadInitThunk+0x17
+028 pc=00007ffd63f3ee4c sp=0000008c368ffc90 RtlUserThreadStart+0x2c
+
+THREAD tid=27544 pid=23144
+CONTEXT rip=00007ffd640223d4 rsp=0000008c369ff518 rbp=0000000000000000
+000 pc=00007ffd640223d4 sp=0000008c369ff518 ZwDelayExecution+0x14
+001 pc=00007ffd63f90fd4 sp=0000008c369ff520 RtlDelayExecution+0x34
+002 pc=00007ffd614eb9c1 sp=0000008c369ff550 SleepEx+0x91
+003 pc=00007ff7afdcd9d2 sp=0000008c369ff5e0 _Thrd_sleep_for+0x12
+004 pc=00007ff7afcda374 sp=0000008c369ff610 std::this_thread::sleep_until<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > >+0xb4
+005 pc=00007ff7afcda2a1 sp=0000008c369ff670 std::this_thread::sleep_for<__int64,std::ratio<1,1000> >+0x21
+006 pc=00007ff7afcd403b sp=0000008c369ff6b0 IOCP::GroupThread+0x15b
+007 pc=00007ff7afcd978e sp=0000008c369ff780 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+008 pc=00007ff7afcdc710 sp=0000008c369ff7b0 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+009 pc=00007ff7afcd97e4 sp=0000008c369ff7e0 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+010 pc=00007ff7afcdc79c sp=0000008c369ff810 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+011 pc=00007ff7afcdc755 sp=0000008c369ff840 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+012 pc=00007ff7afcd6dd2 sp=0000008c369ff890 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+013 pc=00007ff7afcd6877 sp=0000008c369ff8e0 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+014 pc=00007ff7afcd97be sp=0000008c369ff920 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+015 pc=00007ff7afcd77bb sp=0000008c369ff950 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+016 pc=00007ffcfbdf2ec5 sp=0000008c369ff9c0 register_onexit_function+0xf5
+017 pc=00007ffd6297dda7 sp=0000008c369ffa20 BaseThreadInitThunk+0x17
+018 pc=00007ffd63f3ee4c sp=0000008c369ffa50 RtlUserThreadStart+0x2c
+
+THREAD tid=23164 pid=23144
+CONTEXT rip=00007ffd640223d4 rsp=0000008c36aff2e8 rbp=0000000000000000
+000 pc=00007ffd640223d4 sp=0000008c36aff2e8 ZwDelayExecution+0x14
+001 pc=00007ffd63f90fd4 sp=0000008c36aff2f0 RtlDelayExecution+0x34
+002 pc=00007ffd614eb9c1 sp=0000008c36aff320 SleepEx+0x91
+003 pc=00007ff7afdcd9d2 sp=0000008c36aff3b0 _Thrd_sleep_for+0x12
+004 pc=00007ff7afcda374 sp=0000008c36aff3e0 std::this_thread::sleep_until<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > >+0xb4
+005 pc=00007ff7afcda2a1 sp=0000008c36aff440 std::this_thread::sleep_for<__int64,std::ratio<1,1000> >+0x21
+006 pc=00007ff7afcd4a88 sp=0000008c36aff480 IOCP::TimeoutThread+0x308
+007 pc=00007ff7afcd978e sp=0000008c36aff660 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+008 pc=00007ff7afcdc710 sp=0000008c36aff690 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+009 pc=00007ff7afcd97e4 sp=0000008c36aff6c0 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+010 pc=00007ff7afcdc79c sp=0000008c36aff6f0 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+011 pc=00007ff7afcdc755 sp=0000008c36aff720 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+012 pc=00007ff7afcd6dd2 sp=0000008c36aff770 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+013 pc=00007ff7afcd6877 sp=0000008c36aff7c0 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+014 pc=00007ff7afcd97be sp=0000008c36aff800 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+015 pc=00007ff7afcd77bb sp=0000008c36aff830 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+016 pc=00007ffcfbdf2ec5 sp=0000008c36aff8a0 register_onexit_function+0xf5
+017 pc=00007ffd6297dda7 sp=0000008c36aff900 BaseThreadInitThunk+0x17
+018 pc=00007ffd63f3ee4c sp=0000008c36aff930 RtlUserThreadStart+0x2c
+
+THREAD tid=14352 pid=23144
+CONTEXT rip=00007ffd640223d4 rsp=0000008c36bff848 rbp=0000000000000000
+000 pc=00007ffd640223d4 sp=0000008c36bff848 ZwDelayExecution+0x14
+001 pc=00007ffd63f90fd4 sp=0000008c36bff850 RtlDelayExecution+0x34
+002 pc=00007ffd614eb9c1 sp=0000008c36bff880 SleepEx+0x91
+003 pc=00007ff7afdcd9d2 sp=0000008c36bff910 _Thrd_sleep_for+0x12
+004 pc=00007ff7afcda374 sp=0000008c36bff940 std::this_thread::sleep_until<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > >+0xb4
+005 pc=00007ff7afcda2a1 sp=0000008c36bff9a0 std::this_thread::sleep_for<__int64,std::ratio<1,1000> >+0x21
+006 pc=00007ff7afcd4745 sp=0000008c36bff9e0 IOCP::MonitorThread+0x2b5
+007 pc=00007ff7afcd978e sp=0000008c36bffaa0 std::invoke<void (__cdecl IOCP::*&)(void),IOCP *>+0x1e
+008 pc=00007ff7afcdc710 sp=0000008c36bffad0 ``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1>::operator()+0x20
+009 pc=00007ff7afcd97e4 sp=0000008c36bffb00 std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x14
+010 pc=00007ff7afcdc79c sp=0000008c36bffb30 ``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator()+0x1c
+011 pc=00007ff7afcdc755 sp=0000008c36bffb60 `psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()+0x35
+012 pc=00007ff7afcd6dd2 sp=0000008c36bffbb0 psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>'::`2'::<lambda_1> >+0x32
+013 pc=00007ff7afcd6877 sp=0000008c36bffc00 `psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>::operator()<IOCP *>+0x57
+014 pc=00007ff7afcd97be sp=0000008c36bffc40 std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>+0x1e
+015 pc=00007ff7afcd77bb sp=0000008c36bffc70 std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (__cdecl IOCP::*)(void),IOCP *>'::`1'::<lambda_12_>,IOCP *>,0,1>+0x6b
+016 pc=00007ffcfbdf2ec5 sp=0000008c36bffce0 register_onexit_function+0xf5
+017 pc=00007ffd6297dda7 sp=0000008c36bffd40 BaseThreadInitThunk+0x17
+018 pc=00007ffd63f3ee4c sp=0000008c36bffd70 RtlUserThreadStart+0x2c
+
+THREAD tid=11368 pid=23144
+CONTEXT rip=00007ffd64025a24 rsp=0000008c36cffaf8 rbp=0000000000000000
+000 pc=00007ffd64025a24 sp=0000008c36cffaf8 NtWaitForWorkViaWorkerFactory+0x14
+001 pc=00007ffd63ee4d0e sp=0000008c36cffb00 TpCallbackMayRunLong+0x1a0e
+002 pc=00007ffd6297dda7 sp=0000008c36cffe60 BaseThreadInitThunk+0x17
+003 pc=00007ffd63f3ee4c sp=0000008c36cffe90 RtlUserThreadStart+0x2c
+
+THREAD tid=20764 pid=23144
+CONTEXT rip=00007ffd64025a24 rsp=0000008c36dff9e8 rbp=0000000000000000
+000 pc=00007ffd64025a24 sp=0000008c36dff9e8 NtWaitForWorkViaWorkerFactory+0x14
+001 pc=00007ffd63ee4d0e sp=0000008c36dff9f0 TpCallbackMayRunLong+0x1a0e
+002 pc=00007ffd6297dda7 sp=0000008c36dffd50 BaseThreadInitThunk+0x17
+003 pc=00007ffd63f3ee4c sp=0000008c36dffd80 RtlUserThreadStart+0x2c
+
+THREADS=38 ERRORS=0

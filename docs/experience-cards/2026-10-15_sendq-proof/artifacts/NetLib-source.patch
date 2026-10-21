@@ -1,0 +1,445 @@
+diff --git a/include/Group.h b/include/Group.h
+index 558e034..e317b7c 100644
+--- a/include/Group.h
++++ b/include/Group.h
+@@ -116,6 +116,7 @@ private:
+         int errCode = -1;
+         GroupID dst = GroupID(0);
+         std::size_t transferred{0};
++        std::chrono::steady_clock::time_point queuedAt{};
+     };
+     enum class UpdateState
+     {
+diff --git a/include/LockFreeFixedQueue.h b/include/LockFreeFixedQueue.h
+index 1159409..bf1df56 100644
+--- a/include/LockFreeFixedQueue.h
++++ b/include/LockFreeFixedQueue.h
+@@ -1,9 +1,13 @@
+ #pragma once
+ #include "Container.h"
+ #include "Macro.h"
++#include "LatencyProbe.h"
+ 
+ #include <atomic>
+ #include <utility>
++#include <array>
++#include <mutex>
++#include <thread>
+ 
+ template <typename T, int BufferSize>
+ class LockFreeFixedQueue
+@@ -41,10 +45,23 @@ public:
+ 
+     bool Enqueue(const T& data)
+     {
++        ProbeOperation operation(*this);
+         const int tail = tailIndex.fetch_add(1);
++        Record("reserve", tail);
+ 
+         if (buffer[tail & indexMask].isUsed.load() == true)
+         {
++            if (psh::diagnostics::ThresholdUs() > 0)
++            {
++                lastFailedTicket.store(tail);
++                Record("fail", tail);
++                if (failedReservations.fetch_add(1) == 0)
++                {
++                    std::fprintf(stderr, "[QUEUE_RESERVATION_FAILED] unix_ms=%lld queue=%p head=%d ticket=%d tail=%d capacity=%d\n",
++                        psh::diagnostics::UnixMs(), static_cast<void*>(this), headIndex.load(), tail, tailIndex.load(), BufferSize);
++                    PrintDiagnostic("failure-observation", probeSession.load());
++                }
++            }
+             return false;
+         }
+ 
+@@ -53,11 +70,13 @@ public:
+         {
+             psh::util::DebugBreak();
+         }
++        Record("publish", tail);
+         return true;
+     }
+ 
+     bool Dequeue(T& data)
+     {
++        ProbeOperation operation(*this);
+         int head;
+         for (;;)
+         {
+@@ -80,10 +99,94 @@ public:
+         {
+             psh::util::DebugBreak();
+         }
++        Record("consume", head);
+ 
+         return true;
+     }
+ 
++    // 원자 값만 읽습니다. 실행 중인 스냅샷이므로 값 사이의 동시 변경은 가능합니다.
++    void PrintDiagnostic(const char* reason, unsigned long long session) const
++    {
++        const auto epochBefore = probeEpoch.load();
++        const auto activeBefore = probeActive.load();
++        const auto head = headIndex.load();
++        const auto tail = tailIndex.load();
++        int occupied = 0;
++        std::array<char, BufferSize + 1> used{};
++        for (int i = 0; i < BufferSize; ++i) { const bool value = buffer[i].isUsed.load(); occupied += value ? 1 : 0; used[i] = value ? '1' : '0'; }
++        const auto activeAfter = probeActive.load();
++        const auto epochAfter = probeEpoch.load();
++        std::fprintf(stderr, "[SEND_QUEUE_STATE] unix_ms=%lld reason=%s session=%llu queue=%p head=%d tail=%d head_used=%d occupied=%d failures=%llu last_failed_ticket=%d\n",
++            psh::diagnostics::UnixMs(), reason, session, static_cast<const void*>(this), head, tail,
++            buffer[head & indexMask].isUsed.load() ? 1 : 0, occupied, failedReservations.load(), lastFailedTicket.load());
++        // 실패 관측은 자기 연산 하나, 수명 경계와 송신 관측은 연산 영 개일 때만 안정 관측입니다.
++        std::fprintf(stderr, "[SENDQ_PROBE] unix_ms=%lld reason=%s queue=%p session=%llu generation=%llu head=%d tail=%d occupied=%d active_before=%d active_after=%d epoch_before=%llu epoch_after=%llu slots=%s\n",
++            psh::diagnostics::UnixMs(), reason, static_cast<const void*>(this), session, probeGeneration.load(), head, tail, occupied,
++            activeBefore, activeAfter, epochBefore, epochAfter, used.data());
++        PrintHistory(reason);
++    }
++
++    void ProbeIdentity(unsigned long long session)
++    {
++        if (psh::diagnostics::ThresholdUs() <= 0) return;
++        probeSession.store(session);
++        probeGeneration.fetch_add(1);
++        Record("reuse", headIndex.load());
++        if (failedReservations.load()) PrintDiagnostic("reuse", session);
++    }
++
++    // 이력 순서는 계측 완료 순서입니다. 큐의 원자 연산 순서와 같다고 가정하지 않습니다.
++    struct ProbeEvent
++    {
++        unsigned long long sequence{}, session{}, generation{};
++        long long us{};
++        const char* kind{};
++        int ticket{}, head{}, tail{}, thread{};
++    };
++    static constexpr size_t ProbeCapacity = 1024;
++    mutable std::mutex probeMutex;
++    std::array<ProbeEvent, ProbeCapacity> probeHistory{};
++    unsigned long long probeSequence{};
++    std::atomic<unsigned long long> probeSession{0}, probeGeneration{0}, probeEpoch{0};
++    std::atomic<int> probeActive{0};
++
++    struct ProbeOperation
++    {
++        LockFreeFixedQueue& queue;
++        bool enabled;
++        explicit ProbeOperation(LockFreeFixedQueue& q) : queue(q), enabled(psh::diagnostics::ThresholdUs() > 0)
++        {
++            if (enabled) { queue.probeActive.fetch_add(1); queue.probeEpoch.fetch_add(1); }
++        }
++        ~ProbeOperation()
++        {
++            if (enabled) { queue.probeEpoch.fetch_add(1); queue.probeActive.fetch_sub(1); }
++        }
++    };
++    void Record(const char* kind, int ticket)
++    {
++        if (psh::diagnostics::ThresholdUs() <= 0) return;
++        const auto us = std::chrono::duration_cast<std::chrono::microseconds>(psh::diagnostics::Clock::now().time_since_epoch()).count();
++        const auto thread = static_cast<int>(std::hash<std::thread::id>{}(std::this_thread::get_id()));
++        std::lock_guard lock(probeMutex);
++        const auto sequence = ++probeSequence;
++        probeHistory[(sequence - 1) % ProbeCapacity] = {sequence, probeSession.load(), probeGeneration.load(), us, kind, ticket, headIndex.load(), tailIndex.load(), thread};
++    }
++    void PrintHistory(const char* reason) const
++    {
++        std::lock_guard lock(probeMutex);
++        const auto first = probeSequence > ProbeCapacity ? probeSequence - ProbeCapacity + 1 : 1;
++        for (auto seq = first; seq <= probeSequence; ++seq)
++        {
++            const auto& e = probeHistory[(seq - 1) % ProbeCapacity];
++            std::fprintf(stderr, "[SENDQ_EVENT] reason=%s queue=%p seq=%llu us=%lld session=%llu generation=%llu kind=%s ticket=%d slot=%d head=%d tail=%d thread=%d\n",
++                reason, static_cast<const void*>(this), e.sequence, e.us, e.session, e.generation, e.kind, e.ticket, e.ticket & indexMask, e.head, e.tail, e.thread);
++        }
++        std::fflush(stderr);
++    }
++
++    std::atomic<unsigned long long> failedReservations{0};
++    std::atomic<int> lastFailedTicket{-1};
+ #pragma warning (disable : 4324)
+     alignas( 64 ) std::atomic<int> headIndex = 0;
+     alignas( 64 ) std::atomic<int> tailIndex = 0;
+diff --git a/include/Profiler.h b/include/Profiler.h
+index 78ca63f..3d967b9 100644
+--- a/include/Profiler.h
++++ b/include/Profiler.h
+@@ -10,6 +10,7 @@
+ #define PRO_FUNCTION() ZoneScoped
+ #define PRO_FRAME(name) FrameMarkNamed(name)
+ #define PRO_THREAD(name) tracy::SetThreadName(name)
++#define PRO_VALUE(value) ZoneValue(value)
+ #define PRO_MESSAGE(message) TracyMessageL(message)
+ #define PRO_PLOT(name, value) TracyPlot(name, value)
+ #define PRO_LOCK(type, name) TracyLockable(type, name)
+@@ -19,6 +20,7 @@
+ #define PRO_FUNCTION()
+ #define PRO_FRAME(name)
+ #define PRO_THREAD(name)
++#define PRO_VALUE(value)
+ #define PRO_MESSAGE(message)
+ #define PRO_PLOT(name, value)
+ #define PRO_LOCK(type, name) type name
+diff --git a/include/Session.h b/include/Session.h
+index fd185f7..1735007 100644
+--- a/include/Session.h
++++ b/include/Session.h
+@@ -163,6 +163,7 @@ private:
+ 	// IOCP dispatch
+ 	IOCP* _owner;
+ 	Executable& _releaseExecutable;
++	Executable _sendExecutable{Executable::IoType::Send};
+ 
+ 	// Receive
+ 	RingBuffer _recvQ;
+diff --git a/src/Group.cpp b/src/Group.cpp
+index b6074f3..f3a0a24 100644
+--- a/src/Group.cpp
++++ b/src/Group.cpp
+@@ -1,4 +1,5 @@
+ #include "Group.h"
++#include "LatencyProbe.h"
+ #include "Utility.h"
+ 
+ #include <memory>
+@@ -54,6 +55,7 @@ psh::int32 Group::GetLeaveTps() const
+ 
+ void Group::Enqueue(GroupJob job)
+ {
++    if (psh::diagnostics::ThresholdUs() > 0) job.queuedAt = psh::diagnostics::Clock::now();
+ 	{
+ 		// 그룹이 가득 찰 정도면 서버가 엄청 바쁜 거
+ 		PRO_FUNCTION();
+@@ -96,6 +98,8 @@ void Group::RequestUpdate()
+ 
+ void Group::Update()
+ {
++    PRO_BEGIN("Group::Update");
++    PRO_VALUE(static_cast<long>(_groupId));
+ 	auto expected = UpdateState::Scheduled;
+ 	if (!_updateState.compare_exchange_strong(expected, UpdateState::Running))
+ 	{
+@@ -122,7 +126,9 @@ void Group::Process()
+ {
+ 	using namespace std::chrono;
+ 	using namespace std::literals::chrono_literals;
+-	PRO_FRAME("Group HandleJob");
++	PRO_BEGIN("Group::Process");
++    PRO_VALUE(static_cast<long>(_groupId));
++    PRO_PLOT("Group queued jobs", static_cast<double>(_jobs->Size()));
+ 
+ 	auto start = steady_clock::now();
+ 	while (hasJob() || NeedUpdate())
+@@ -131,7 +137,14 @@ void Group::Process()
+ 
+ 		if (NeedUpdate())
+ 		{
+-			OnUpdate(_loopMs);
++			const auto probeStart = psh::diagnostics::ThresholdUs() > 0 ? steady_clock::now() : steady_clock::time_point{};
++			{
++                PRO_BEGIN("Group::OnUpdate");
++                PRO_VALUE(static_cast<long>(_groupId));
++                OnUpdate(_loopMs);
++            }
++            if (psh::diagnostics::ThresholdUs() > 0)
++                psh::diagnostics::update.Observe(steady_clock::now() - probeStart, 0, static_cast<long>(_groupId));
+ 			_nextUpdate += milliseconds(_loopMs);
+ 		}
+ 	}
+@@ -164,7 +177,12 @@ bool Group::HandleJob()
+ 	int jobs = 0;
+ 	while (_jobs->Dequeue(job))
+ 	{
++        if (psh::diagnostics::ThresholdUs() > 0)
++            psh::diagnostics::queue.Observe(psh::diagnostics::Clock::now() - job.queuedAt, job.sessionId.id, static_cast<long>(_groupId));
+ 		PRO_BEGIN("HandleJob");
++        PRO_VALUE((static_cast<unsigned long long>(static_cast<long>(_groupId)) << 32) | static_cast<unsigned>(job.type));
++        if (psh::diagnostics::ThresholdUs() > 0)
++            PRO_PLOT("Group queue wait us", static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(psh::diagnostics::Clock::now() - job.queuedAt).count()));
+ 		++jobs;
+ 		switch (job.type)
+ 		{
+diff --git a/src/NormalIOCP.cpp b/src/NormalIOCP.cpp
+index 3095706..b7c1301 100644
+--- a/src/NormalIOCP.cpp
++++ b/src/NormalIOCP.cpp
+@@ -16,6 +16,7 @@
+ #include "Executable.h"
+ #include "GroupManager.h"
+ #include "IOCP.h"
++#include "LatencyProbe.h"
+ #include "LockFreeStack.h"
+ #include "Profiler.h"
+ #include "RecvBuffer.h"
+@@ -789,6 +790,7 @@ void IOCP::MonitorThread()
+             _memMonitor->Update();
+             _cpuMonitor->UpdateCpuTime();
+ 
++            psh::diagnostics::Print();
+             OnMonitorRun();
+         }
+ 
+diff --git a/src/Session.cpp b/src/Session.cpp
+index 341beea..c68d9b0 100644
+--- a/src/Session.cpp
++++ b/src/Session.cpp
+@@ -12,6 +12,7 @@
+ #include "Logger.h"
+ #include "CoreGlobal.h"
+ #include "RecvBuffer.h"
++#include "LatencyProbe.h"
+ #include "Executable.h"
+ #include "Protocol.h"
+ 
+@@ -23,6 +24,10 @@ Session::Session()
+ 	  , _owner(nullptr)
+ 	  , _releaseExecutable(*new Executable(Executable::IoType::Release))
+ {
++	_sendExecutable.SetCallback([this](NetError, std::size_t)
++	{
++		RealSend();
++	});
+ 	_releaseExecutable.SetCallback([this](NetError, std::size_t)
+ 	{
+ 		_owner->_onDisconnect(GetSessionId(), GetErr());
+@@ -49,6 +54,7 @@ SessionID Session::GetSessionId() const
+ void Session::SetSessionId(const SessionID sessionID)
+ {
+ 	_sessionId = sessionID;
++    _sendQ.ProbeIdentity(sessionID.id);
+ }
+ 
+ // Connection
+@@ -342,23 +348,21 @@ int Session::GetErr()
+ // Lifetime
+ void Session::Reset()
+ {
++    if (psh::diagnostics::ThresholdUs() > 0 && _sendQ.failedReservations.load())
++        _sendQ.PrintDiagnostic("Reset-before-drain", GetSessionId().id);
+ 	_recvQ.Clear();
+ 	_isSending = false;
+ 	_needCheckSendTimeout = false;
+ 	_timeout = _defaultTimeout;
+ 	_errCode = {};
+ 
+-	//RecvBuffer* recvBuffer;
+-	//while ( _groupRecvQ.Dequeue(recvBuffer) )
+-	//{
+-	//	recvBuffer->Release(L"ResetRecvRelease");
+-	//}
+-
+ 	SendBufferImpl* sendBuffer;
+ 	while (_sendQ.Dequeue(sendBuffer))
+ 	{
+ 		sendBuffer->Release(L"ResetSendRelease");
+ 	}
++    if (psh::diagnostics::ThresholdUs() > 0 && (_sendQ.Size() != 0 || _sendQ.failedReservations.load()))
++        _sendQ.PrintDiagnostic("Reset-after-drain", GetSessionId().id);
+     _state = psh::RecvState{};
+ 	_recvQ.Clear();
+ 
+@@ -442,7 +446,14 @@ void Session::TrySend()
+ 		return;
+ 	}
+ 
+-	RealSend();
++	// executor 대기부터 송신 완료까지 세션의 수명을 유지합니다.
++	const auto refIncResult = IncreaseRef(L"postSendInc");
++	if (refIncResult >= RELEASE_FLAG)
++	{
++		Release(L"postSendSessionIsRelease");
++		return;
++	}
++	_owner->PostExecutable(_sendExecutable);
+ }
+ 
+ bool Session::TryAcquireSendFlag()
+@@ -622,13 +633,6 @@ void Session::RealSend()
+ 	PRO_FUNCTION();
+ 
+ 
+-	const auto refIncResult = IncreaseRef(L"realSendInc");
+-	if (refIncResult >= RELEASE_FLAG)
+-	{
+-		Release(L"realSendSessionIsRelease");
+-		return;
+-	}
+-
+ 	size_t sendPackets = 0;
+ 	SocketSendBuffer sendBuffers[MAX_SEND_COUNT] = {};
+ 
+@@ -637,8 +641,35 @@ void Session::RealSend()
+ 	{
+ 		psh::util::DebugBreak();
+ 	}
++    const bool traceSendWait = psh::diagnostics::ThresholdUs() > 0;
++    const auto sendWaitStart = traceSendWait ? psh::diagnostics::Clock::now() : psh::diagnostics::Clock::time_point{};
++    auto nextSendProbe = sendWaitStart + std::chrono::milliseconds(100);
++    bool printedSendState = false;
++    bool confirmedSendState = false;
+ 	while (sendPackets == 0)
+ 	{
++        // 송신 큐에서 빠져나오지 못하는 경우에도 종료 후 스택 없이 위치를 확인합니다.
++        if (traceSendWait)
++        {
++            const auto now = psh::diagnostics::Clock::now();
++            if (now >= nextSendProbe)
++            {
++                psh::diagnostics::sendStall.Observe(now - sendWaitStart, GetSessionId().id);
++                if (!printedSendState)
++                {
++                    _sendQ.PrintDiagnostic("RealSend", GetSessionId().id);
++                    PRO_MESSAGE("RealSend stalled: see SEND_QUEUE_STATE log and dump");
++                    printedSendState = true;
++                }
++                else if (!confirmedSendState && now - sendWaitStart >= std::chrono::seconds(1))
++                {
++                    // 일 초 뒤 같은 head와 완료된 실패 예약이 남았는지 다시 관측합니다.
++                    _sendQ.PrintDiagnostic("RealSend-confirm", GetSessionId().id);
++                    confirmedSendState = true;
++                }
++                nextSendProbe = now + std::chrono::milliseconds(100);
++            }
++        }
+ 		for (auto i = 0; i < MAX_SEND_COUNT; i++)
+ 		{
+ 			SendBufferImpl* buffer;
+@@ -804,10 +835,18 @@ void Session::RecvHandler(Group* group)
+ 		}
+ 		loopCount++;
+ 		_recvQ.Dequeue(sizeof(Header));
++		const bool probe = psh::diagnostics::ThresholdUs() > 0;
++        const auto probeStart = probe ? psh::diagnostics::Clock::now() : psh::diagnostics::Clock::time_point{};
++        psh::uint16 probeType = 0;
++        if (probe && header.len >= sizeof(probeType))
++            _recvQ.Peek(reinterpret_cast<char*>(&probeType), sizeof(probeType));
+ 		if (group)
+ 			group->onRecvPacket(*this, buffer);
+ 		else
+ 			_owner->onRecvPacket(*this, buffer);
++        if (probe)
++            psh::diagnostics::handler.Observe(psh::diagnostics::Clock::now() - probeStart, GetSessionId().id,
++                group ? static_cast<long>(group->GetGroupID()) : -1, probeType);
+ 	}
+ 
+ 	if (loopCount > 0)
+diff --git a/src/WindowsExecutor.cpp b/src/WindowsExecutor.cpp
+index a9e7d91..8bf4d24 100644
+--- a/src/WindowsExecutor.cpp
++++ b/src/WindowsExecutor.cpp
+@@ -1,4 +1,4 @@
+-﻿#include "WindowsExecutor.h"
++#include "WindowsExecutor.h"
+ 
+ #include "Executable.h"
+ #include "ExceptionTrace.h"
+@@ -201,6 +201,8 @@ void WindowsExecutor::TryConfirmStop()
+ 
+ void WindowsExecutor::ExecuteNoThrow(Executable& executable)
+ {
++    PRO_BEGIN("Executor callback");
++    PRO_VALUE(static_cast<unsigned>(executable.GetIoType()));
+     try
+     {
+         psh::util::RunWithTrace("WindowsExecutor::ExecuteNoThrow", [&]

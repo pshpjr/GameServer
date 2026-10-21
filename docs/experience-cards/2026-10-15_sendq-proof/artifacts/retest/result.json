@@ -1,0 +1,30 @@
+{
+  "seconds": 300,
+  "port": 21338,
+  "shutdown": {
+    "dummy": {
+      "pid": 27920,
+      "exit_code": 0,
+      "elapsed": 0.733
+    },
+    "server": {
+      "pid": 13148,
+      "exit_code": 0,
+      "elapsed": 0.429
+    }
+  },
+  "load_seconds": 300.0015043000021,
+  "target_observed": false,
+  "completed_load": true,
+  "peak_sessions": 5000,
+  "responses": 943121,
+  "load_observed": true,
+  "passed": true,
+  "send_enqueue_failure": 0,
+  "send_queue_stall": 0,
+  "send_clear": 7022,
+  "send_reuse": 5972,
+  "probe_lines": 0,
+  "reset_nonempty_after_drain": 0,
+  "reconnections_observed": 972
+}

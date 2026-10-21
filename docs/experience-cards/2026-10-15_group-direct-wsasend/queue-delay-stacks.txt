@@ -1,0 +1,1221 @@
+
+************* Preparing the environment for Debugger Extensions Gallery repositories **************
+   ExtensionRepository : Implicit
+   UseExperimentalFeatureForNugetShare : true
+   AllowNugetExeUpdate : true
+   NonInteractiveNuget : true
+   AllowNugetMSCredentialProviderInstall : true
+   AllowParallelInitializationOfLocalRepositories : true
+   EnableRedirectToChakraJsProvider : false
+
+   -- Configuring repositories
+      ----> Repository : LocalInstalled, Enabled: true
+      ----> Repository : UserExtensions, Enabled: true
+
+>>>>>>>>>>>>> Preparing the environment for Debugger Extensions Gallery repositories completed, duration 0.000 seconds
+
+************* Waiting for Debugger Extensions Gallery to Initialize **************
+
+>>>>>>>>>>>>> Waiting for Debugger Extensions Gallery to Initialize completed, duration 0.031 seconds
+   ----> Repository : UserExtensions, Enabled: true, Packages count: 0
+   ----> Repository : LocalInstalled, Enabled: true, Packages count: 0
+
+Microsoft (R) Windows Debugger Version 10.0.29547.1002 AMD64
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+
+Loading Dump File [D:\UserData\pshpjr\Desktop\Projects\GameServer\GameServer\scratch\tracy-queue_2026-10-15\artifacts\run\server-queue-delay.dmp]
+User Mini Dump File with Full Memory : Only application data is available
+
+Symbol search path is: srv*
+Executable search path is: 
+Windows 10 Version 26200 MP (16 procs) Free x64
+Product: WinNt, suite: SingleUserTS
+Edition build lab: 26100.1.amd64fre.ge_release.240331-1435
+Debug session time: Thu Oct 15 10:05:18.000 2026 (UTC + 9:00)
+System Uptime: 0 days 9:59:11.436
+Process Uptime: 0 days 0:01:04.000
+...........................................
+
+************* Symbol Loading Error Summary **************
+Module name            Error
+ntdll                  The system cannot find the file specified
+
+You can troubleshoot most symbol related issues by turning on symbol loading diagnostics (!sym noisy) and repeating the command that caused symbols to be loaded.
+You should also verify that your symbol search path (.sympath) is correct.
+Unable to add extension DLL: ntsdexts
+Unable to add extension DLL: uext
+Unable to add extension DLL: exts
+
++------------------------------------------------------------------------+
+| This target supports Hardware-enforced Stack Protection. A HW based    |
+| "Shadow Stack" may be available to assist in debugging and analysis.   |
+| See aka.ms/userhsp for more info.                                      |
+|                                                                        |
+| dps @ssp                                                               |
+|                                                                        |
++------------------------------------------------------------------------+
+
+For analysis of this file, run !analyze -v
+Symbol search path is: scratch/tracy-queue_2026-10-15/artifacts/run/symbols-GameServer
+Expanded Symbol search path is: scratch/tracy-queue_2026-10-15/artifacts/run/symbols-gameserver
+
+************* Path validation summary **************
+Response                         Time (ms)     Location
+OK                                             scratch/tracy-queue_2026-10-15/artifacts/run/symbols-GameServer
+*** WARNING: Unable to verify checksum for CMakeServer.exe
+
+.  0  Id: 2f44.6ce8 Suspend: 0 Teb: 0000009d`a0c85000 Unfrozen
+Child-SP          RetAddr               Call Site
+0000009d`a0bff678 00007ffd`63f2ca73     ntdll!ZwWaitForAlertByThreadId+0x14
+0000009d`a0bff680 00007ffd`6153e158     ntdll!RtlWaitOnAddress+0x213
+0000009d`a0bff6f0 00007ffc`fb2214f1     KERNELBASE!WaitOnAddress+0x38
+0000009d`a0bff730 00007ff6`4c802690     MSVCP140D_ATOMIC_WAIT!_std_atomic_wait_direct+0x31
+0000009d`a0bff770 00007ff6`4c80739f     CMakeServer!std::_Atomic_wait_direct<bool,char>(
+			struct std::_Atomic_storage<bool,1> * _This = 0x000001d1`2ed7d176, 
+			char _Expected_bytes = 0n0 '', 
+			std::memory_order _Order = seq_cst (0n5))+0x70
+0000009d`a0bff7b0 00007ff6`4c8607fc     CMakeServer!std::_Atomic_storage<bool,1>::wait(
+			bool _Expected = false, 
+			std::memory_order _Order = seq_cst (0n5))+0x2f
+0000009d`a0bff7e0 00007ff6`4c80aa22     CMakeServer!IOCP::Wait(void)+0x2c
+0000009d`a0bff840 00007ff6`4c80d344     CMakeServer!`main'::`2'::<lambda_1>::operator()(void)+0x1f2
+0000009d`a0bff970 00007ff6`4c80abec     CMakeServer!std::invoke<`main'::`2'::<lambda_1> >(
+			class main::__l2::<lambda_1> * _Obj = 0x0000009d`a0bffaa8)+0x14
+0000009d`a0bff9a0 00007ff6`4c80ab85     CMakeServer!``psh::util::RunWithTrace<`main'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator(void)+0x1c
+0000009d`a0bff9d0 00007ff6`4c80b292     CMakeServer!`psh::util::RunWithTrace<`main'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator()(void)+0x35
+0000009d`a0bffa20 00007ff6`4c80a7fd     CMakeServer!psh::util::RunWithTrace<`main'::`2'::<lambda_1> >(
+			char * context = 0x00007ff6`4c9b01d8 "CMakeServer main", 
+			class main::__l2::<lambda_1> * function = 0x0000009d`a0bffaa8)+0x32
+0000009d`a0bffa70 00007ff6`4c95dd29     CMakeServer!main(void)+0x3d
+0000009d`a0bffac0 00007ff6`4c95dc12     CMakeServer!invoke_main(void)+0x39
+0000009d`a0bffb10 00007ff6`4c95dace     CMakeServer!__scrt_common_main_seh(void)+0x132
+0000009d`a0bffb80 00007ff6`4c95ddbe     CMakeServer!__scrt_common_main(void)+0xe
+0000009d`a0bffbb0 00007ffd`6297dda7     CMakeServer!mainCRTStartup(
+			void * __formal = 0x0000009d`a0c84000)+0xe
+0000009d`a0bffbe0 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a0bffc10 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+   1  Id: 2f44.6470 Suspend: 0 Teb: 0000009d`a0c8d000 Unfrozen "Tracy Profiler"
+Child-SP          RetAddr               Call Site
+0000009d`a11fef68 00007ffd`63f90fd4     ntdll!ZwDelayExecution+0x14
+0000009d`a11fef70 00007ffd`614eb9c1     ntdll!RtlDelayExecution+0x34
+*** WARNING: Unable to verify checksum for TracyClient.dll
+0000009d`a11fefa0 00007ffc`fb66ed52     KERNELBASE!SleepEx+0x91
+0000009d`a11ff030 00007ffc`fb663d65     TracyClient!_Thrd_sleep_for(
+			unsigned long ms = 0xa)+0x12
+0000009d`a11ff060 00007ffc`fb663cd1     TracyClient!std::this_thread::sleep_until<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > >(
+			class std::chrono::time_point<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > > * _Abs_time = 0x0000009d`a11ff0e0)+0x75
+0000009d`a11ff0c0 00007ffc`fb641acb     TracyClient!std::this_thread::sleep_for<__int64,std::ratio<1,1000> >(
+			class std::chrono::duration<__int64,std::ratio<1,1000> > * _Rel_time = 0x0000009d`a11ff9a8)+0x21
+0000009d`a11ff100 00007ffc`fb667c14     TracyClient!tracy::Profiler::Worker(void)+0x10fb
+0000009d`a11ff9f0 00007ffc`fb667b8a     TracyClient!tracy::Profiler::LaunchWorker(
+			void * ptr = 0x00007ffc`fb693e00)+0x14
+0000009d`a11ffa20 00007ffd`6297dda7     TracyClient!tracy::Thread::Launch(
+			void * ptr = 0x000001d1`28310080)+0x1a
+0000009d`a11ffa50 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a11ffa80 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+   2  Id: 2f44.4388 Suspend: 0 Teb: 0000009d`a0c8f000 Unfrozen "Tracy DXT1"
+Child-SP          RetAddr               Call Site
+0000009d`a12ff878 00007ffd`63f90fd4     ntdll!ZwDelayExecution+0x14
+0000009d`a12ff880 00007ffd`614eb9c1     ntdll!RtlDelayExecution+0x34
+0000009d`a12ff8b0 00007ffc`fb66ed52     KERNELBASE!SleepEx+0x91
+0000009d`a12ff940 00007ffc`fb663d65     TracyClient!_Thrd_sleep_for(
+			unsigned long ms = 0x14)+0x12
+0000009d`a12ff970 00007ffc`fb663cd1     TracyClient!std::this_thread::sleep_until<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > >(
+			class std::chrono::time_point<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > > * _Abs_time = 0x0000009d`a12ff9f0)+0x75
+0000009d`a12ff9d0 00007ffc`fb642370     TracyClient!std::this_thread::sleep_for<__int64,std::ratio<1,1000> >(
+			class std::chrono::duration<__int64,std::ratio<1,1000> > * _Rel_time = 0x0000009d`a12ffac8)+0x21
+0000009d`a12ffa10 00007ffc`fb667bb4     TracyClient!tracy::Profiler::CompressWorker(void)+0x360
+0000009d`a12ffaf0 00007ffc`fb667b8a     TracyClient!tracy::Profiler::LaunchCompressWorker(
+			void * ptr = 0x00007ffc`fb693e00)+0x14
+0000009d`a12ffb20 00007ffd`6297dda7     TracyClient!tracy::Thread::Launch(
+			void * ptr = 0x000001d1`283100a0)+0x1a
+0000009d`a12ffb50 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a12ffb80 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+   3  Id: 2f44.5584 Suspend: 0 Teb: 0000009d`a0c91000 Unfrozen "Tracy Symbol Worker"
+Child-SP          RetAddr               Call Site
+0000009d`a13ff4f8 00007ffd`63f197be     ntdll!ZwWaitForAlertByThreadId+0x14
+0000009d`a13ff500 00007ffd`61482a58     ntdll!RtlSleepConditionVariableSRW+0x1de
+0000009d`a13ff5a0 00007ffc`fb66eaa7     KERNELBASE!SleepConditionVariableSRW+0x38
+0000009d`a13ff5e0 00007ffc`fb66eb8f     TracyClient!_Primitive_wait_for(
+			struct _Cnd_internal_imp_t * cond = 0x00007ffc`fb694080, 
+			struct _Mtx_internal_imp_t * mtx = 0x00007ffc`fb6940c8, 
+			unsigned int timeout = 0x14)+0x47
+0000009d`a13ff630 00007ffc`fb66ec4a     TracyClient!_Cnd_timedwait_for_impl(
+			struct _Cnd_internal_imp_t * cond = 0x00007ffc`fb694080, 
+			struct _Mtx_internal_imp_t * mtx = 0x00007ffc`fb6940c8, 
+			unsigned int target_ms = 0x14, 
+			bool checked = false)+0x6f
+0000009d`a13ff670 00007ffc`fb664c59     TracyClient!_Cnd_timedwait_for_unchecked(
+			struct _Cnd_internal_imp_t * cond = 0x00007ffc`fb694080, 
+			struct _Mtx_internal_imp_t * mtx = 0x00007ffc`fb6940c8, 
+			unsigned int target_ms = 0x14)+0x2a
+0000009d`a13ff6a0 00007ffc`fb664d3e     TracyClient!std::condition_variable::wait_until<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > >(
+			class std::unique_lock<std::mutex> * _Lck = 0x0000009d`a13ff7e8, 
+			class std::chrono::time_point<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > > _Abs_time = class std::chrono::time_point<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > >)+0x179
+0000009d`a13ff720 00007ffc`fb664ab6     TracyClient!std::condition_variable::wait_until<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> >,<lambda_119a0f2a67a53511149abf9de83599f1> >(
+			class std::unique_lock<std::mutex> * _Lck = 0x0000009d`a13ff7e8, 
+			class std::chrono::time_point<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > > _Abs_time = class std::chrono::time_point<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > >, 
+			class tracy::Profiler::SymbolWorker::__l17::<lambda_119a0f2a67a53511149abf9de83599f1> _Pred = class tracy::Profiler::SymbolWorker::__l17::<lambda_119a0f2a67a53511149abf9de83599f1>)+0x3e
+0000009d`a13ff750 00007ffc`fb642606     TracyClient!std::condition_variable::wait_for<__int64,std::ratio<1,1000>,<lambda_119a0f2a67a53511149abf9de83599f1> >(
+			class std::unique_lock<std::mutex> * _Lck = 0x0000009d`a13ff7e8, 
+			class std::chrono::duration<__int64,std::ratio<1,1000> > _Rel_time = class std::chrono::duration<__int64,std::ratio<1,1000> >, 
+			class tracy::Profiler::SymbolWorker::__l17::<lambda_119a0f2a67a53511149abf9de83599f1> _Pred = class tracy::Profiler::SymbolWorker::__l17::<lambda_119a0f2a67a53511149abf9de83599f1>)+0x56
+0000009d`a13ff7a0 00007ffc`fb667be4     TracyClient!tracy::Profiler::SymbolWorker(void)+0x246
+0000009d`a13ff860 00007ffc`fb667b8a     TracyClient!tracy::Profiler::LaunchSymbolWorker(
+			void * ptr = 0x00007ffc`fb693e00)+0x14
+0000009d`a13ff890 00007ffd`6297dda7     TracyClient!tracy::Thread::Launch(
+			void * ptr = 0x000001d1`283100c0)+0x1a
+0000009d`a13ff8c0 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a13ff8f0 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+   4  Id: 2f44.2ce0 Suspend: 0 Teb: 0000009d`a0c93000 Unfrozen
+Child-SP          RetAddr               Call Site
+0000009d`a14ff468 00007ffd`63f197be     ntdll!ZwWaitForAlertByThreadId+0x14
+0000009d`a14ff470 00007ffd`61482a58     ntdll!RtlSleepConditionVariableSRW+0x1de
+0000009d`a14ff510 00007ffc`fb132747     KERNELBASE!SleepConditionVariableSRW+0x38
+0000009d`a14ff550 00007ffc`fb1326e3     MSVCP140D!std::_Winerror_message+0x2e7
+0000009d`a14ff5a0 00007ffc`fb132997     MSVCP140D!std::_Winerror_message+0x283
+0000009d`a14ff5d0 00007ff6`4c811754     MSVCP140D!Cnd_wait+0x27
+0000009d`a14ff600 00007ff6`4c83f0e4     CMakeServer!std::condition_variable::wait(
+			class std::unique_lock<std::mutex> * _Lck = 0x0000009d`a14ff6f8)+0x44
+0000009d`a14ff640 00007ff6`4c83c0b7     CMakeServer!std::condition_variable::wait<```ThreadPool::ThreadPool'::`1'::<lambda_1>::operator()'::`2'::<lambda_1>::operator(
+			class std::unique_lock<std::mutex> * _Lck = 0x0000009d`a14ff6f8, 
+			class ThreadPool::{ctor}::__l1::<lambda_1>::()::__l2::<lambda_1>::()::__l5::<lambda_1> _Pred = class ThreadPool::{ctor}::__l1::<lambda_1>::()::__l2::<lambda_1>::()::__l5::<lambda_1>)+0x34
+0000009d`a14ff670 00007ff6`4c83eee4     CMakeServer!``ThreadPool::ThreadPool'::`1'::<lambda_1>::operator()'::`2'::<lambda_1>::operator(void)+0xc7
+0000009d`a14ff780 00007ff6`4c83c50c     CMakeServer!std::invoke<``ThreadPool::ThreadPool'::`1'::<lambda_1>::operator()'::`2'::<lambda_1> >(
+			class ThreadPool::{ctor}::__l1::<lambda_1>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a14ff8a0)+0x14
+0000009d`a14ff7b0 00007ff6`4c83c4a5     CMakeServer!``psh::util::RunWithTrace<``ThreadPool::ThreadPool'::`1'::<lambda_1>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator(void)+0x1c
+0000009d`a14ff7e0 00007ff6`4c83d142     CMakeServer!`psh::util::RunWithTrace<``ThreadPool::ThreadPool'::`1'::<lambda_1>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator(void)+0x35
+0000009d`a14ff830 00007ff6`4c83bfab     CMakeServer!psh::util::RunWithTrace<``ThreadPool::ThreadPool'::`1'::<lambda_1>::operator()'::`2'::<lambda_1> >(
+			char * context = 0x00007ff6`4c9be428 "ThreadPool worker", 
+			class ThreadPool::{ctor}::__l1::<lambda_1>::()::__l2::<lambda_1> * function = 0x0000009d`a14ff8a0)+0x32
+0000009d`a14ff880 00007ff6`4c83eeb4     CMakeServer!`ThreadPool::ThreadPool'::`1'::<lambda_1>::operator()(void)+0x2b
+0000009d`a14ff8c0 00007ff6`4c83e2e0     CMakeServer!std::invoke<`ThreadPool::ThreadPool'::`1'::<lambda_1> >(
+			class ThreadPool::{ctor}::__l1::<lambda_1> * _Obj = 0x000001d1`3bb61900)+0x14
+0000009d`a14ff8f0 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`ThreadPool::ThreadPool'::`1'::<lambda_1> >,0>(
+			void * _RawVals = 0x000001d1`3bb61900)+0x50
+0000009d`a14ff950 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a14ff9b0 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a14ff9e0 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+   5  Id: 2f44.8cc Suspend: 0 Teb: 0000009d`a0c95000 Unfrozen "DB Worker"
+Child-SP          RetAddr               Call Site
+0000009d`a15ff4f8 00007ffd`63f2ca73     ntdll!ZwWaitForAlertByThreadId+0x14
+0000009d`a15ff500 00007ffd`6153e158     ntdll!RtlWaitOnAddress+0x213
+0000009d`a15ff570 00007ffc`fb2214f1     KERNELBASE!WaitOnAddress+0x38
+0000009d`a15ff5b0 00007ff6`4c802690     MSVCP140D_ATOMIC_WAIT!_std_atomic_wait_direct+0x31
+0000009d`a15ff5f0 00007ff6`4c80739f     CMakeServer!std::_Atomic_wait_direct<bool,char>(
+			struct std::_Atomic_storage<bool,1> * _This = 0x000001d1`39436500, 
+			char _Expected_bytes = 0n0 '', 
+			std::memory_order _Order = acquire (0n2))+0x70
+0000009d`a15ff630 00007ff6`4c7ff682     CMakeServer!std::_Atomic_storage<bool,1>::wait(
+			bool _Expected = false, 
+			std::memory_order _Order = acquire (0n2))+0x2f
+0000009d`a15ff660 00007ff6`4c7ff947     CMakeServer!psh::DBThreadWrapper::DBWorkerFunc(void)+0xa2
+0000009d`a15ff730 00007ff6`4c8046f4     CMakeServer!``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1>::operator(void)+0x17
+0000009d`a15ff760 00007ff6`4c7fffec     CMakeServer!std::invoke<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >(
+			class psh::DBThreadWrapper::{ctor}::__l1::<lambda_2_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a15ff880)+0x14
+0000009d`a15ff790 00007ff6`4c7fff85     CMakeServer!``psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator(void)+0x1c
+0000009d`a15ff7c0 00007ff6`4c801612     CMakeServer!`psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator(void)+0x35
+0000009d`a15ff810 00007ff6`4c7ff8eb     CMakeServer!psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >(
+			char * context = 0x00007ff6`4c9acc18 "DB worker", 
+			class psh::DBThreadWrapper::{ctor}::__l1::<lambda_2_>::()::__l2::<lambda_1> * function = 0x0000009d`a15ff880)+0x32
+0000009d`a15ff860 00007ff6`4c804724     CMakeServer!`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()(void)+0x2b
+0000009d`a15ff8a0 00007ff6`4c8028c0     CMakeServer!std::invoke<`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_> >(
+			class psh::DBThreadWrapper::{ctor}::__l1::<lambda_2_> * _Obj = 0x000001d1`3bb61e50)+0x14
+0000009d`a15ff8d0 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_> >,0>(
+			void * _RawVals = 0x000001d1`3bb61e50)+0x50
+0000009d`a15ff930 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a15ff990 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a15ff9c0 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+   6  Id: 2f44.35d4 Suspend: 0 Teb: 0000009d`a0c97000 Unfrozen "DB Worker"
+Child-SP          RetAddr               Call Site
+0000009d`a16ff6f8 00007ffd`63f2ca73     ntdll!ZwWaitForAlertByThreadId+0x14
+0000009d`a16ff700 00007ffd`6153e158     ntdll!RtlWaitOnAddress+0x213
+0000009d`a16ff770 00007ffc`fb2214f1     KERNELBASE!WaitOnAddress+0x38
+0000009d`a16ff7b0 00007ff6`4c802690     MSVCP140D_ATOMIC_WAIT!_std_atomic_wait_direct+0x31
+0000009d`a16ff7f0 00007ff6`4c80739f     CMakeServer!std::_Atomic_wait_direct<bool,char>(
+			struct std::_Atomic_storage<bool,1> * _This = 0x000001d1`394366c0, 
+			char _Expected_bytes = 0n0 '', 
+			std::memory_order _Order = acquire (0n2))+0x70
+0000009d`a16ff830 00007ff6`4c7ff682     CMakeServer!std::_Atomic_storage<bool,1>::wait(
+			bool _Expected = false, 
+			std::memory_order _Order = acquire (0n2))+0x2f
+0000009d`a16ff860 00007ff6`4c7ff947     CMakeServer!psh::DBThreadWrapper::DBWorkerFunc(void)+0xa2
+0000009d`a16ff930 00007ff6`4c8046f4     CMakeServer!``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1>::operator(void)+0x17
+0000009d`a16ff960 00007ff6`4c7fffec     CMakeServer!std::invoke<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >(
+			class psh::DBThreadWrapper::{ctor}::__l1::<lambda_2_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a16ffa80)+0x14
+0000009d`a16ff990 00007ff6`4c7fff85     CMakeServer!``psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator(void)+0x1c
+0000009d`a16ff9c0 00007ff6`4c801612     CMakeServer!`psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator(void)+0x35
+0000009d`a16ffa10 00007ff6`4c7ff8eb     CMakeServer!psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >(
+			char * context = 0x00007ff6`4c9acc18 "DB worker", 
+			class psh::DBThreadWrapper::{ctor}::__l1::<lambda_2_>::()::__l2::<lambda_1> * function = 0x0000009d`a16ffa80)+0x32
+0000009d`a16ffa60 00007ff6`4c804724     CMakeServer!`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()(void)+0x2b
+0000009d`a16ffaa0 00007ff6`4c8028c0     CMakeServer!std::invoke<`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_> >(
+			class psh::DBThreadWrapper::{ctor}::__l1::<lambda_2_> * _Obj = 0x000001d1`3c1d92b0)+0x14
+0000009d`a16ffad0 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_> >,0>(
+			void * _RawVals = 0x000001d1`3c1d92b0)+0x50
+0000009d`a16ffb30 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a16ffb90 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a16ffbc0 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+   7  Id: 2f44.39dc Suspend: 0 Teb: 0000009d`a0c99000 Unfrozen "DB Worker"
+Child-SP          RetAddr               Call Site
+0000009d`a17ffac8 00007ffd`63f2ca73     ntdll!ZwWaitForAlertByThreadId+0x14
+0000009d`a17ffad0 00007ffd`6153e158     ntdll!RtlWaitOnAddress+0x213
+0000009d`a17ffb40 00007ffc`fb2214f1     KERNELBASE!WaitOnAddress+0x38
+0000009d`a17ffb80 00007ff6`4c802690     MSVCP140D_ATOMIC_WAIT!_std_atomic_wait_direct+0x31
+0000009d`a17ffbc0 00007ff6`4c80739f     CMakeServer!std::_Atomic_wait_direct<bool,char>(
+			struct std::_Atomic_storage<bool,1> * _This = 0x000001d1`39436840, 
+			char _Expected_bytes = 0n0 '', 
+			std::memory_order _Order = acquire (0n2))+0x70
+0000009d`a17ffc00 00007ff6`4c7ff682     CMakeServer!std::_Atomic_storage<bool,1>::wait(
+			bool _Expected = false, 
+			std::memory_order _Order = acquire (0n2))+0x2f
+0000009d`a17ffc30 00007ff6`4c7ff947     CMakeServer!psh::DBThreadWrapper::DBWorkerFunc(void)+0xa2
+0000009d`a17ffd00 00007ff6`4c8046f4     CMakeServer!``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1>::operator(void)+0x17
+0000009d`a17ffd30 00007ff6`4c7fffec     CMakeServer!std::invoke<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >(
+			class psh::DBThreadWrapper::{ctor}::__l1::<lambda_2_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a17ffe50)+0x14
+0000009d`a17ffd60 00007ff6`4c7fff85     CMakeServer!``psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator(void)+0x1c
+0000009d`a17ffd90 00007ff6`4c801612     CMakeServer!`psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator(void)+0x35
+0000009d`a17ffde0 00007ff6`4c7ff8eb     CMakeServer!psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >(
+			char * context = 0x00007ff6`4c9acc18 "DB worker", 
+			class psh::DBThreadWrapper::{ctor}::__l1::<lambda_2_>::()::__l2::<lambda_1> * function = 0x0000009d`a17ffe50)+0x32
+0000009d`a17ffe30 00007ff6`4c804724     CMakeServer!`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()(void)+0x2b
+0000009d`a17ffe70 00007ff6`4c8028c0     CMakeServer!std::invoke<`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_> >(
+			class psh::DBThreadWrapper::{ctor}::__l1::<lambda_2_> * _Obj = 0x000001d1`3c2dc1c0)+0x14
+0000009d`a17ffea0 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_> >,0>(
+			void * _RawVals = 0x000001d1`3c2dc1c0)+0x50
+0000009d`a17fff00 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a17fff60 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a17fff90 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+   8  Id: 2f44.5f80 Suspend: 0 Teb: 0000009d`a0c9b000 Unfrozen "DB Worker"
+Child-SP          RetAddr               Call Site
+0000009d`a18ff538 00007ffd`63f2ca73     ntdll!ZwWaitForAlertByThreadId+0x14
+0000009d`a18ff540 00007ffd`6153e158     ntdll!RtlWaitOnAddress+0x213
+0000009d`a18ff5b0 00007ffc`fb2214f1     KERNELBASE!WaitOnAddress+0x38
+0000009d`a18ff5f0 00007ff6`4c802690     MSVCP140D_ATOMIC_WAIT!_std_atomic_wait_direct+0x31
+0000009d`a18ff630 00007ff6`4c80739f     CMakeServer!std::_Atomic_wait_direct<bool,char>(
+			struct std::_Atomic_storage<bool,1> * _This = 0x000001d1`39436b40, 
+			char _Expected_bytes = 0n0 '', 
+			std::memory_order _Order = acquire (0n2))+0x70
+0000009d`a18ff670 00007ff6`4c7ff682     CMakeServer!std::_Atomic_storage<bool,1>::wait(
+			bool _Expected = false, 
+			std::memory_order _Order = acquire (0n2))+0x2f
+0000009d`a18ff6a0 00007ff6`4c7ff947     CMakeServer!psh::DBThreadWrapper::DBWorkerFunc(void)+0xa2
+0000009d`a18ff770 00007ff6`4c8046f4     CMakeServer!``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1>::operator(void)+0x17
+0000009d`a18ff7a0 00007ff6`4c7fffec     CMakeServer!std::invoke<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >(
+			class psh::DBThreadWrapper::{ctor}::__l1::<lambda_2_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a18ff8c0)+0x14
+0000009d`a18ff7d0 00007ff6`4c7fff85     CMakeServer!``psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator(void)+0x1c
+0000009d`a18ff800 00007ff6`4c801612     CMakeServer!`psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >'::`3'::<lambda_1>::operator(void)+0x35
+0000009d`a18ff850 00007ff6`4c7ff8eb     CMakeServer!psh::util::RunWithTrace<``psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()'::`2'::<lambda_1> >(
+			char * context = 0x00007ff6`4c9acc18 "DB worker", 
+			class psh::DBThreadWrapper::{ctor}::__l1::<lambda_2_>::()::__l2::<lambda_1> * function = 0x0000009d`a18ff8c0)+0x32
+0000009d`a18ff8a0 00007ff6`4c804724     CMakeServer!`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_>::operator()(void)+0x2b
+0000009d`a18ff8e0 00007ff6`4c8028c0     CMakeServer!std::invoke<`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_> >(
+			class psh::DBThreadWrapper::{ctor}::__l1::<lambda_2_> * _Obj = 0x000001d1`3c3d85a0)+0x14
+0000009d`a18ff910 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::DBThreadWrapper::DBThreadWrapper'::`1'::<lambda_2_> >,0>(
+			void * _RawVals = 0x000001d1`3c3d85a0)+0x50
+0000009d`a18ff970 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a18ff9d0 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a18ffa00 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+   9  Id: 2f44.6f90 Suspend: 0 Teb: 0000009d`a0c9d000 Unfrozen "IOCP Accept Thread"
+Child-SP          RetAddr               Call Site
+0000009d`a19fec88 00007ffd`5fdb951a     ntdll!NtWaitForSingleObject+0x14
+0000009d`a19fec90 00007ffd`5fdce829     mswsock+0x951a
+0000009d`a19fed20 00007ffd`61f45cae     mswsock!Tcpip6_WSHSetSocketInformation+0x1ad9
+0000009d`a19ff120 00007ff6`4c8bccbd     ws2_32!accept+0xfe
+0000009d`a19ff1d0 00007ff6`4c862951     CMakeServer!Socket::Accept(void)+0x7d
+0000009d`a19ff310 00007ff6`4c867fae     CMakeServer!IOCP::AcceptThread(void)+0x91
+0000009d`a19ff4d0 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c124d90, 
+			class IOCP ** _Arg1 = 0x000001d1`3c124d80)+0x1e
+0000009d`a19ff500 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a19ff530 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a19ff650)+0x14
+0000009d`a19ff560 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a19ff590 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a19ff5e0 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a19ff650)+0x32
+0000009d`a19ff630 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c124d80)+0x57
+0000009d`a19ff670 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c124d88, 
+			class IOCP ** _Arg1 = 0x000001d1`3c124d80)+0x1e
+0000009d`a19ff6a0 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c124d80)+0x6b
+0000009d`a19ff710 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a19ff770 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a19ff7a0 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  10  Id: 2f44.6298 Suspend: 0 Teb: 0000009d`a0c9f000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a1aff8f8 00007ffd`61482d5c     ntdll!ZwRemoveIoCompletion+0x14
+0000009d`a1aff900 00007ff6`4c8bfc95     KERNELBASE!GetQueuedCompletionStatus+0x6c
+0000009d`a1aff960 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x165
+0000009d`a1affac0 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a1affaf0 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c123ef0, 
+			class IOCP ** _Arg1 = 0x000001d1`3c123ee0)+0x1e
+0000009d`a1affb20 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a1affb50 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a1affc70)+0x14
+0000009d`a1affb80 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a1affbb0 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a1affc00 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a1affc70)+0x32
+0000009d`a1affc50 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c123ee0)+0x57
+0000009d`a1affc90 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c123ee8, 
+			class IOCP ** _Arg1 = 0x000001d1`3c123ee0)+0x1e
+0000009d`a1affcc0 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c123ee0)+0x6b
+0000009d`a1affd30 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a1affd90 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a1affdc0 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  11  Id: 2f44.2084 Suspend: 0 Teb: 0000009d`a0ca1000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a1bff828 00007ffd`61482d5c     ntdll!ZwRemoveIoCompletion+0x14
+0000009d`a1bff830 00007ff6`4c8bfc95     KERNELBASE!GetQueuedCompletionStatus+0x6c
+0000009d`a1bff890 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x165
+0000009d`a1bff9f0 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a1bffa20 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c124bb0, 
+			class IOCP ** _Arg1 = 0x000001d1`3c124ba0)+0x1e
+0000009d`a1bffa50 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a1bffa80 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a1bffba0)+0x14
+0000009d`a1bffab0 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a1bffae0 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a1bffb30 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a1bffba0)+0x32
+0000009d`a1bffb80 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c124ba0)+0x57
+0000009d`a1bffbc0 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c124ba8, 
+			class IOCP ** _Arg1 = 0x000001d1`3c124ba0)+0x1e
+0000009d`a1bffbf0 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c124ba0)+0x6b
+0000009d`a1bffc60 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a1bffcc0 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a1bffcf0 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  12  Id: 2f44.3ad8 Suspend: 0 Teb: 0000009d`a0ca3000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a1cff468 00007ffd`61482d5c     ntdll!ZwRemoveIoCompletion+0x14
+0000009d`a1cff470 00007ff6`4c8bfc95     KERNELBASE!GetQueuedCompletionStatus+0x6c
+0000009d`a1cff4d0 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x165
+0000009d`a1cff630 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a1cff660 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c124f10, 
+			class IOCP ** _Arg1 = 0x000001d1`3c124f00)+0x1e
+0000009d`a1cff690 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a1cff6c0 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a1cff7e0)+0x14
+0000009d`a1cff6f0 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a1cff720 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a1cff770 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a1cff7e0)+0x32
+0000009d`a1cff7c0 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c124f00)+0x57
+0000009d`a1cff800 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c124f08, 
+			class IOCP ** _Arg1 = 0x000001d1`3c124f00)+0x1e
+0000009d`a1cff830 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c124f00)+0x6b
+0000009d`a1cff8a0 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a1cff900 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a1cff930 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  13  Id: 2f44.1020 Suspend: 0 Teb: 0000009d`a0ca5000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a1dff838 00007ffd`61482d5c     ntdll!ZwRemoveIoCompletion+0x14
+0000009d`a1dff840 00007ff6`4c8bfc95     KERNELBASE!GetQueuedCompletionStatus+0x6c
+0000009d`a1dff8a0 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x165
+0000009d`a1dffa00 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a1dffa30 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c124df0, 
+			class IOCP ** _Arg1 = 0x000001d1`3c124de0)+0x1e
+0000009d`a1dffa60 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a1dffa90 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a1dffbb0)+0x14
+0000009d`a1dffac0 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a1dffaf0 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a1dffb40 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a1dffbb0)+0x32
+0000009d`a1dffb90 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c124de0)+0x57
+0000009d`a1dffbd0 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c124de8, 
+			class IOCP ** _Arg1 = 0x000001d1`3c124de0)+0x1e
+0000009d`a1dffc00 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c124de0)+0x6b
+0000009d`a1dffc70 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a1dffcd0 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a1dffd00 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  14  Id: 2f44.23b0 Suspend: 0 Teb: 0000009d`a0ca7000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a1eff748 00007ffd`61482d5c     ntdll!ZwRemoveIoCompletion+0x14
+0000009d`a1eff750 00007ff6`4c8bfc95     KERNELBASE!GetQueuedCompletionStatus+0x6c
+0000009d`a1eff7b0 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x165
+0000009d`a1eff910 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a1eff940 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c124fd0, 
+			class IOCP ** _Arg1 = 0x000001d1`3c124fc0)+0x1e
+0000009d`a1eff970 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a1eff9a0 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a1effac0)+0x14
+0000009d`a1eff9d0 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a1effa00 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a1effa50 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a1effac0)+0x32
+0000009d`a1effaa0 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c124fc0)+0x57
+0000009d`a1effae0 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c124fc8, 
+			class IOCP ** _Arg1 = 0x000001d1`3c124fc0)+0x1e
+0000009d`a1effb10 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c124fc0)+0x6b
+0000009d`a1effb80 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a1effbe0 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a1effc10 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  15  Id: 2f44.5fe8 Suspend: 0 Teb: 0000009d`a0ca9000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a1fff8d8 00007ffd`61482d5c     ntdll!ZwRemoveIoCompletion+0x14
+0000009d`a1fff8e0 00007ff6`4c8bfc95     KERNELBASE!GetQueuedCompletionStatus+0x6c
+0000009d`a1fff940 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x165
+0000009d`a1fffaa0 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a1fffad0 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c123bf0, 
+			class IOCP ** _Arg1 = 0x000001d1`3c123be0)+0x1e
+0000009d`a1fffb00 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a1fffb30 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a1fffc50)+0x14
+0000009d`a1fffb60 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a1fffb90 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a1fffbe0 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a1fffc50)+0x32
+0000009d`a1fffc30 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c123be0)+0x57
+0000009d`a1fffc70 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c123be8, 
+			class IOCP ** _Arg1 = 0x000001d1`3c123be0)+0x1e
+0000009d`a1fffca0 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c123be0)+0x6b
+0000009d`a1fffd10 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a1fffd70 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a1fffda0 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  16  Id: 2f44.3df0 Suspend: 0 Teb: 0000009d`a0cab000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a20ff768 00007ffd`61482d5c     ntdll!ZwRemoveIoCompletion+0x14
+0000009d`a20ff770 00007ff6`4c8bfc95     KERNELBASE!GetQueuedCompletionStatus+0x6c
+0000009d`a20ff7d0 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x165
+0000009d`a20ff930 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a20ff960 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c123f50, 
+			class IOCP ** _Arg1 = 0x000001d1`3c123f40)+0x1e
+0000009d`a20ff990 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a20ff9c0 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a20ffae0)+0x14
+0000009d`a20ff9f0 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a20ffa20 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a20ffa70 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a20ffae0)+0x32
+0000009d`a20ffac0 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c123f40)+0x57
+0000009d`a20ffb00 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c123f48, 
+			class IOCP ** _Arg1 = 0x000001d1`3c123f40)+0x1e
+0000009d`a20ffb30 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c123f40)+0x6b
+0000009d`a20ffba0 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a20ffc00 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a20ffc30 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  17  Id: 2f44.1b8 Suspend: 0 Teb: 0000009d`a0cad000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a21ff748 00007ffd`61482d5c     ntdll!ZwRemoveIoCompletion+0x14
+0000009d`a21ff750 00007ff6`4c8bfc95     KERNELBASE!GetQueuedCompletionStatus+0x6c
+0000009d`a21ff7b0 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x165
+0000009d`a21ff910 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a21ff940 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c125d50, 
+			class IOCP ** _Arg1 = 0x000001d1`3c125d40)+0x1e
+0000009d`a21ff970 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a21ff9a0 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a21ffac0)+0x14
+0000009d`a21ff9d0 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a21ffa00 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a21ffa50 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a21ffac0)+0x32
+0000009d`a21ffaa0 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c125d40)+0x57
+0000009d`a21ffae0 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c125d48, 
+			class IOCP ** _Arg1 = 0x000001d1`3c125d40)+0x1e
+0000009d`a21ffb10 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c125d40)+0x6b
+0000009d`a21ffb80 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a21ffbe0 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a21ffc10 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  18  Id: 2f44.5da4 Suspend: 0 Teb: 0000009d`a0caf000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a22ff848 00007ffd`61482d5c     ntdll!ZwRemoveIoCompletion+0x14
+0000009d`a22ff850 00007ff6`4c8bfc95     KERNELBASE!GetQueuedCompletionStatus+0x6c
+0000009d`a22ff8b0 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x165
+0000009d`a22ffa10 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a22ffa40 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c125630, 
+			class IOCP ** _Arg1 = 0x000001d1`3c125620)+0x1e
+0000009d`a22ffa70 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a22ffaa0 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a22ffbc0)+0x14
+0000009d`a22ffad0 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a22ffb00 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a22ffb50 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a22ffbc0)+0x32
+0000009d`a22ffba0 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c125620)+0x57
+0000009d`a22ffbe0 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c125628, 
+			class IOCP ** _Arg1 = 0x000001d1`3c125620)+0x1e
+0000009d`a22ffc10 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c125620)+0x6b
+0000009d`a22ffc80 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a22ffce0 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a22ffd10 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  19  Id: 2f44.5164 Suspend: 0 Teb: 0000009d`a0cb1000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a23ff6c8 00007ffd`61482d5c     ntdll!ZwRemoveIoCompletion+0x14
+0000009d`a23ff6d0 00007ff6`4c8bfc95     KERNELBASE!GetQueuedCompletionStatus+0x6c
+0000009d`a23ff730 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x165
+0000009d`a23ff890 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a23ff8c0 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c125150, 
+			class IOCP ** _Arg1 = 0x000001d1`3c125140)+0x1e
+0000009d`a23ff8f0 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a23ff920 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a23ffa40)+0x14
+0000009d`a23ff950 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a23ff980 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a23ff9d0 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a23ffa40)+0x32
+0000009d`a23ffa20 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c125140)+0x57
+0000009d`a23ffa60 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c125148, 
+			class IOCP ** _Arg1 = 0x000001d1`3c125140)+0x1e
+0000009d`a23ffa90 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c125140)+0x6b
+0000009d`a23ffb00 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a23ffb60 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a23ffb90 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  20  Id: 2f44.4a34 Suspend: 0 Teb: 0000009d`a0cb3000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a24ffa18 00007ffd`61482d5c     ntdll!ZwRemoveIoCompletion+0x14
+0000009d`a24ffa20 00007ff6`4c8bfc95     KERNELBASE!GetQueuedCompletionStatus+0x6c
+0000009d`a24ffa80 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x165
+0000009d`a24ffbe0 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a24ffc10 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c1255d0, 
+			class IOCP ** _Arg1 = 0x000001d1`3c1255c0)+0x1e
+0000009d`a24ffc40 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a24ffc70 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a24ffd90)+0x14
+0000009d`a24ffca0 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a24ffcd0 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a24ffd20 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a24ffd90)+0x32
+0000009d`a24ffd70 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c1255c0)+0x57
+0000009d`a24ffdb0 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c1255c8, 
+			class IOCP ** _Arg1 = 0x000001d1`3c1255c0)+0x1e
+0000009d`a24ffde0 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c1255c0)+0x6b
+0000009d`a24ffe50 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a24ffeb0 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a24ffee0 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  21  Id: 2f44.1b78 Suspend: 0 Teb: 0000009d`a0cb5000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a25fd048 00007ffd`5fdbc414     ntdll!NtDeviceIoControlFile+0x14
+0000009d`a25fd050 00007ffd`61f30d75     mswsock+0xc414
+0000009d`a25fd130 00007ff6`4c8bd449     ws2_32!WSASend+0x145
+0000009d`a25fd1c0 00007ff6`4c8b2d7d     CMakeServer!Socket::Send(
+			class std::span<_WSABUF,-1> * buffers = 0x0000009d`a25fdcd0)+0x1d9
+0000009d`a25fd2b0 00007ff6`4c8b1ef7     CMakeServer!Session::RealSend(void)+0x5fd
+0000009d`a25fdd40 00007ff6`4c860998     CMakeServer!Session::TrySend(void)+0x27
+0000009d`a25fdd70 00007ff6`4c8442a9     CMakeServer!IOCP::SendPacket(
+			class SessionID sessionId = class SessionID, 
+			class SendBuffer * sendBuffer = 0x000001d1`45e7afa0, 
+			int type = 0n0)+0x108
+0000009d`a25fde50 00007ff6`4c741788     CMakeServer!Group::SendPacket(
+			class SessionID id = class SessionID, 
+			class SendBuffer * buffer = 0x000001d1`45e7afa0)+0x39
+0000009d`a25fde90 00007ff6`4c77c654     CMakeServer!psh::Player::SendPacket(
+			class SendBuffer * buffer = 0x000001d1`45e7afa0)+0x48
+0000009d`a25fdee0 00007ff6`4c8232f7     CMakeServer!psh::Field::BroadcastToPlayer(
+			struct psh::FVector targetLocation = struct psh::FVector, 
+			class std::vector<SendBuffer,std::allocator<SendBuffer> > * packets = 0x0000009d`a25fe358)+0x1f4
+0000009d`a25fe100 00007ff6`4c8120d7     CMakeServer!psh::ATTACK::ExecuteAttack(
+			struct psh::ReqAttack * attack = 0x0000009d`a25fe4c0)+0x357
+0000009d`a25fe420 00007ff6`4c77e5ef     CMakeServer!psh::ChatCharacter::Attack(
+			char type = 0n4 '', 
+			struct psh::FVector dir = struct psh::FVector)+0x177
+0000009d`a25fe520 00007ff6`4c77b95e     CMakeServer!psh::Field::RecvAttack(
+			class SessionID sessionId = class SessionID, 
+			class RecvBuffer * buffer = 0x0000009d`a25fea88)+0x5bf
+0000009d`a25fe7f0 00007ff6`4c845580     CMakeServer!psh::Field::OnRecv(
+			class SessionID id = class SessionID, 
+			class RecvBuffer * recvBuffer = 0x0000009d`a25fea88)+0x1be
+0000009d`a25fe8b0 00007ff6`4c8b7c18     CMakeServer!Group::onRecvPacket(
+			class Session * session = 0x000001d1`2f2f1e40, 
+			class RecvBuffer * buffer = 0x0000009d`a25fea88)+0x50
+0000009d`a25fe9a0 00007ff6`4c8b3082     CMakeServer!Session::RecvHandler<NetHeader>(
+			class Group * group = 0x000001d1`3bfcc100)+0x938
+0000009d`a25fee50 00007ff6`4c84545c     CMakeServer!Session::ProcessRecv(
+			class Group * group = 0x000001d1`3bfcc100)+0x252
+0000009d`a25fef40 00007ff6`4c8449f6     CMakeServer!Group::HandleJob(void)+0x56c
+0000009d`a25ff190 00007ff6`4c844888     CMakeServer!Group::Process(void)+0xd6
+0000009d`a25ff340 00007ff6`4c8456b0     CMakeServer!Group::Update(void)+0xb8
+0000009d`a25ff3d0 00007ff6`4c847bcd     CMakeServer!`Group::Group'::`1'::<lambda_2_>::operator()(
+			struct NetError __formal = struct NetError, 
+			unsigned int64 __formal = 0)+0x20
+0000009d`a25ff400 00007ff6`4c8457bf     CMakeServer!std::invoke<`Group::Group'::`1'::<lambda_2_> &,NetError,unsigned __int64>(
+			class Group::{ctor}::__l1::<lambda_2_> * _Obj = 0x000001d1`3be6b978, 
+			struct NetError * _Arg1 = 0x0000009d`a25ff4a8, 
+			unsigned int64 * <_Args2_0> = 0x0000009d`a25ff4b0)+0x2d
+0000009d`a25ff430 00007ff6`4c8c294d     CMakeServer!std::_Func_impl_no_alloc<`Group::Group'::`1'::<lambda_2_>,void,NetError,unsigned __int64>::_Do_call(
+			struct NetError * <_Args_0> = 0x0000009d`a25ff4a8, 
+			unsigned int64 * <_Args_1> = 0x0000009d`a25ff4b0)+0x2f
+0000009d`a25ff460 00007ff6`4c8c2a48     CMakeServer!std::_Func_class<void,NetError,unsigned __int64>::operator()(
+			struct NetError <_Args_0> = struct NetError, 
+			unsigned int64 <_Args_1> = 0)+0x5d
+0000009d`a25ff4a0 00007ff6`4c8c0847     CMakeServer!WindowsExecutable::Execute(void)+0xd8
+0000009d`a25ff510 00007ff6`4c8c1d44     CMakeServer!`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1>::operator()(void)+0x17
+0000009d`a25ff540 00007ff6`4c8c092c     CMakeServer!std::invoke<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >(
+			class WindowsExecutor::ExecuteNoThrow::__l3::<lambda_1> * _Obj = 0x0000009d`a25ff6a8)+0x14
+0000009d`a25ff570 00007ff6`4c8c08c5     CMakeServer!``psh::util::RunWithTrace<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator(void)+0x1c
+0000009d`a25ff5a0 00007ff6`4c8c13a2     CMakeServer!`psh::util::RunWithTrace<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >'::`3'::<lambda_1>::operator()(void)+0x35
+0000009d`a25ff5f0 00007ff6`4c8c051b     CMakeServer!psh::util::RunWithTrace<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >(
+			char * context = 0x00007ff6`4c9ddef0 "WindowsExecutor::ExecuteNoThrow", 
+			class WindowsExecutor::ExecuteNoThrow::__l3::<lambda_1> * function = 0x0000009d`a25ff6a8)+0x32
+0000009d`a25ff640 00007ff6`4c8bfdd6     CMakeServer!WindowsExecutor::ExecuteNoThrow(
+			class WindowsExecutable * executable = 0x000001d1`3be6b940)+0x7b
+0000009d`a25ff710 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x2a6
+0000009d`a25ff870 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a25ff8a0 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c1254b0, 
+			class IOCP ** _Arg1 = 0x000001d1`3c1254a0)+0x1e
+0000009d`a25ff8d0 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a25ff900 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a25ffa20)+0x14
+0000009d`a25ff930 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a25ff960 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a25ff9b0 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a25ffa20)+0x32
+0000009d`a25ffa00 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c1254a0)+0x57
+0000009d`a25ffa40 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c1254a8, 
+			class IOCP ** _Arg1 = 0x000001d1`3c1254a0)+0x1e
+0000009d`a25ffa70 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c1254a0)+0x6b
+0000009d`a25ffae0 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a25ffb40 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a25ffb70 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  22  Id: 2f44.4bd4 Suspend: 0 Teb: 0000009d`a0cb7000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a26ffa98 00007ffd`61482d5c     ntdll!ZwRemoveIoCompletion+0x14
+0000009d`a26ffaa0 00007ff6`4c8bfc95     KERNELBASE!GetQueuedCompletionStatus+0x6c
+0000009d`a26ffb00 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x165
+0000009d`a26ffc60 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a26ffc90 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c125e10, 
+			class IOCP ** _Arg1 = 0x000001d1`3c125e00)+0x1e
+0000009d`a26ffcc0 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a26ffcf0 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a26ffe10)+0x14
+0000009d`a26ffd20 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a26ffd50 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a26ffda0 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a26ffe10)+0x32
+0000009d`a26ffdf0 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c125e00)+0x57
+0000009d`a26ffe30 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c125e08, 
+			class IOCP ** _Arg1 = 0x000001d1`3c125e00)+0x1e
+0000009d`a26ffe60 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c125e00)+0x6b
+0000009d`a26ffed0 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a26fff30 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a26fff60 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  23  Id: 2f44.6c54 Suspend: 0 Teb: 0000009d`a0cb9000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a27ff418 00007ffd`61482d5c     ntdll!ZwRemoveIoCompletion+0x14
+0000009d`a27ff420 00007ff6`4c8bfc95     KERNELBASE!GetQueuedCompletionStatus+0x6c
+0000009d`a27ff480 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x165
+0000009d`a27ff5e0 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a27ff610 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c1253f0, 
+			class IOCP ** _Arg1 = 0x000001d1`3c1253e0)+0x1e
+0000009d`a27ff640 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a27ff670 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a27ff790)+0x14
+0000009d`a27ff6a0 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a27ff6d0 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a27ff720 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a27ff790)+0x32
+0000009d`a27ff770 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c1253e0)+0x57
+0000009d`a27ff7b0 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c1253e8, 
+			class IOCP ** _Arg1 = 0x000001d1`3c1253e0)+0x1e
+0000009d`a27ff7e0 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c1253e0)+0x6b
+0000009d`a27ff850 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a27ff8b0 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a27ff8e0 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  24  Id: 2f44.6110 Suspend: 0 Teb: 0000009d`a0cbb000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a28fd1a8 00007ffd`5fdbc414     ntdll!NtDeviceIoControlFile+0x14
+0000009d`a28fd1b0 00007ffd`61f30d75     mswsock+0xc414
+0000009d`a28fd290 00007ff6`4c8bd449     ws2_32!WSASend+0x145
+0000009d`a28fd320 00007ff6`4c8b2d7d     CMakeServer!Socket::Send(
+			class std::span<_WSABUF,-1> * buffers = 0x0000009d`a28fde30)+0x1d9
+0000009d`a28fd410 00007ff6`4c8b1ef7     CMakeServer!Session::RealSend(void)+0x5fd
+0000009d`a28fdea0 00007ff6`4c860998     CMakeServer!Session::TrySend(void)+0x27
+0000009d`a28fded0 00007ff6`4c8442a9     CMakeServer!IOCP::SendPacket(
+			class SessionID sessionId = class SessionID, 
+			class SendBuffer * sendBuffer = 0x000001d1`462885f0, 
+			int type = 0n0)+0x108
+0000009d`a28fdfb0 00007ff6`4c741788     CMakeServer!Group::SendPacket(
+			class SessionID id = class SessionID, 
+			class SendBuffer * buffer = 0x000001d1`462885f0)+0x39
+0000009d`a28fdff0 00007ff6`4c77c654     CMakeServer!psh::Player::SendPacket(
+			class SendBuffer * buffer = 0x000001d1`462885f0)+0x48
+0000009d`a28fe040 00007ff6`4c8232f7     CMakeServer!psh::Field::BroadcastToPlayer(
+			struct psh::FVector targetLocation = struct psh::FVector, 
+			class std::vector<SendBuffer,std::allocator<SendBuffer> > * packets = 0x0000009d`a28fe4b8)+0x1f4
+0000009d`a28fe260 00007ff6`4c8120d7     CMakeServer!psh::ATTACK::ExecuteAttack(
+			struct psh::ReqAttack * attack = 0x0000009d`a28fe620)+0x357
+0000009d`a28fe580 00007ff6`4c77e5ef     CMakeServer!psh::ChatCharacter::Attack(
+			char type = 0n8 '', 
+			struct psh::FVector dir = struct psh::FVector)+0x177
+0000009d`a28fe680 00007ff6`4c77b95e     CMakeServer!psh::Field::RecvAttack(
+			class SessionID sessionId = class SessionID, 
+			class RecvBuffer * buffer = 0x0000009d`a28febe8)+0x5bf
+0000009d`a28fe950 00007ff6`4c845580     CMakeServer!psh::Field::OnRecv(
+			class SessionID id = class SessionID, 
+			class RecvBuffer * recvBuffer = 0x0000009d`a28febe8)+0x1be
+0000009d`a28fea10 00007ff6`4c8b7c18     CMakeServer!Group::onRecvPacket(
+			class Session * session = 0x000001d1`2fe43340, 
+			class RecvBuffer * buffer = 0x0000009d`a28febe8)+0x50
+0000009d`a28feb00 00007ff6`4c8b3082     CMakeServer!Session::RecvHandler<NetHeader>(
+			class Group * group = 0x000001d1`3b07c070)+0x938
+0000009d`a28fefb0 00007ff6`4c84545c     CMakeServer!Session::ProcessRecv(
+			class Group * group = 0x000001d1`3b07c070)+0x252
+0000009d`a28ff0a0 00007ff6`4c8449f6     CMakeServer!Group::HandleJob(void)+0x56c
+0000009d`a28ff2f0 00007ff6`4c844888     CMakeServer!Group::Process(void)+0xd6
+0000009d`a28ff4a0 00007ff6`4c8456b0     CMakeServer!Group::Update(void)+0xb8
+0000009d`a28ff530 00007ff6`4c847bcd     CMakeServer!`Group::Group'::`1'::<lambda_2_>::operator()(
+			struct NetError __formal = struct NetError, 
+			unsigned int64 __formal = 0)+0x20
+0000009d`a28ff560 00007ff6`4c8457bf     CMakeServer!std::invoke<`Group::Group'::`1'::<lambda_2_> &,NetError,unsigned __int64>(
+			class Group::{ctor}::__l1::<lambda_2_> * _Obj = 0x000001d1`3be6bf28, 
+			struct NetError * _Arg1 = 0x0000009d`a28ff608, 
+			unsigned int64 * <_Args2_0> = 0x0000009d`a28ff610)+0x2d
+0000009d`a28ff590 00007ff6`4c8c294d     CMakeServer!std::_Func_impl_no_alloc<`Group::Group'::`1'::<lambda_2_>,void,NetError,unsigned __int64>::_Do_call(
+			struct NetError * <_Args_0> = 0x0000009d`a28ff608, 
+			unsigned int64 * <_Args_1> = 0x0000009d`a28ff610)+0x2f
+0000009d`a28ff5c0 00007ff6`4c8c2a48     CMakeServer!std::_Func_class<void,NetError,unsigned __int64>::operator()(
+			struct NetError <_Args_0> = struct NetError, 
+			unsigned int64 <_Args_1> = 0)+0x5d
+0000009d`a28ff600 00007ff6`4c8c0847     CMakeServer!WindowsExecutable::Execute(void)+0xd8
+0000009d`a28ff670 00007ff6`4c8c1d44     CMakeServer!`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1>::operator()(void)+0x17
+0000009d`a28ff6a0 00007ff6`4c8c092c     CMakeServer!std::invoke<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >(
+			class WindowsExecutor::ExecuteNoThrow::__l3::<lambda_1> * _Obj = 0x0000009d`a28ff808)+0x14
+0000009d`a28ff6d0 00007ff6`4c8c08c5     CMakeServer!``psh::util::RunWithTrace<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator(void)+0x1c
+0000009d`a28ff700 00007ff6`4c8c13a2     CMakeServer!`psh::util::RunWithTrace<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >'::`3'::<lambda_1>::operator()(void)+0x35
+0000009d`a28ff750 00007ff6`4c8c051b     CMakeServer!psh::util::RunWithTrace<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >(
+			char * context = 0x00007ff6`4c9ddef0 "WindowsExecutor::ExecuteNoThrow", 
+			class WindowsExecutor::ExecuteNoThrow::__l3::<lambda_1> * function = 0x0000009d`a28ff808)+0x32
+0000009d`a28ff7a0 00007ff6`4c8bfdd6     CMakeServer!WindowsExecutor::ExecuteNoThrow(
+			class WindowsExecutable * executable = 0x000001d1`3be6bef0)+0x7b
+0000009d`a28ff870 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x2a6
+0000009d`a28ff9d0 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a28ffa00 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c1265f0, 
+			class IOCP ** _Arg1 = 0x000001d1`3c1265e0)+0x1e
+0000009d`a28ffa30 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a28ffa60 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a28ffb80)+0x14
+0000009d`a28ffa90 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a28ffac0 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a28ffb10 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a28ffb80)+0x32
+0000009d`a28ffb60 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c1265e0)+0x57
+0000009d`a28ffba0 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c1265e8, 
+			class IOCP ** _Arg1 = 0x000001d1`3c1265e0)+0x1e
+0000009d`a28ffbd0 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c1265e0)+0x6b
+0000009d`a28ffc40 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a28ffca0 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a28ffcd0 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  25  Id: 2f44.1f34 Suspend: 0 Teb: 0000009d`a0cbd000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a29ff5e8 00007ffd`61482d5c     ntdll!ZwRemoveIoCompletion+0x14
+0000009d`a29ff5f0 00007ff6`4c8bfc95     KERNELBASE!GetQueuedCompletionStatus+0x6c
+0000009d`a29ff650 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x165
+0000009d`a29ff7b0 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a29ff7e0 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c126770, 
+			class IOCP ** _Arg1 = 0x000001d1`3c126760)+0x1e
+0000009d`a29ff810 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a29ff840 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a29ff960)+0x14
+0000009d`a29ff870 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a29ff8a0 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a29ff8f0 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a29ff960)+0x32
+0000009d`a29ff940 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c126760)+0x57
+0000009d`a29ff980 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c126768, 
+			class IOCP ** _Arg1 = 0x000001d1`3c126760)+0x1e
+0000009d`a29ff9b0 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c126760)+0x6b
+0000009d`a29ffa20 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a29ffa80 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a29ffab0 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  26  Id: 2f44.4158 Suspend: 0 Teb: 0000009d`a0cbf000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a2afd9e0 00007ffc`fb16cb64     ntdll!RtlEnterCriticalSection+0x38
+0000009d`a2afda20 00007ffc`fb16c336     MSVCP140D!Mtxlock+0x14
+0000009d`a2afda50 00007ff6`4c7389c5     MSVCP140D!std::_Lockit::_Lockit+0x56
+0000009d`a2afda80 00007ff6`4c73896c     CMakeServer!std::_Iterator_base12::_Adopt_locked(
+			struct std::_Container_base12 * _Parent = 0x000001d1`3c221ac8)+0x35
+0000009d`a2afdad0 00007ff6`4c73c85b     CMakeServer!std::_Iterator_base12::_Adopt(
+			struct std::_Container_base12 * _Parent = 0x000001d1`3c221ac8)+0x3c
+0000009d`a2afdb00 00007ff6`4c73c668     CMakeServer!std::_List_unchecked_const_iterator<std::_List_val<std::_List_simple_types<std::pair<int const ,std::shared_ptr<psh::GameObject> > > >,std::_Iterator_base12>::_List_unchecked_const_iterator<std::_List_val<std::_List_simple_types<std::pair<int const ,std::shared_ptr<psh::GameObject> > > >,std::_Iterator_base12>(
+			struct std::_List_node<std::pair<int const ,std::shared_ptr<psh::GameObject> >,void *> * _Pnode = 0x000001d1`3c21b010, 
+			class std::_List_val<std::_List_simple_types<std::pair<int const ,std::shared_ptr<psh::GameObject> > > > * _Plist = 0x000001d1`3c221ac8)+0x3b
+0000009d`a2afdb30 00007ff6`4c73c778     CMakeServer!std::_List_const_iterator<std::_List_val<std::_List_simple_types<std::pair<int const ,std::shared_ptr<psh::GameObject> > > > >::_List_const_iterator<std::_List_val<std::_List_simple_types<std::pair<int const ,std::shared_ptr<psh::GameObject> > > > >(void)+0x28
+0000009d`a2afdb60 00007ff6`4c740a43     CMakeServer!std::_List_iterator<std::_List_val<std::_List_simple_types<std::pair<int const ,std::shared_ptr<psh::GameObject> > > > >::_List_iterator<std::_List_val<std::_List_simple_types<std::pair<int const ,std::shared_ptr<psh::GameObject> > > > >(void)+0x28
+0000009d`a2afdb90 00007ff6`4c7409dc     CMakeServer!std::list<std::pair<int const ,std::shared_ptr<psh::GameObject> >,std::allocator<std::pair<int const ,std::shared_ptr<psh::GameObject> > > >::end(void)+0x43
+0000009d`a2afdbd0 00007ff6`4c74106f     CMakeServer!std::_Hash<std::_Umap_traits<int,std::shared_ptr<psh::GameObject>,std::_Uhash_compare<int,std::hash<int>,std::equal_to<int> >,std::allocator<std::pair<int const ,std::shared_ptr<psh::GameObject> > >,0> >::end(void)+0x2c
+0000009d`a2afdc10 00007ff6`4c73e9a5     CMakeServer!psh::GameMap<int,std::shared_ptr<psh::GameObject> >::SectorViewIterator::moveNext(void)+0x7f
+0000009d`a2afdcc0 00007ff6`4c77c555     CMakeServer!psh::GameMap<int,std::shared_ptr<psh::GameObject> >::SectorViewIterator::operator++(void)+0x25
+0000009d`a2afdcf0 00007ff6`4c8232f7     CMakeServer!psh::Field::BroadcastToPlayer(
+			struct psh::FVector targetLocation = struct psh::FVector, 
+			class std::vector<SendBuffer,std::allocator<SendBuffer> > * packets = 0x0000009d`a2afe168)+0xf5
+0000009d`a2afdf10 00007ff6`4c8120d7     CMakeServer!psh::ATTACK::ExecuteAttack(
+			struct psh::ReqAttack * attack = 0x0000009d`a2afe2d0)+0x357
+0000009d`a2afe230 00007ff6`4c77e5ef     CMakeServer!psh::ChatCharacter::Attack(
+			char type = 0n3 '', 
+			struct psh::FVector dir = struct psh::FVector)+0x177
+0000009d`a2afe330 00007ff6`4c77b95e     CMakeServer!psh::Field::RecvAttack(
+			class SessionID sessionId = class SessionID, 
+			class RecvBuffer * buffer = 0x0000009d`a2afe898)+0x5bf
+0000009d`a2afe600 00007ff6`4c845580     CMakeServer!psh::Field::OnRecv(
+			class SessionID id = class SessionID, 
+			class RecvBuffer * recvBuffer = 0x0000009d`a2afe898)+0x1be
+0000009d`a2afe6c0 00007ff6`4c8b7c18     CMakeServer!Group::onRecvPacket(
+			class Session * session = 0x000001d1`30853a40, 
+			class RecvBuffer * buffer = 0x0000009d`a2afe898)+0x50
+0000009d`a2afe7b0 00007ff6`4c8b3082     CMakeServer!Session::RecvHandler<NetHeader>(
+			class Group * group = 0x000001d1`3871ca90)+0x938
+0000009d`a2afec60 00007ff6`4c84545c     CMakeServer!Session::ProcessRecv(
+			class Group * group = 0x000001d1`3871ca90)+0x252
+0000009d`a2afed50 00007ff6`4c8449f6     CMakeServer!Group::HandleJob(void)+0x56c
+0000009d`a2afefa0 00007ff6`4c844888     CMakeServer!Group::Process(void)+0xd6
+0000009d`a2aff150 00007ff6`4c8456b0     CMakeServer!Group::Update(void)+0xb8
+0000009d`a2aff1e0 00007ff6`4c847bcd     CMakeServer!`Group::Group'::`1'::<lambda_2_>::operator()(
+			struct NetError __formal = struct NetError, 
+			unsigned int64 __formal = 0)+0x20
+0000009d`a2aff210 00007ff6`4c8457bf     CMakeServer!std::invoke<`Group::Group'::`1'::<lambda_2_> &,NetError,unsigned __int64>(
+			class Group::{ctor}::__l1::<lambda_2_> * _Obj = 0x000001d1`3be6bd88, 
+			struct NetError * _Arg1 = 0x0000009d`a2aff2b8, 
+			unsigned int64 * <_Args2_0> = 0x0000009d`a2aff2c0)+0x2d
+0000009d`a2aff240 00007ff6`4c8c294d     CMakeServer!std::_Func_impl_no_alloc<`Group::Group'::`1'::<lambda_2_>,void,NetError,unsigned __int64>::_Do_call(
+			struct NetError * <_Args_0> = 0x0000009d`a2aff2b8, 
+			unsigned int64 * <_Args_1> = 0x0000009d`a2aff2c0)+0x2f
+0000009d`a2aff270 00007ff6`4c8c2a48     CMakeServer!std::_Func_class<void,NetError,unsigned __int64>::operator()(
+			struct NetError <_Args_0> = struct NetError, 
+			unsigned int64 <_Args_1> = 0)+0x5d
+0000009d`a2aff2b0 00007ff6`4c8c0847     CMakeServer!WindowsExecutable::Execute(void)+0xd8
+0000009d`a2aff320 00007ff6`4c8c1d44     CMakeServer!`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1>::operator()(void)+0x17
+0000009d`a2aff350 00007ff6`4c8c092c     CMakeServer!std::invoke<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >(
+			class WindowsExecutor::ExecuteNoThrow::__l3::<lambda_1> * _Obj = 0x0000009d`a2aff4b8)+0x14
+0000009d`a2aff380 00007ff6`4c8c08c5     CMakeServer!``psh::util::RunWithTrace<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >'::`3'::<lambda_1>::operator()'::`3'::<lambda_1>::operator(void)+0x1c
+0000009d`a2aff3b0 00007ff6`4c8c13a2     CMakeServer!`psh::util::RunWithTrace<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >'::`3'::<lambda_1>::operator()(void)+0x35
+0000009d`a2aff400 00007ff6`4c8c051b     CMakeServer!psh::util::RunWithTrace<`WindowsExecutor::ExecuteNoThrow'::`3'::<lambda_1> >(
+			char * context = 0x00007ff6`4c9ddef0 "WindowsExecutor::ExecuteNoThrow", 
+			class WindowsExecutor::ExecuteNoThrow::__l3::<lambda_1> * function = 0x0000009d`a2aff4b8)+0x32
+0000009d`a2aff450 00007ff6`4c8bfdd6     CMakeServer!WindowsExecutor::ExecuteNoThrow(
+			class WindowsExecutable * executable = 0x000001d1`3be6bd50)+0x7b
+0000009d`a2aff520 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x2a6
+0000009d`a2aff680 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a2aff6b0 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c1266b0, 
+			class IOCP ** _Arg1 = 0x000001d1`3c1266a0)+0x1e
+0000009d`a2aff6e0 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a2aff710 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a2aff830)+0x14
+0000009d`a2aff740 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a2aff770 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a2aff7c0 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a2aff830)+0x32
+0000009d`a2aff810 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c1266a0)+0x57
+0000009d`a2aff850 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c1266a8, 
+			class IOCP ** _Arg1 = 0x000001d1`3c1266a0)+0x1e
+0000009d`a2aff880 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c1266a0)+0x6b
+0000009d`a2aff8f0 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a2aff950 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a2aff980 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  27  Id: 2f44.57ec Suspend: 0 Teb: 0000009d`a0cc1000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a2bff7c8 00007ffd`61482d5c     ntdll!ZwRemoveIoCompletion+0x14
+0000009d`a2bff7d0 00007ff6`4c8bfc95     KERNELBASE!GetQueuedCompletionStatus+0x6c
+0000009d`a2bff830 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x165
+0000009d`a2bff990 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a2bff9c0 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c1268f0, 
+			class IOCP ** _Arg1 = 0x000001d1`3c1268e0)+0x1e
+0000009d`a2bff9f0 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a2bffa20 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a2bffb40)+0x14
+0000009d`a2bffa50 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a2bffa80 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a2bffad0 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a2bffb40)+0x32
+0000009d`a2bffb20 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c1268e0)+0x57
+0000009d`a2bffb60 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c1268e8, 
+			class IOCP ** _Arg1 = 0x000001d1`3c1268e0)+0x1e
+0000009d`a2bffb90 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c1268e0)+0x6b
+0000009d`a2bffc00 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a2bffc60 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a2bffc90 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  28  Id: 2f44.6d90 Suspend: 0 Teb: 0000009d`a0cc3000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a2cff768 00007ffd`61482d5c     ntdll!ZwRemoveIoCompletion+0x14
+0000009d`a2cff770 00007ff6`4c8bfc95     KERNELBASE!GetQueuedCompletionStatus+0x6c
+0000009d`a2cff7d0 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x165
+0000009d`a2cff930 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a2cff960 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c126050, 
+			class IOCP ** _Arg1 = 0x000001d1`3c126040)+0x1e
+0000009d`a2cff990 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a2cff9c0 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a2cffae0)+0x14
+0000009d`a2cff9f0 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a2cffa20 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a2cffa70 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a2cffae0)+0x32
+0000009d`a2cffac0 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c126040)+0x57
+0000009d`a2cffb00 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c126048, 
+			class IOCP ** _Arg1 = 0x000001d1`3c126040)+0x1e
+0000009d`a2cffb30 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c126040)+0x6b
+0000009d`a2cffba0 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a2cffc00 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a2cffc30 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  29  Id: 2f44.e38 Suspend: 0 Teb: 0000009d`a0cc5000 Unfrozen "WORKER"
+Child-SP          RetAddr               Call Site
+0000009d`a2dff748 00007ffd`61482d5c     ntdll!ZwRemoveIoCompletion+0x14
+0000009d`a2dff750 00007ff6`4c8bfc95     KERNELBASE!GetQueuedCompletionStatus+0x6c
+0000009d`a2dff7b0 00007ff6`4c8628ab     CMakeServer!WindowsExecutor::Run(void)+0x165
+0000009d`a2dff910 00007ff6`4c867fae     CMakeServer!IOCP::WorkerThread(void)+0x1b
+0000009d`a2dff940 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c126350, 
+			class IOCP ** _Arg1 = 0x000001d1`3c126340)+0x1e
+0000009d`a2dff970 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a2dff9a0 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a2dffac0)+0x14
+0000009d`a2dff9d0 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a2dffa00 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a2dffa50 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a2dffac0)+0x32
+0000009d`a2dffaa0 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c126340)+0x57
+0000009d`a2dffae0 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c126348, 
+			class IOCP ** _Arg1 = 0x000001d1`3c126340)+0x1e
+0000009d`a2dffb10 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c126340)+0x6b
+0000009d`a2dffb80 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a2dffbe0 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a2dffc10 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  30  Id: 2f44.d28 Suspend: 0 Teb: 0000009d`a0cc7000 Unfrozen "IOCP Group Thread"
+Child-SP          RetAddr               Call Site
+0000009d`a2eff7e8 00007ffd`63f90fd4     ntdll!ZwDelayExecution+0x14
+0000009d`a2eff7f0 00007ffd`614eb9c1     ntdll!RtlDelayExecution+0x34
+0000009d`a2eff820 00007ff6`4c95a782     KERNELBASE!SleepEx+0x91
+0000009d`a2eff8b0 00007ff6`4c868b94     CMakeServer!_Thrd_sleep_for(
+			unsigned long ms = 1)+0x12
+0000009d`a2eff8e0 00007ff6`4c868ac1     CMakeServer!std::this_thread::sleep_until<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > >(
+			class std::chrono::time_point<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > > * _Abs_time = 0x0000009d`a2eff960)+0xb4
+0000009d`a2eff940 00007ff6`4c86285b     CMakeServer!std::this_thread::sleep_for<__int64,std::ratio<1,1000> >(
+			class std::chrono::duration<__int64,std::ratio<1,1000> > * _Rel_time = 0x0000009d`a2eff9e8)+0x21
+0000009d`a2eff980 00007ff6`4c867fae     CMakeServer!IOCP::GroupThread(void)+0x15b
+0000009d`a2effa50 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c125db0, 
+			class IOCP ** _Arg1 = 0x000001d1`3c125da0)+0x1e
+0000009d`a2effa80 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a2effab0 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a2effbd0)+0x14
+0000009d`a2effae0 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a2effb10 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a2effb60 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a2effbd0)+0x32
+0000009d`a2effbb0 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c125da0)+0x57
+0000009d`a2effbf0 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c125da8, 
+			class IOCP ** _Arg1 = 0x000001d1`3c125da0)+0x1e
+0000009d`a2effc20 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c125da0)+0x6b
+0000009d`a2effc90 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a2effcf0 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a2effd20 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  31  Id: 2f44.5758 Suspend: 0 Teb: 0000009d`a0cc9000 Unfrozen "IOCP Timeout Thread"
+Child-SP          RetAddr               Call Site
+0000009d`a2fff208 00007ffd`63f90fd4     ntdll!ZwDelayExecution+0x14
+0000009d`a2fff210 00007ffd`614eb9c1     ntdll!RtlDelayExecution+0x34
+0000009d`a2fff240 00007ff6`4c95a782     KERNELBASE!SleepEx+0x91
+0000009d`a2fff2d0 00007ff6`4c868b94     CMakeServer!_Thrd_sleep_for(
+			unsigned long ms = 0x3de)+0x12
+0000009d`a2fff300 00007ff6`4c868ac1     CMakeServer!std::this_thread::sleep_until<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > >(
+			class std::chrono::time_point<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > > * _Abs_time = 0x0000009d`a2fff380)+0xb4
+0000009d`a2fff360 00007ff6`4c8632a8     CMakeServer!std::this_thread::sleep_for<__int64,std::ratio<1,1000> >(
+			class std::chrono::duration<__int64,std::ratio<1,1000> > * _Rel_time = 0x0000009d`a2fff488)+0x21
+0000009d`a2fff3a0 00007ff6`4c867fae     CMakeServer!IOCP::TimeoutThread(void)+0x308
+0000009d`a2fff580 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c126170, 
+			class IOCP ** _Arg1 = 0x000001d1`3c126160)+0x1e
+0000009d`a2fff5b0 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a2fff5e0 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a2fff700)+0x14
+0000009d`a2fff610 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a2fff640 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a2fff690 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a2fff700)+0x32
+0000009d`a2fff6e0 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c126160)+0x57
+0000009d`a2fff720 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c126168, 
+			class IOCP ** _Arg1 = 0x000001d1`3c126160)+0x1e
+0000009d`a2fff750 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c126160)+0x6b
+0000009d`a2fff7c0 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a2fff820 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a2fff850 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  32  Id: 2f44.4074 Suspend: 0 Teb: 0000009d`a0ccb000 Unfrozen "IOCP Monitor Thread"
+Child-SP          RetAddr               Call Site
+0000009d`a30ffa68 00007ffd`63f90fd4     ntdll!ZwDelayExecution+0x14
+0000009d`a30ffa70 00007ffd`614eb9c1     ntdll!RtlDelayExecution+0x34
+0000009d`a30ffaa0 00007ff6`4c95a782     KERNELBASE!SleepEx+0x91
+0000009d`a30ffb30 00007ff6`4c868b94     CMakeServer!_Thrd_sleep_for(
+			unsigned long ms = 0x3de)+0x12
+0000009d`a30ffb60 00007ff6`4c868ac1     CMakeServer!std::this_thread::sleep_until<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > >(
+			class std::chrono::time_point<std::chrono::steady_clock,std::chrono::duration<__int64,std::ratio<1,1000000000> > > * _Abs_time = 0x0000009d`a30ffbe0)+0xb4
+0000009d`a30ffbc0 00007ff6`4c862f65     CMakeServer!std::this_thread::sleep_for<__int64,std::ratio<1,1000> >(
+			class std::chrono::duration<__int64,std::ratio<1,1000> > * _Rel_time = 0x0000009d`a30ffc68)+0x21
+0000009d`a30ffc00 00007ff6`4c867fae     CMakeServer!IOCP::MonitorThread(void)+0x2b5
+0000009d`a30ffcc0 00007ff6`4c86af20     CMakeServer!std::invoke<void (
+			<function> ** _Obj = 0x000001d1`3c1264d0, 
+			class IOCP ** _Arg1 = 0x000001d1`3c1264c0)+0x1e
+0000009d`a30ffcf0 00007ff6`4c868004     CMakeServer!``psh::ThreadWrapper::ThreadWrapper<void (void)+0x20
+0000009d`a30ffd20 00007ff6`4c86afac     CMakeServer!std::invoke<``psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * _Obj = 0x0000009d`a30ffe40)+0x14
+0000009d`a30ffd50 00007ff6`4c86af65     CMakeServer!``psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x1c
+0000009d`a30ffd80 00007ff6`4c8655f2     CMakeServer!`psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (void)+0x35
+0000009d`a30ffdd0 00007ff6`4c865097     CMakeServer!psh::util::RunWithTrace<``psh::ThreadWrapper::ThreadWrapper<void (
+			char * context = 0x00007ff6`4c9ca0b8 "IOCP thread", 
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_>::()::__l2::<lambda_1> * function = 0x0000009d`a30ffe40)+0x32
+0000009d`a30ffe20 00007ff6`4c867fde     CMakeServer!`psh::ThreadWrapper::ThreadWrapper<void (
+			class IOCP ** <innerArgs_0> = 0x000001d1`3c1264c0)+0x57
+0000009d`a30ffe60 00007ff6`4c865fdb     CMakeServer!std::invoke<`psh::ThreadWrapper::ThreadWrapper<void (
+			class psh::ThreadWrapper::{ctor}::__l1::<lambda_12_> * _Obj = 0x000001d1`3c1264c8, 
+			class IOCP ** _Arg1 = 0x000001d1`3c1264c0)+0x1e
+0000009d`a30ffe90 00007ffc`fafa2ec5     CMakeServer!std::thread::_Invoke<std::tuple<`psh::ThreadWrapper::ThreadWrapper<void (
+			void * _RawVals = 0x000001d1`3c1264c0)+0x6b
+0000009d`a30fff00 00007ffd`6297dda7     ucrtbased!register_onexit_function+0xf5
+0000009d`a30fff60 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a30fff90 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  33  Id: 2f44.6f04 Suspend: 0 Teb: 0000009d`a0ccd000 Unfrozen
+Child-SP          RetAddr               Call Site
+0000009d`a31ff6b8 00007ffd`63ee4d0e     ntdll!NtWaitForWorkViaWorkerFactory+0x14
+0000009d`a31ff6c0 00007ffd`6297dda7     ntdll!TpCallbackMayRunLong+0x1a0e
+0000009d`a31ffa20 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a31ffa50 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+
+  34  Id: 2f44.c70 Suspend: 0 Teb: 0000009d`a0ccf000 Unfrozen
+Child-SP          RetAddr               Call Site
+0000009d`a32ff5e8 00007ffd`63ee4d0e     ntdll!NtWaitForWorkViaWorkerFactory+0x14
+0000009d`a32ff5f0 00007ffd`6297dda7     ntdll!TpCallbackMayRunLong+0x1a0e
+0000009d`a32ff950 00007ffd`63f3ee4c     kernel32!BaseThreadInitThunk+0x17
+0000009d`a32ff980 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
+runaway is not extension gallery command
+No export runaway found

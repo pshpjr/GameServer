@@ -1,0 +1,81 @@
+iters/ns=5.211
+cas       threads= 1 consume=   0ns other=   0ns     37.30 Mops/s     26.8 ns/op  passes/op=1.000  leftover=0 lost=0
+casfast   threads= 1 consume=   0ns other=   0ns     37.34 Mops/s     26.8 ns/op  passes/op=1.000  leftover=0 lost=0
+lockflag  threads= 1 consume=   0ns other=   0ns     20.60 Mops/s     48.5 ns/op  passes/op=1.000  leftover=0 lost=0
+coarse    threads= 1 consume=   0ns other=   0ns     37.48 Mops/s     26.7 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads= 2 consume=   0ns other=   0ns     33.05 Mops/s     30.3 ns/op  passes/op=0.966  leftover=0 lost=0
+casfast   threads= 2 consume=   0ns other=   0ns     49.94 Mops/s     20.0 ns/op  passes/op=0.577  leftover=0 lost=0
+lockflag  threads= 2 consume=   0ns other=   0ns     26.03 Mops/s     38.4 ns/op  passes/op=0.339  leftover=0 lost=0
+coarse    threads= 2 consume=   0ns other=   0ns     34.93 Mops/s     28.6 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads= 3 consume=   0ns other=   0ns     37.97 Mops/s     26.3 ns/op  passes/op=0.506  leftover=0 lost=0
+casfast   threads= 3 consume=   0ns other=   0ns     61.27 Mops/s     16.3 ns/op  passes/op=0.212  leftover=0 lost=0
+lockflag  threads= 3 consume=   0ns other=   0ns     25.58 Mops/s     39.1 ns/op  passes/op=0.214  leftover=0 lost=0
+coarse    threads= 3 consume=   0ns other=   0ns     30.65 Mops/s     32.6 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads= 4 consume=   0ns other=   0ns     38.81 Mops/s     25.8 ns/op  passes/op=0.342  leftover=0 lost=0
+casfast   threads= 4 consume=   0ns other=   0ns     76.08 Mops/s     13.1 ns/op  passes/op=0.124  leftover=0 lost=0
+lockflag  threads= 4 consume=   0ns other=   0ns     22.75 Mops/s     44.0 ns/op  passes/op=0.155  leftover=0 lost=0
+coarse    threads= 4 consume=   0ns other=   0ns     28.18 Mops/s     35.5 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads=16 consume=   0ns other=   0ns     44.74 Mops/s     22.4 ns/op  passes/op=0.067  leftover=0 lost=0
+casfast   threads=16 consume=   0ns other=   0ns     86.11 Mops/s     11.6 ns/op  passes/op=0.050  leftover=0 lost=0
+lockflag  threads=16 consume=   0ns other=   0ns     14.35 Mops/s     69.7 ns/op  passes/op=0.035  leftover=0 lost=0
+coarse    threads=16 consume=   0ns other=   0ns     12.54 Mops/s     79.7 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads= 1 consume= 200ns other=   0ns      2.17 Mops/s    459.9 ns/op  passes/op=1.000  leftover=0 lost=0
+casfast   threads= 1 consume= 200ns other=   0ns      2.68 Mops/s    373.3 ns/op  passes/op=1.000  leftover=0 lost=0
+lockflag  threads= 1 consume= 200ns other=   0ns      2.46 Mops/s    405.9 ns/op  passes/op=1.000  leftover=0 lost=0
+coarse    threads= 1 consume= 200ns other=   0ns      2.77 Mops/s    361.0 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads= 2 consume= 200ns other=   0ns      2.02 Mops/s    494.0 ns/op  passes/op=0.500  leftover=0 lost=0
+casfast   threads= 2 consume= 200ns other=   0ns      3.08 Mops/s    324.2 ns/op  passes/op=0.500  leftover=0 lost=0
+lockflag  threads= 2 consume= 200ns other=   0ns      2.93 Mops/s    341.7 ns/op  passes/op=0.500  leftover=0 lost=0
+coarse    threads= 2 consume= 200ns other=   0ns      2.72 Mops/s    367.7 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads= 3 consume= 200ns other=   0ns      3.28 Mops/s    305.0 ns/op  passes/op=0.333  leftover=0 lost=0
+casfast   threads= 3 consume= 200ns other=   0ns      3.12 Mops/s    320.9 ns/op  passes/op=0.333  leftover=0 lost=0
+lockflag  threads= 3 consume= 200ns other=   0ns      3.03 Mops/s    330.6 ns/op  passes/op=0.333  leftover=0 lost=0
+coarse    threads= 3 consume= 200ns other=   0ns      2.66 Mops/s    375.3 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads= 4 consume= 200ns other=   0ns      3.37 Mops/s    296.3 ns/op  passes/op=0.250  leftover=0 lost=0
+casfast   threads= 4 consume= 200ns other=   0ns      3.31 Mops/s    302.0 ns/op  passes/op=0.250  leftover=0 lost=0
+lockflag  threads= 4 consume= 200ns other=   0ns      3.02 Mops/s    330.7 ns/op  passes/op=0.250  leftover=0 lost=0
+coarse    threads= 4 consume= 200ns other=   0ns      2.46 Mops/s    405.8 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads=16 consume= 200ns other=   0ns      2.71 Mops/s    369.1 ns/op  passes/op=0.063  leftover=0 lost=0
+casfast   threads=16 consume= 200ns other=   0ns      3.45 Mops/s    289.7 ns/op  passes/op=0.063  leftover=0 lost=0
+lockflag  threads=16 consume= 200ns other=   0ns      3.09 Mops/s    323.9 ns/op  passes/op=0.063  leftover=0 lost=0
+coarse    threads=16 consume= 200ns other=   0ns      0.99 Mops/s   1006.7 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads= 1 consume= 200ns other=1000ns      0.57 Mops/s   1763.1 ns/op  passes/op=1.000  leftover=0 lost=0
+casfast   threads= 1 consume= 200ns other=1000ns      0.60 Mops/s   1677.6 ns/op  passes/op=1.000  leftover=0 lost=0
+lockflag  threads= 1 consume= 200ns other=1000ns      0.57 Mops/s   1759.7 ns/op  passes/op=1.000  leftover=0 lost=0
+coarse    threads= 1 consume= 200ns other=1000ns      0.60 Mops/s   1659.6 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads= 2 consume= 200ns other=1000ns      0.79 Mops/s   1260.5 ns/op  passes/op=0.998  leftover=0 lost=0
+casfast   threads= 2 consume= 200ns other=1000ns      0.73 Mops/s   1375.1 ns/op  passes/op=0.999  leftover=0 lost=0
+lockflag  threads= 2 consume= 200ns other=1000ns      1.08 Mops/s    927.3 ns/op  passes/op=0.998  leftover=0 lost=0
+coarse    threads= 2 consume= 200ns other=1000ns      0.65 Mops/s   1542.6 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads= 3 consume= 200ns other=1000ns      0.97 Mops/s   1030.8 ns/op  passes/op=0.995  leftover=0 lost=0
+casfast   threads= 3 consume= 200ns other=1000ns      0.90 Mops/s   1106.8 ns/op  passes/op=0.997  leftover=0 lost=0
+lockflag  threads= 3 consume= 200ns other=1000ns      0.97 Mops/s   1028.1 ns/op  passes/op=0.992  leftover=0 lost=0
+coarse    threads= 3 consume= 200ns other=1000ns      1.07 Mops/s    937.6 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads= 4 consume= 200ns other=1000ns      1.40 Mops/s    712.3 ns/op  passes/op=0.507  leftover=0 lost=0
+casfast   threads= 4 consume= 200ns other=1000ns      1.05 Mops/s    953.7 ns/op  passes/op=0.475  leftover=0 lost=0
+lockflag  threads= 4 consume= 200ns other=1000ns      1.45 Mops/s    689.9 ns/op  passes/op=0.380  leftover=0 lost=0
+coarse    threads= 4 consume= 200ns other=1000ns      1.07 Mops/s    937.8 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads=16 consume= 200ns other=1000ns      2.12 Mops/s    471.9 ns/op  passes/op=0.063  leftover=0 lost=0
+casfast   threads=16 consume= 200ns other=1000ns      1.83 Mops/s    547.3 ns/op  passes/op=0.063  leftover=0 lost=0
+lockflag  threads=16 consume= 200ns other=1000ns      2.08 Mops/s    481.4 ns/op  passes/op=0.063  leftover=0 lost=0
+coarse    threads=16 consume= 200ns other=1000ns      0.83 Mops/s   1207.4 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads= 1 consume=1000ns other=1000ns      0.35 Mops/s   2835.1 ns/op  passes/op=1.000  leftover=0 lost=0
+casfast   threads= 1 consume=1000ns other=1000ns      0.35 Mops/s   2846.9 ns/op  passes/op=1.000  leftover=0 lost=0
+lockflag  threads= 1 consume=1000ns other=1000ns      0.33 Mops/s   2992.5 ns/op  passes/op=1.000  leftover=0 lost=0
+coarse    threads= 1 consume=1000ns other=1000ns      0.36 Mops/s   2779.5 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads= 2 consume=1000ns other=1000ns      0.35 Mops/s   2884.8 ns/op  passes/op=0.493  leftover=0 lost=0
+casfast   threads= 2 consume=1000ns other=1000ns      0.44 Mops/s   2265.4 ns/op  passes/op=0.388  leftover=0 lost=0
+lockflag  threads= 2 consume=1000ns other=1000ns      0.37 Mops/s   2731.8 ns/op  passes/op=0.547  leftover=0 lost=0
+coarse    threads= 2 consume=1000ns other=1000ns      0.34 Mops/s   2916.5 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads= 3 consume=1000ns other=1000ns      0.46 Mops/s   2169.1 ns/op  passes/op=0.331  leftover=0 lost=0
+casfast   threads= 3 consume=1000ns other=1000ns      0.46 Mops/s   2171.2 ns/op  passes/op=0.333  leftover=0 lost=0
+lockflag  threads= 3 consume=1000ns other=1000ns      0.48 Mops/s   2067.6 ns/op  passes/op=0.333  leftover=0 lost=0
+coarse    threads= 3 consume=1000ns other=1000ns      0.22 Mops/s   4506.2 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads= 4 consume=1000ns other=1000ns      0.44 Mops/s   2257.5 ns/op  passes/op=0.250  leftover=0 lost=0
+casfast   threads= 4 consume=1000ns other=1000ns      0.53 Mops/s   1883.6 ns/op  passes/op=0.250  leftover=0 lost=0
+lockflag  threads= 4 consume=1000ns other=1000ns      0.49 Mops/s   2031.3 ns/op  passes/op=0.250  leftover=0 lost=0
+coarse    threads= 4 consume=1000ns other=1000ns      0.22 Mops/s   4532.6 ns/op  passes/op=1.000  leftover=0 lost=0
+cas       threads=16 consume=1000ns other=1000ns      0.63 Mops/s   1591.1 ns/op  passes/op=0.063  leftover=0 lost=0
+casfast   threads=16 consume=1000ns other=1000ns      0.63 Mops/s   1583.0 ns/op  passes/op=0.063  leftover=0 lost=0
+lockflag  threads=16 consume=1000ns other=1000ns      0.60 Mops/s   1667.8 ns/op  passes/op=0.063  leftover=0 lost=0
+coarse    threads=16 consume=1000ns other=1000ns      0.24 Mops/s   4185.7 ns/op  passes/op=1.000  leftover=0 lost=0
