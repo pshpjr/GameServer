@@ -9,6 +9,7 @@
 #include "Server.h"
 #include "TableData.h"
 
+#include <atomic>
 #include <cstdlib>
 // auto& manager = ProfileManager::Get();
 
@@ -18,13 +19,14 @@ int main()
     psh::util::RunWithTrace("CMakeServer main", [&]
     {
         CrashDump::SetBuildInfo(BuildVersion::Metadata);
-        psh::Server* serverpt = nullptr;
+        std::atomic<psh::Server*> serverpt{nullptr};
+        std::unique_ptr<psh::Server> server;
         psh::util::CloseSignalListener listener(
             [&serverpt]()
             {
                 fmt::println("Close signal received");
-                if (serverpt)
-                    serverpt->Stop();
+                if (auto* target = serverpt.load())
+                    target->Stop();
             });
 
 
@@ -32,8 +34,8 @@ int main()
         SEND_OFFSETS::Init();
         psh::ATTACK::Init();
 
-        const auto server = std::make_unique<psh::Server>();
-        serverpt = server.get();
+        server = std::make_unique<psh::Server>();
+        serverpt.store(server.get());
 
         if (!server->Init())
         {

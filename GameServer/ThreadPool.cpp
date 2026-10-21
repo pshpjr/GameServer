@@ -3,6 +3,7 @@
 //
 
 #include "ThreadPool.h"
+#include "Profiler.h"
 #include "ExceptionTrace.h"
 
 ThreadPool::ThreadPool(size_t threads)
@@ -28,7 +29,10 @@ ThreadPool::ThreadPool(size_t threads)
                             task = std::move(this->tasks.front());
                             this->tasks.pop();
                         }
-                        task();
+                        {
+                            PRO_BEGIN("Server background task");
+                            task();
+                        }
                     }
                 });
             }
