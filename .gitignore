@@ -27,3 +27,12 @@ Folder.DotSettings
 Folder.DotSettings.user
 GameServer.Naming.DotSettings
 Tasks.md
+
+# Personal Windows-to-WSL copy/build helper.
+/scripts/sync-build-wsl.ps1
+
+# Tracy 공식 실행 파일은 커밋하지 않는다. 받는 방법은 tools/README.md 참고.
+/tools/tracy-*.exe
+# tracy-crop은 소스만 커밋한다. 실행 파일과 DLL은 build.ps1로 다시 만든다.
+/tools/tracy-crop/tracy-crop.exe
+/tools/tracy-crop/zstd.dll
