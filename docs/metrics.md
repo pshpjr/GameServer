@@ -94,3 +94,35 @@ CPU·메모리·송신 버퍼 풀 값은 MonitorThread가 1초마다 `Set`한다
 |---|---|---|
 | `game_packets_total{type="move"\|"attack"\|"chat"}` | 카운터 | 필드가 처리한 요청 패킷 ([Field.cpp](../GameServer/Field.cpp)) |
 
+### MySQL (`job="mysql"`)
+
+collector의 mysql receiver가 10초마다 읽는다. 계정은 `monitoring.env`의 읽기 전용 계정이다. 대표 항목:
+
+| Prometheus 이름 | 의미 |
+|---|---|
+| `mysql_threads{kind}` | connected·running·cached·created 스레드 |
+| `mysql_query_count_total`, `mysql_query_slow_count_total` | 쿼리, 느린 쿼리 |
+| `mysql_commands_total{command}` | select·insert·update·delete 등 명령별 횟수 |
+| `mysql_row_operations_total{operation}` | 행 읽기·삽입·수정·삭제 |
+| `mysql_row_locks_total{kind="waits"\|"time"}` | row lock 대기 횟수, 대기 시간(ms) |
+| `mysql_buffer_pool_pages{kind}`, `mysql_buffer_pool_operations_total{operation}` | 버퍼 풀 페이지, 논리 읽기(`read_requests`)·디스크 읽기(`reads`) |
+| `mysql_operations_total{operation}` | InnoDB fsync·read·write |
+| `mysql_connection_errors_total{error}`, `mysql_max_used_connections` | 연결 에러, 최대 동시 연결 |
+
+### 컨테이너 (`job="docker"`)
+
+collector의 docker_stats receiver가 Docker 소켓으로 10초마다 읽는다. 컨테이너는 `container_name` 라벨로 구분한다(예: `portfolio26-local-gameserver-1`).
+
+| Prometheus 이름 | 의미 |
+|---|---|
+| `container_cpu_usage_nanoseconds_total` | CPU 누적 시간. `rate(...[1m]) / 1e9`가 사용 코어 수로, `docker stats`와 같다. 같이 들어오는 `container_cpu_utilization_ratio`는 Docker Desktop에서 2~6배 크게 나와 쓰지 않는다 |
+| `container_memory_usage_total_bytes` | 메모리 |
+| `container_blockio_io_service_bytes_recursive_total{operation}` | 디스크 읽기·쓰기 바이트. cgroup v2라 횟수는 없다 |
+| `container_network_io_usage_tx_bytes_total`, `..._rx_bytes_total` | 컨테이너가 보낸·받은 바이트(`interface="eth0"`). TCP/IP 헤더와 ACK까지 포함한 실제 전송량이다 |
+
+**송수신 바이트는 이 컨테이너 메트릭으로 본다.** NetLib에는 바이트 카운터가 없다.
+
+- 게임 서버 송신 = 클라이언트 하향 + DB 요청, 수신 = 클라이언트 상향 + DB 응답. DB 몫은 mysql 컨테이너의 송수신으로 뺄 수 있다.
+- 더미 송신 ÷ 더미 세션 수가 클라이언트 1명의 상향 대역폭이다. OTLP 내보내기(초당 수 KB)가 섞이지만 작다.
+- 2026-10-22 더미 1개(약 880명) 기준 1명당 상향 약 12kbps, 하향 약 21kbps.
+
