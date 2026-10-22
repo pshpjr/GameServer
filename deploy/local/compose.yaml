@@ -4,7 +4,7 @@ services:
     image: ${MYSQL_IMAGE}
     build:
       context: ../mysql
-    env_file: [mysql.env]
+    env_file: [mysql.env, monitoring.env]
     ports:
       - "127.0.0.1:${MYSQL_PORT}:3306"
     volumes:
@@ -36,6 +36,8 @@ services:
     working_dir: /runtime
     #  메트릭의 instance 라벨(HOSTNAME)이 컨테이너를 다시 만들어도 바뀌지 않게 고정한다.
     hostname: gameserver
+    environment:
+      OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: http://otel-collector:4318/v1/metrics
     volumes:
       - ./config/server/GameSettings.toml:/runtime/GameSettings.toml:ro
       - ./config/server/serverSetting.toml:/runtime/serverSetting.toml:ro
@@ -63,6 +65,8 @@ services:
         NETLIB_ENABLE_TRACY: ${NETLIB_ENABLE_TRACY:-OFF}
     working_dir: /runtime
     #  hostname을 고정하지 않는다. 여러 개 띄우면 컨테이너 ID가 instance 라벨이 되어 서로 갈라진다.
+    environment:
+      OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: http://otel-collector:4318/v1/metrics
     volumes:
       - ./config/dummy/DummySetting.toml:/runtime/DummySetting.toml:ro
       - ../../Dummy/chatData.txt:/runtime/chatData.txt:ro
@@ -74,11 +78,46 @@ services:
     security_opt:
       - seccomp=./seccomp-io-uring.json
     working_dir: /runtime
+    environment:
+      OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: http://otel-collector:4318/v1/metrics
     volumes:
       - ./config/dummy/DummySetting2.toml:/runtime/DummySetting.toml:ro
       - ../../Dummy/chatData.txt:/runtime/chatData.txt:ro
     networks: [local]
     stop_grace_period: 30s
+  otel-collector:
+    image: ${OTEL_COLLECTOR_IMAGE}
+    command: ["--config=/etc/otelcol/config.yaml"]
+    env_file: monitoring.env
+    #  docker_stats receiver가 Docker 소켓(root:root 660)을 읽도록 root 그룹만 더한다.
+    #  소켓은 Docker API 전체에 접근할 수 있으므로 로컬 테스트에서만 쓴다.
+    group_add: ["0"]
+    volumes:
+      - ./config/otel-collector.yaml:/etc/otelcol/config.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "127.0.0.1:${OTLP_HTTP_PORT}:4318"
+    networks: [local]
+  prometheus:
+    image: ${PROMETHEUS_IMAGE}
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-otlp-receiver
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "127.0.0.1:${PROMETHEUS_PORT}:9090"
+    networks: [local]
+  grafana:
+    image: ${GRAFANA_IMAGE}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./config/grafana/dashboards:/etc/grafana/dashboards:ro
+    ports:
+      - "127.0.0.1:${GRAFANA_PORT}:3000"
+    networks: [local]
 networks:
   local:
     ipam:
@@ -86,3 +125,5 @@ networks:
         - subnet: 172.29.26.0/24
 volumes:
   mysql-data:
+  prometheus-data:
+  grafana-data:
