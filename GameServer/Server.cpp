@@ -11,7 +11,6 @@
 #include "GameMap.h"
 #include <mutex>
 #include <shared_mutex>
-#include "MonitorProtocol.h"
 #include "PacketGenerated.h"
 #include "Utility.h"
 #include "ChannelManager.h"
@@ -28,9 +27,6 @@ namespace psh
 		_serverSettings.GetValue(L"db.GameDBPort", _initData.gameDBPort);
 		_serverSettings.GetValue(L"db.GameDBID", _initData.gameDBID);
 		_serverSettings.GetValue(L"db.GameDBPwd", _initData.gameDBPwd);
-		_serverSettings.GetValue(L"db.MonitorIP", _initData.MonitorServerIP);
-		_serverSettings.GetValue(L"db.MonitorPort", _initData.MonitorServerPort);
-		_serverSettings.GetValue(L"db.useMonitorServer", _initData.UseMonitorServer);
 
 		_serverSettings.GetValue(L"game.useConsoleMonitor", _initData.consoleMonitor);
 
@@ -127,34 +123,6 @@ namespace psh
 		{
 			PrintMonitorString();
 		}
-
-		if (_initData.UseMonitorServer)
-		{
-			if (_monitorSession == InvalidSessionID())
-			{
-				const auto ip = Ip::Parse(_initData.MonitorServerIP);
-				if (!ip.has_value())
-				{
-					return;
-				}
-				auto client = GetClientSession(*ip, _initData.MonitorServerPort);
-				if (client.HasError())
-				{
-					return;
-				}
-				_monitorSession = client.Value();
-				SetSessionStaticKey(_monitorSession, 0);
-				SendLogin();
-			}
-			else
-			{
-				SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_ACCEPT_TPS, GetAcceptTps());
-				SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_SEND_TPS, GetSendTps());
-				SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_RECV_TPS, GetRecvTps());
-				SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_DISCONNECT_TPS, GetDisconnectPerSec());
-				SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SERVER_SESSIONS, GetSessionCount());
-			}
-		}
 	}
 
 	std::shared_ptr<DBData> Server::GetDbData(SessionID id)
@@ -170,21 +138,6 @@ namespace psh
 	GroupID Server::GetGroupId(ServerType type) const
 	{
 		return _channelManager->GetGroupIDByType(type);
-	}
-
-	void Server::SendMonitorData(const en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, const int value)
-	{
-		auto buffer = SendBuffer::Alloc();
-		buffer << en_PACKET_SS_MONITOR_DATA_UPDATE << static_cast<psh::uint16>(1) <<
-			static_cast<char>(0) << type << value << static_cast<int>(time(nullptr));
-		SendPacket(_monitorSession, buffer);
-	}
-
-	void Server::SendLogin()
-	{
-		auto buffer = SendBuffer::Alloc();
-		buffer << en_PACKET_SS_MONITOR_LOGIN << static_cast<psh::uint16>(1) << static_cast<char>(0);
-		SendPacket(_monitorSession, buffer);
 	}
 
 	//로그인 서버 겸용으로 쓰다가 나중에 제거.

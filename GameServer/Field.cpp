@@ -17,7 +17,6 @@
 #include "DBThreadWrapper.h"
 #include "GameObject.h"
 #include "IVictimSelect.h"
-#include "MonitorProtocol.h"
 #include "Player.h"
 #include "Server.h"
 #include "TableData.h"
@@ -40,8 +39,6 @@ psh::Field::Field(Server& server, const ServerInitData& data, const ServerType t
 	  , _monsterMap{std::make_unique<MapType>(mapSize, sectorSize)}
 	  , _itemMap{std::make_unique<MapType>(mapSize, sectorSize)}
 	  , _victimSelect{victim_select::GetVictimByServerType(type)}
-	  , _useMonitor{_initData.UseMonitorServer}
-	  , _nextDBSend(std::chrono::steady_clock::now())
 	  , _prevUpdate(std::chrono::steady_clock::now())
 	  , _logger{std::make_unique<Logger>(std::format(L"field_{}", static_cast<int>(type)).c_str())}
 	  , _spawner{std::move(MonsterSpawner::GetSpawner(type, *this, *_monsterMap))}
@@ -130,7 +127,6 @@ void psh::Field::ProcessDatabaseAlerts()
 // 필드 내 상태 업데이트
 void psh::Field::OnUpdate(const int milli)
 {
-	using namespace std::chrono;
 	UpdateContent(milli);
 
 	InsertWaitObjectInMap();
@@ -146,16 +142,6 @@ void psh::Field::OnUpdate(const int milli)
 	}
 
 	ProcessDatabaseAlerts();
-
-
-	if (steady_clock::now() < _nextDBSend)
-	{
-		return;
-	}
-	SendMonitor();
-
-	_nextDBSend += 1s;
-	//_fps = 0;
 }
 
 // 클라이언트로부터 받은 패킷 처리
@@ -172,18 +158,15 @@ void psh::Field::OnRecv(const SessionID id, RecvBuffer& recvBuffer)
 		RecvChangeComp(id, recvBuffer);
 		break;
 	case eGame_ReqMove:
-		++_packetCount.movePacket;
 		RecvMove(id, recvBuffer);
 		break;
 	case eGame_ReqAttack:
-		++_packetCount.attackPacket;
 		RecvAttack(id, recvBuffer);
 		break;
 	case eGame_ReqLevelEnter:
 		RecvReqLevelChange(id, recvBuffer);
 		break;
 	case eGame_ReqChat:
-		++_packetCount.chatPacket;
 		RecvChat(id, recvBuffer);
 		break;
 	default:
@@ -524,90 +507,6 @@ void psh::Field::UpdateContent(const int deltaMs)
 			obj->Update(deltaMs);
 		}
 	}
-}
-
-// 모니터링 데이터 전송
-void psh::Field::SendMonitor()
-{
-	PRO_FUNCTION();
-	auto [queued, enqueue, dequeue, delaySum,DBErr] = _dbThread->GetMonitor();
-
-	if (!_useMonitor)
-	{
-		return;
-	}
-
-
-	if (_monitorSession == InvalidSessionID())
-	{
-		const auto ip = Ip::Parse(_initData.MonitorServerIP);
-		if (!ip.has_value())
-		{
-			return;
-		}
-		auto client = _server.GetClientSession(*ip, _initData.MonitorServerPort);
-		if (client.HasError())
-		{
-			return;
-		}
-		_monitorSession = client.Value();
-		_iocp->SetSessionStaticKey(_monitorSession, 0);
-		SendLogin();
-	}
-	else if (!_server.IsValidSession(_monitorSession))
-	{
-		_monitorSession = InvalidSessionID();
-		return;
-	}
-
-	SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_SERVER_RUN, static_cast<int>(1));
-	SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_WORK_TIME, static_cast<int>(GetWorkTime()));
-	SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_MAX_WORK, static_cast<int>(GetMaxWorkTime()));
-	SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_JOB_QUEUE_SIZE, GetQueued());
-	SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_JOB_TPS, static_cast<int>(GetJobTps()));
-	SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_PLAYERS, static_cast<int>(_players.size()));
-	SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_DB_TPS, static_cast<int>(dequeue));
-	SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_DB_QUEUE_SIZE, static_cast<int>(queued));
-	SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_DB_ERR, static_cast<int>(DBErr));
-	SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_ENTER_TPS, GetEnterTps());
-	SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_LEAVE_TPS, GetLeaveTps());
-	SendMonitorData(dfMONITOR_DATA_TYPE_GAME_SQUARE_POOL, ATTACK::GetSquarePoolSize());
-	SendMonitorData(dfMONITOR_DATA_TYPE_GAME_CIRCLE_POOL, ATTACK::GetCirclePoolSize());
-
-
-	SendMonitorData(dfMONITOR_DATA_TYPE_GAME_CHAT_COUNT, std::exchange(_packetCount.chatPacket, 0));
-	SendMonitorData(dfMONITOR_DATA_TYPE_GAME_MOVE_COUNT, std::exchange(_packetCount.movePacket, 0));
-	SendMonitorData(dfMONITOR_DATA_TYPE_GAME_ATTACK_COUNT, std::exchange(_packetCount.attackPacket, 0));
-
-
-	using std::chrono::duration_cast;
-	using std::chrono::milliseconds;
-	if (dequeue != 0)
-	{
-		const int avgDelay = static_cast<int>(duration_cast<milliseconds>(delaySum).count() / dequeue);
-
-		SendMonitorData(dfMONITOR_DATA_TYPE_FIELD_DB_QUERY_AVG, avgDelay);
-	}
-}
-
-// 모니터 로그인 전송
-void psh::Field::SendLogin() const
-{
-	auto buffer = SendBuffer::Alloc();
-	buffer << en_PACKET_SS_MONITOR_LOGIN << static_cast<psh::uint16>(static_cast<long>(GetGroupID())) << static_cast<char>(
-		static_cast<long>(GetGroupID()));
-	_server.SendPacket(_monitorSession, buffer);
-}
-
-// 모니터링 데이터 전송
-void psh::Field::SendMonitorData(const en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, const int value) const
-{
-	PRO_FUNCTION();
-	auto buffer = SendBuffer::Alloc();
-	buffer << en_PACKET_SS_MONITOR_DATA_UPDATE << static_cast<psh::uint16>(static_cast<long>(GetGroupID())) << static_cast<
-		char>(static_cast<long>(
-		GetGroupID())) << type << value << static_cast<int>(time(nullptr));
-	_server.SendPacket(_monitorSession, buffer);
 }
 
 // ViewObjectType 비트 연산자 오버로딩

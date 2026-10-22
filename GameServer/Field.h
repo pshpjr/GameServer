@@ -2,7 +2,6 @@
 
 #include "Common/ContentTypes.h" //psh::uint8 종속성
 // ReSharper disable once CppInconsistentNaming
-enum en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE : psh::uint8;
 class Logger;
 
 // 전방선언
@@ -38,13 +37,6 @@ namespace psh
 	{
 		using MapType = GameMap<ObjectID, shared<GameObject>>;
 		using ViewType = MapType::SectorView;
-
-		struct PacketMonitor
-		{
-			int32 movePacket{};
-			int32 chatPacket{};
-			int32 attackPacket{};
-		};
 
 	public:
 		// 타입 정의 및 상수
@@ -117,8 +109,6 @@ namespace psh
 
 		void UpdateContent(int deltaMs);
 
-		void SendMonitor();
-
 		//패킷 수신 관련 함수
 		void RecvReqLevelChange(SessionID id, RecvBuffer& recv_buffer);
 
@@ -130,12 +120,8 @@ namespace psh
 
 		void RecvAttack(SessionID sessionId, RecvBuffer& buffer);
 
-		void SendLogin() const;
-
 		//DB 콜백 처리
 		void ProcessDatabaseAlerts();
-		//DB 로깅
-		void SendMonitorData(en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, int value) const;
 		// 멤버 변수
 		List<shared<GameObject>> _createWaits;
 		List<shared<GameObject>> _delWaits;
@@ -143,7 +129,6 @@ namespace psh
 		std::unique_ptr<SPSCQueue<std::function<void()>, 1024>> _dbCompAlert;
 		std::unique_ptr<DBThreadWrapper> _dbThread;
 
-		PacketMonitor _packetCount;
 		Server& _server;
 		const ServerInitData& _initData;
 		const ServerType _groupType = ServerType::End;
@@ -157,8 +142,6 @@ namespace psh
 		std::shared_ptr<MapType> _itemMap;
 		victim_select::VictimSelectFunction _victimSelect;
 
-		bool _useMonitor = false;
-		std::chrono::steady_clock::time_point _nextDBSend{};
 		std::chrono::steady_clock::time_point _prevUpdate{};
 
 		std::unique_ptr<Logger> _logger = nullptr;
@@ -167,7 +150,6 @@ namespace psh
 		long _groupSessionCount = 0;
 		long _fps = 0;
 
-		SessionID _monitorSession = InvalidSessionID();
 		ObjectID _objectId = 0;
 		short _fieldSize = 0;
 	};
