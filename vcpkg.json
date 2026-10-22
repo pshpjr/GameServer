@@ -39,6 +39,18 @@
           ]
         }
       ]
+    },
+    "otel": {
+      "description": "Enable the OTLP/HTTP metric exporter",
+      "dependencies": [
+        {
+          "name": "opentelemetry-cpp",
+          "default-features": false,
+          "features": [
+            "otlp-http"
+          ]
+        }
+      ]
     }
   }
 }
