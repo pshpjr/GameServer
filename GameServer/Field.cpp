@@ -158,15 +158,18 @@ void psh::Field::OnRecv(const SessionID id, RecvBuffer& recvBuffer)
 		RecvChangeComp(id, recvBuffer);
 		break;
 	case eGame_ReqMove:
+		_movePacketMetric.Add();
 		RecvMove(id, recvBuffer);
 		break;
 	case eGame_ReqAttack:
+		_attackPacketMetric.Add();
 		RecvAttack(id, recvBuffer);
 		break;
 	case eGame_ReqLevelEnter:
 		RecvReqLevelChange(id, recvBuffer);
 		break;
 	case eGame_ReqChat:
+		_chatPacketMetric.Add();
 		RecvChat(id, recvBuffer);
 		break;
 	default:

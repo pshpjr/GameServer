@@ -77,3 +77,9 @@ CPU·메모리·송신 버퍼 풀 값은 MonitorThread가 1초마다 `Set`한다
 
 초당 바쁜 시간 비율은 `rate(group_process_duration_seconds_sum[1m])`이다.
 
+### 게임 (게임 서버)
+
+| Prometheus 이름 | 종류 | 의미 |
+|---|---|---|
+| `game_packets_total{type="move"\|"attack"\|"chat"}` | 카운터 | 필드가 처리한 요청 패킷 ([Field.cpp](../GameServer/Field.cpp)) |
+
