@@ -58,6 +58,10 @@ RUN mkdir -p /opt/vcpkg-binary-cache
 FROM ${VCPKG_CACHE_IMAGE} AS binary-cache-seed
 
 FROM toolchain AS dependencies
+# ON이면 OTLP exporter 의존성(vcpkg otel 기능)을 함께 설치하고 NetLib을 NETLIB_ENABLE_OTEL로 빌드합니다.
+ARG NETLIB_ENABLE_OTEL=OFF
+# ON이면 Tracy 클라이언트(vcpkg tracy 기능, on-demand)를 함께 설치하고 NetLib을 NETLIB_ENABLE_TRACY로 빌드합니다.
+ARG NETLIB_ENABLE_TRACY=OFF
 WORKDIR /workspace/GameServer
 # tee로 진행 로그를 표시하면서 vcpkg의 실패 코드를 유지합니다.
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -76,9 +80,13 @@ RUN --mount=type=cache,id=gameserver-vcpkg-downloads-x64-linux,target=/opt/vcpkg
     set -eu; \
     cp -a /opt/vcpkg-binary-cache/. /var/cache/vcpkg-binaries/; \
     task_install_status=0; \
+    task_feature_args=(); \
+    if [ "${NETLIB_ENABLE_OTEL}" = ON ]; then task_feature_args+=(--x-feature=otel); fi; \
+    if [ "${NETLIB_ENABLE_TRACY}" = ON ]; then task_feature_args+=(--x-feature=tracy); fi; \
     VCPKG_BINARY_SOURCES="clear;files,/var/cache/vcpkg-binaries,readwrite" \
     "${VCPKG_ROOT}/vcpkg" install \
         --triplet=x64-linux \
+        "${task_feature_args[@]}" \
         --x-install-root="${VCPKG_INSTALLED_DIR}" 2>&1 | tee /tmp/vcpkg-install.log || task_install_status=$?; \
     if [ "${task_install_status}" -ne 0 ]; then \
         task_log_list="$(grep -oE '/opt/vcpkg/buildtrees/[^[:space:]]+\.log' /tmp/vcpkg-install.log | sort -u || true)"; \
@@ -101,6 +109,8 @@ COPY --from=dependencies /opt/vcpkg-binary-cache/ /opt/vcpkg-binary-cache/
 
 FROM dependencies AS build
 ARG BUILD_PRESET=linux-Release
+ARG NETLIB_ENABLE_OTEL=OFF
+ARG NETLIB_ENABLE_TRACY=OFF
 
 COPY . .
 
@@ -115,7 +125,10 @@ RUN test -f NetLib/CMakeLists.txt \
     && cmake --preset "${BUILD_PRESET}" \
         -DCMAKE_C_COMPILER="${CC}" \
         -DCMAKE_CXX_COMPILER="${CXX}" \
+        -DCMAKE_CXX_SCAN_FOR_MODULES=OFF \
         -DVCPKG_INSTALLED_DIR="${VCPKG_INSTALLED_DIR}" \
+        -DNETLIB_ENABLE_OTEL="${NETLIB_ENABLE_OTEL}" \
+        -DNETLIB_ENABLE_TRACY="${NETLIB_ENABLE_TRACY}" \
     && cmake --build --preset "${BUILD_PRESET}" \
     && ln -s "/workspace/out/build/${BUILD_PRESET}/GameServer" /opt/gameserver
 
