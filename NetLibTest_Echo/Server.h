@@ -14,7 +14,6 @@ namespace psh
         void OnConnect(SessionID sessionId, const SockAddr& info) override;
         void OnDisconnect(SessionID sessionId, int error) override;
         void OnRecvPacket(SessionID sessionId, RecvBuffer& buffer) override;
-        void OnMonitorRun() override;
 
     private:
         void Trace(const char* event, SessionID sessionId, std::uint64_t value = 0, int error = 0) const;

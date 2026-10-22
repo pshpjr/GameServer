@@ -117,14 +117,6 @@ namespace psh
 		}
 	}
 
-	void Server::OnMonitorRun()
-	{
-		if (_initData.consoleMonitor)
-		{
-			PrintMonitorString();
-		}
-	}
-
 	std::shared_ptr<DBData> Server::GetDbData(SessionID id)
 	{
 		//없으면 알아서 터짐.

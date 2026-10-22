@@ -33,13 +33,17 @@ namespace psh
 		void OnDisconnect(SessionID sessionId, int wsaErrCode) override;
 
 		void OnRecvPacket(SessionID sessionId, RecvBuffer& buffer) override;
-		void OnMonitorRun() override;
 
 		std::shared_ptr<DBData> GetDbData(SessionID id);
 
 		bool MoveDebug() const
 		{
 			return _moveDebug;
+		}
+
+		[[nodiscard]] bool UseConsoleMonitor() const
+		{
+			return _initData.consoleMonitor;
 		}
 
 		[[nodiscard]] GroupID GetGroupId(ServerType type) const;

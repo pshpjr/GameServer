@@ -48,11 +48,6 @@ namespace psh
         Trace("disconnect", sessionId, 0, error);
     }
 
-    void Server::OnMonitorRun()
-    {
-        PrintMonitorString();
-    }
-
     void Server::OnRecvPacket(SessionID sessionId, RecvBuffer& buffer)
     {
         if (buffer.CanPopSize() != sizeof(std::uint64_t))
