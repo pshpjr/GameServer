@@ -77,6 +77,17 @@ CPU·메모리·송신 버퍼 풀 값은 MonitorThread가 1초마다 `Set`한다
 
 초당 바쁜 시간 비율은 `rate(group_process_duration_seconds_sum[1m])`이다.
 
+### DB (게임 서버)
+
+[DBThreadWrapper](../GameServer/DBThreadWrapper.cpp). 필드마다 DB 스레드가 하나씩 있고, 이름·속성이 같아 하나의 시리즈로 합산된다.
+
+| Prometheus 이름 | 종류 | 의미 |
+|---|---|---|
+| `db_queries_total{result="ok"\|"error"}` | 카운터 | 실행한 쿼리 |
+| `db_query_duration_seconds` | 히스토그램 | 쿼리 실행 시간 |
+| `db_queue_wait_duration_seconds` | 히스토그램 | `Execute` 호출부터 DB 스레드가 쿼리를 시작할 때까지. 큐가 가득 차 `Enqueue`가 기다린 시간도 포함 |
+| `db_queue_size` | 게이지 | 큐에 쌓인 작업 수(전체 DB 스레드 합). 스레드당 큐 용량은 1,024이고, 가득 차면 넣는 쪽 게임 스레드가 멈춘다 |
+
 ### 게임 (게임 서버)
 
 | Prometheus 이름 | 종류 | 의미 |
