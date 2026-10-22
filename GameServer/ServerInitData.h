@@ -14,10 +14,6 @@ namespace psh
 		std::string gameDBID;
 		std::string gameDBPwd;
 
-		bool UseMonitorServer;
-		String MonitorServerIP;
-		Port MonitorServerPort;
-
 		bool consoleMonitor;
 	};
 }

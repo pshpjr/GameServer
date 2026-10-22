@@ -4,9 +4,6 @@ GameDBPort = 3306
 GameDBID = "game"
 GameDBPwd = "password"
 
-MonitorIP = "127.0.0.1"
-MonitorPort = 9000
-useMonitorServer = false
 
 [game]
 useConsoleMonitor = true

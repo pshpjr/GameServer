@@ -8,7 +8,6 @@
 #include "ServerInitData.h"
 #include "SettingParser.h"
 #include "ThreadPool.h"
-enum en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE : psh::uint8;
 class DBConnection;
 
 namespace psh
@@ -46,12 +45,6 @@ namespace psh
 		[[nodiscard]] GroupID GetGroupId(ServerType type) const;
 
 	private:
-		void SendMonitorData(en_PACKET_SS_MONITOR_DATA_UPDATE_TYPE type, int value);
-
-
-		void SendLogin();
-
-
 		void OnLoginLogin(SessionID sessionId, RecvBuffer& buffer);
 		void OnLogin(SessionID sessionId, RecvBuffer& buffer);
 
@@ -71,7 +64,6 @@ namespace psh
 		ServerInitData _initData;
 		util::TlsKey _dbTlsId;
 		std::atomic<uint64> _dbErrorCount;
-		SessionID _monitorSession = InvalidSessionID();
 		ThreadPool _threadPool{1};
 	};
 }
