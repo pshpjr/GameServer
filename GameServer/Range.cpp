@@ -27,7 +27,7 @@ namespace psh
 		_p1 = p1;
 		_p2 = p2;
 		_xLen = p2.X - p1.X;
-		_yLen = p2.Y - p2.X;
+		_yLen = p2.Y - p1.Y;
 		//p1부터 반시계방향
 		_points = {_p1, {_p1.X, _p2.Y}, _p2, {_p2.X, _p1.Y}};
 	}
@@ -40,25 +40,16 @@ namespace psh
 		});
 	}
 
+	//  회전한 사각형의 두 변 방향으로 투영해, 중심에서의 거리가 각 변 길이의 절반 이하면 안에 있다.
 	bool SquareRange::Contains(FVector p) const noexcept
 	{
-		FVector Center = (_points[0] + _points[2]) / 2;
-		FVector CenterDir = Center - p;
+		const FVector toPoint = p - (_points[0] + _points[2]) / 2;
 
-		// 첫 번째 축에 대한 내적 및 비교
-		auto axis = _points[1] - _points[0];
-		auto normal = {axis.Y, -axis.X};
-		float CenterProjDist = abs(Dot(CenterDir, axis));
-		if (CenterProjDist > _xLen)
-			return false;
+		//  _points[0]→[3]이 가로(_xLen), _points[0]→[1]이 세로(_yLen) 변이다. 회전해도 길이는 같다.
+		const FVector xAxis = (_points[3] - _points[0]) / _xLen;
+		const FVector yAxis = (_points[1] - _points[0]) / _yLen;
 
-		// 두 번째 축에 대한 내적 및 비교
-		axis = _points[2] - _points[3];
-		CenterProjDist = abs(Dot(CenterDir, axis));
-		if (CenterProjDist > _yLen)
-			return false;
-
-		return true;
+		return std::abs(Dot(toPoint, xAxis)) <= _xLen / 2 && std::abs(Dot(toPoint, yAxis)) <= _yLen / 2;
 	}
 
 
