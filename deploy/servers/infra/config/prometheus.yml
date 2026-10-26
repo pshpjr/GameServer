@@ -1,0 +1,8 @@
+#  스크레이프 대상 없음. collector가 OTLP로 밀어 넣는다.
+#  service.name → job, service.instance.id → instance로 자동 변환된다.
+otlp:
+  promote_resource_attributes:
+    - service.version
+    - deployment.environment.name
+    #  docker_stats receiver가 붙이는 컨테이너 이름
+    - container.name
