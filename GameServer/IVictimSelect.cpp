@@ -15,7 +15,7 @@ namespace psh::victim_select
                                                             , attackInfo.range->GetCoordinates());
                      auto& obj : view)
                 {
-                    if (attackInfo.range->Contains(obj->Location()))
+                    if (obj->ObjectId() != attackInfo.attacker && attackInfo.range->Contains(obj->Location()))
                     {
                         std::static_pointer_cast<ChatCharacter>(obj)->Hit({attackInfo.attacker, attackInfo.damage});
                     }
@@ -29,7 +29,7 @@ namespace psh::victim_select
 
                 for (auto& obj : view)
                 {
-                    if (attackInfo.range->Contains(obj->Location()))
+                    if (obj->ObjectId() != attackInfo.attacker && attackInfo.range->Contains(obj->Location()))
                     {
                         std::static_pointer_cast<ChatCharacter>(obj)->Hit({attackInfo.attacker, attackInfo.damage});
                     }
@@ -54,20 +54,20 @@ namespace psh::victim_select
                                                         , attackInfo.range->GetCoordinates());
                  auto& obj : view)
             {
-                if (attackInfo.range->Contains(obj->Location()))
+                if (obj->ObjectId() != attackInfo.attacker && attackInfo.range->Contains(obj->Location()))
                 {
                     std::static_pointer_cast<ChatCharacter>(obj)->Hit({attackInfo.attacker, attackInfo.damage});
                 }
             }
         }
-        // 플레이어 전부 맞음
+        // 공격자 자신을 제외한 플레이어.
         {
             auto view = field.GetObjectViewByPoint(Field::ViewObjectType::Player
                                                    , attackInfo.range->GetCoordinates());
 
             for (auto& obj : view)
             {
-                if (attackInfo.range->Contains(obj->Location()))
+                if (obj->ObjectId() != attackInfo.attacker && attackInfo.range->Contains(obj->Location()))
                 {
                     std::static_pointer_cast<ChatCharacter>(obj)->Hit({attackInfo.attacker, attackInfo.damage});
                 }
