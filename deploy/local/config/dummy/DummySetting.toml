@@ -3,8 +3,9 @@ IP = "172.29.26.10"
 Port = 11333
 useDB = false
 startAccount = 0
-maxPlayer = 1000
-playerPerGroup = 250
+# 브라우저 클라이언트 확인용: 목표 100명, 계정 0..99.
+maxPlayer = 100
+playerPerGroup = 100
 reconnectTime = 3000
 
 [permil]
