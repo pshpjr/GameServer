@@ -29,8 +29,25 @@ receivers:
       mysql.client.network.io:
         enabled: true
 
+  #  호스트 디스크 지연·사용률. /proc/diskstats만 읽어서 비용이 거의 없다.
+  #  컨테이너 안에서도 /proc/diskstats는 호스트 전체를 보여준다. 스파이크(수십 초)를 잡도록 5초 주기로 읽는다.
+  host_metrics:
+    collection_interval: 5s
+    scrapers:
+      disk:
+        include:
+          devices: [sda]
+          match_type: strict
+
 processors:
   batch: {}
+
+  #  Prometheus에서 job="host"로 보이게 한다.
+  resource/host:
+    attributes:
+      - key: service.name
+        value: host
+        action: upsert
 
   #  Prometheus에서 job="mysql"로 보이게 한다.
   resource/mysql:
@@ -59,4 +76,8 @@ service:
     metrics/mysql:
       receivers: [mysql]
       processors: [resource/mysql, batch]
+      exporters: [otlphttp/prometheus]
+    metrics/host:
+      receivers: [host_metrics]
+      processors: [resource/host, batch]
       exporters: [otlphttp/prometheus]

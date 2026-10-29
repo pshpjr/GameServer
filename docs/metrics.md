@@ -126,3 +126,21 @@ collector의 docker_stats receiver가 Docker 소켓으로 10초마다 읽는다.
 - 더미 송신 ÷ 더미 세션 수가 클라이언트 1명의 상향 대역폭이다. OTLP 내보내기(초당 수 KB)가 섞이지만 작다.
 - 2026-10-22 더미 1개(약 880명) 기준 1명당 상향 약 12kbps, 하향 약 21kbps.
 
+### 호스트 디스크 (`job="host"`, 서버 배포 인프라만)
+
+인프라 collector의 host_metrics receiver가 `/proc/diskstats`를 5초마다 읽는다. 컨테이너 안에서도 호스트 디스크 전체가 보이고, `sda`만 수집한다. 로컬 통합 환경에는 없다. 커널 카운터라 `iostat`·`sar -d`와 출처가 같고 주기만 다르다(`sar`은 10분 평균).
+
+| Prometheus 이름 | 의미 |
+|---|---|
+| `system_disk_operations_total{direction}` | 완료한 읽기·쓰기 횟수 |
+| `system_disk_operation_time_seconds_total{direction}` | 요청이 완료될 때까지 걸린 누적 시간. `rate(operation_time) / rate(operations)`가 `iostat`의 await이다 |
+| `system_disk_io_time_seconds_total` | 장치가 I/O를 처리 중이던 누적 시간. `rate(...) * 100`이 `%util`이다 |
+| `system_disk_weighted_io_time_seconds_total` | 처리 중 요청 수로 가중한 누적 시간. `rate(...)`가 평균 큐 길이(`aqu-sz`)이다 |
+| `system_disk_pending_operations` | 순간 처리 중인 요청 수 |
+| `system_disk_io_bytes_total{direction}`, `system_disk_merged_total{direction}` | 읽기·쓰기 바이트, 병합된 요청 수 |
+
+- 쓰기 await(ms): `rate(system_disk_operation_time_seconds_total{job="host",direction="write"}[30s]) / rate(system_disk_operations_total{job="host",direction="write"}[30s]) * 1000`
+- `iostat`의 `f_await`(flush 지연)는 수집되지 않는다. 쓰기 await가 대신 올라간다.
+- 평상시 쓰기 await는 약 0.26ms, util은 약 6%다. 2026-10-29 약 70분마다 수십 초 동안 await 50~100ms, util 95~100%로 SSD가 멈추고, 이때 DB 쿼리와 더미의 `login`·`level_enter` 지연이 같이 튄다.
+- `docker compose`로 인프라를 다시 띄우면 이 설정이 적용된다. 그 전에는 컨테이너 안에 별도 collector를 띄워 수집할 수 있다(`docker exec -d`로 띄운 프로세스는 컨테이너 재시작 시 사라진다).
+
