@@ -65,3 +65,15 @@
 # Linux 컨테이너에서 실행할 스크립트는 Windows에서도 LF로 유지합니다.
 scripts/docker-entrypoint.sh text eol=lf
 scripts/configure-core-dumps.sh text eol=lf
+deploy/mysql/init/*.sh text eol=lf
+# 소스 파일의 줄바꿈은 core.autocrlf 설정과 무관하게 고정한다. 저장소에는 LF로 저장된다.
+*.cpp text eol=crlf
+*.h   text eol=crlf
+*.hpp text eol=crlf
+*.md  text eol=lf
+*.py  text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+*.sh  text eol=lf
+Dockerfile text eol=lf

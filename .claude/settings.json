@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s http://127.0.0.1:9090/*)",
+      "Bash(docker stats *)",
+      "mcp__ccd_turn__update_plan",
+      "mcp__ccd_turn__wrap_up",
+      "mcp__Claude_Browser__get_page_text"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && echo \"branch: $(git branch --show-current)\" && git status --short | head -15 && git log --oneline -3"
+          }
+        ]
+      }
+    ]
+  }
+}
