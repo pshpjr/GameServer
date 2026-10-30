@@ -37,6 +37,12 @@ Tasks.md
 /tools/tracy-crop/tracy-crop.exe
 /tools/tracy-crop/zstd.dll
 
+# Python cache and deployment logs are generated locally.
+__pycache__/
+*.py[cod]
+/deploy/**/*.log
+/deploy/**/logs/
+
 # 서버 배포 비밀값과 이미지 및 전송 준비 파일
 /deploy/servers/secrets.env
 /deploy/servers/.stage/
