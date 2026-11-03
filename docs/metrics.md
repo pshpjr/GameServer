@@ -186,3 +186,76 @@ collector의 docker_stats receiver가 Docker 소켓으로 10초마다 읽는다.
 - 평상시 쓰기 await는 약 0.26ms, util은 약 6%다. 2026-10-29 약 70분마다 수십 초 동안 await 50~100ms, util 95~100%로 SSD가 멈추고, 이때 DB 쿼리와 더미의 `login`·`level_enter` 지연이 같이 튄다.
 - `docker compose`로 인프라를 다시 띄우면 이 설정이 적용된다. 그 전에는 컨테이너 안에 별도 collector를 띄워 수집할 수 있다(`docker exec -d`로 띄운 프로세스는 컨테이너 재시작 시 사라진다).
 
+## 해석할 때 주의할 점
+
+- **지연 히스토그램 경계는 1µs~10s다**(`Histogram::LatencyUsBounds`). 10초를 넘는 값은 `histogram_quantile`이 10초로 돌려준다. 분위수는 버킷 사이를 선형 보간한 추정치이고, 평균(`_sum / _count`)은 정확하다.
+- **rate는 점이 두 개 이상 있어야 나온다.** 내보내기가 10초 주기라 컨테이너를 띄운 직후 1분 정도는 `rate(...[1m])`가 비거나 일부만 나온다.
+- **컨테이너를 다시 만들면 이전 instance의 시리즈가 몇 분 남는다.** 마지막 값(예: 종료 직전 세션 0)이 그대로 보이다가 사라진다.
+- **`fake-gameserver`, `smoke` job은 대시보드 검증용 가짜 데이터다.** 무시한다.
+- **CPU 비교는 기준을 맞춘다.** NetLib CPU는 전체 코어 합이 100%, 컨테이너 CPU와 `docker stats`는 코어 하나가 1(100%)이다. 배포 대상 192.168.1.5는 12스레드라 같은 부하라도 로컬(16스레드)과 퍼센트가 다르다.
+
+## Grafana 대시보드
+
+- 파일: [deploy/local/config/grafana/dashboards/gameserver.json](../deploy/local/config/grafana/dashboards/gameserver.json)
+- 넣는 법: Grafana → Dashboards → New → Import로 JSON을 올린다. 위쪽 `Data source` 변수에서 Prometheus를 고른다. 같은 uid라 다시 임포트하면 덮어쓴다.
+- 데이터 소스: Prometheus, 주소 `http://prometheus:9090`. 자동 등록하지 않는다.
+- 변수: `job`(더미 제외, 기본 gameserver), `instance`, `group`
+- 행: Overview, Network, Process, Groups, DB, Game, MySQL, Dummy(상태별 인원, 멈춘 더미, 종료 사유, 패킷 종류 포함), Containers(CPU·메모리·디스크·네트워크, 더미 세션당 대역폭)
+
+**JSON은 직접 고치지 않는다.** [make_dashboard.py](../deploy/local/config/grafana/make_dashboard.py)를 고친 뒤 다시 생성한다.
+
+```powershell
+python deploy/local/config/grafana/make_dashboard.py
+```
+
+## 에이전트가 확인하는 법
+
+Grafana는 비밀번호가 사용자 설정이라 API로 보지 않는다. Prometheus HTTP API로 직접 조회한다. 인증은 없고, 127.0.0.1에만 열려 있다.
+
+```bash
+# 즉시 값. 결과는 data.result[].metric / value[1]
+curl -sG http://127.0.0.1:9090/api/v1/query --data-urlencode 'query=sum by (job)(net_sessions)'
+
+# 메트릭 이름 목록
+curl -sG http://127.0.0.1:9090/api/v1/label/__name__/values
+
+# 시간 범위(최근 5분, 30초 간격)
+curl -sG http://127.0.0.1:9090/api/v1/query_range --data-urlencode 'query=sum(db_queue_size)' \
+  --data-urlencode "start=$(( $(date +%s) - 300 ))" --data-urlencode "end=$(date +%s)" --data-urlencode 'step=30'
+```
+
+- label·series API(`/api/v1/label/...`, `/api/v1/series`)는 `-G`로 GET을 쓴다. `--data-urlencode`만 주면 POST가 되어 label API가 거부한다.
+- Git Bash에서 `docker exec`에 컨테이너 안 경로를 넘길 때는 `MSYS_NO_PATHCONV=1`을 둔다. 없으면 `/docker-entrypoint-initdb.d/...`가 Windows 경로로 바뀐다.
+
+자주 쓰는 쿼리:
+
+| 보고 싶은 것 | 쿼리 |
+|---|---|
+| 서버 CPU | `process_cpu_usage_percent{job="gameserver", mode="total"}` |
+| 초당 송수신 패킷 | `sum by (job)(rate(net_packets_recv_total[1m]))` |
+| 게임 요청 종류별 처리량 | `sum by (type)(rate(game_packets_total[1m]))` |
+| 그룹 처리 시간 p99 | `histogram_quantile(0.99, sum by (le, group)(rate(group_process_duration_seconds_bucket{job="gameserver"}[1m])))` |
+| DB 적체 | `sum(db_queue_size)`, `histogram_quantile(0.99, sum by (le)(rate(db_queue_wait_duration_seconds_bucket[1m])))` |
+| 더미 응답 지연 | `histogram_quantile(0.99, sum by (le, type)(rate(dummy_action_delay_seconds_bucket[1m])))` |
+| 레벨별 세션 분포 | `sum by (group)(group_sessions{job="gameserver"})` |
+| MySQL 부하 | `rate(mysql_query_count_total[1m])`, `rate(mysql_operations_total{operation="fsyncs"}[1m])` |
+| 컨테이너 송수신 (B/s) | `sum by (container_name)(rate(container_network_io_usage_tx_bytes_total{job="docker"}[1m]))` |
+| 클라이언트 1명 상향 (bps) | `sum(rate(container_network_io_usage_tx_bytes_total{container_name=~"portfolio26-local-dummy[0-9]*-1"}[1m])) * 8 / sum(net_sessions{job="dummy"})` |
+
+메트릭이 안 보일 때 순서:
+
+1. 컨테이너 상태: `./local.ps1 status`. 서버 시작 로그에 `metrics disabled: ...`가 있으면 초기화가 실패한 것이다.
+2. collector 오류: `./local.ps1 logs otel-collector`에서 receiver·exporter 오류를 확인한다(예: MySQL 계정 권한). 실제 수신 여부는 Prometheus의 최신 메트릭 값과 시각으로 확인한다.
+3. 이미지가 OTel을 켜고 빌드됐는지: `.env`의 `NETLIB_ENABLE_OTEL=ON`. OFF로 빌드한 이미지는 콘솔 출력만 하고 OTLP로 보내지 않는다.
+4. Prometheus에 이름이 있는지: 위의 `__name__` 목록.
+
+코드를 바꾼 뒤 확인하는 순서: `./local.ps1 build <service>` → 해당 컨테이너 stop, `docker compose --env-file .env -f compose.yaml create --no-build <service>`, start → 1분 이상 기다린 뒤 rate 쿼리로 확인한다. 빌드 중에는 소스를 수정하지 않는다. 실행 중인 컨테이너가 새 이미지를 사용하는지도 확인한다.
+
+## 메트릭 추가
+
+- `psh::metrics::Registry::Create*`로 등록한다. 등록은 잠금을 잡으므로 생성자나 초기화에서 한 번만 하고, 루프 안에서 만들지 않는다. 기록(`Add`, `Set`, `Record`)은 잠금 없는 atomic이다.
+- 같은 이름·속성으로 다시 등록하면 같은 시리즈를 돌려준다. 같은 이름은 종류·단위·경계가 같아야 하고, 다르면 빈 핸들이 나와 기록이 무시된다(stderr에 `[metrics] rejected`).
+- 다른 스레드에서 읽으면 안 되는 값은 `CallbackGauge` 대신 소유 스레드가 주기적으로 `Gauge::Set`한다.
+- 시간은 `CreateTimeHistogram` + `RecordSince(TimePoint::Now())`로 µs 단위로 기록한다.
+- 이름은 OTel 규칙(`영역.대상[.세부]`, 소문자·점)을 따르고, 종류 구분은 속성으로 한다(예: `game.packets{type}`).
+- 추가한 뒤 대시보드가 필요하면 `make_dashboard.py`에 패널을 넣고 JSON을 다시 생성한다.
