@@ -192,6 +192,90 @@ line([
 ])
 
 DSEL = 'job="dummy"'
+row("Dummy")
+line([
+    (12, ts("Action delay", [(quantile(q, "dummy_action_delay_seconds", DSEL), f"p{int(q * 100)}")
+                             for q in (0.5, 0.95, 0.99)] + [(avg("dummy_action_delay_seconds", DSEL), "avg")],
+            "s", "요청부터 응답까지. " + QDESC)),
+    (12, ts("Dummy sessions", [(f'sum by (instance)(net_sessions{{{DSEL}}})', "{{instance}}")])),
+])
+line([
+    (12, ts("Action delay p99 by type", [(quantile(0.99, "dummy_action_delay_seconds", DSEL, "type"), "{{type}}")],
+            "s", QDESC)),
+    (12, ts("Action delay avg by type", [(avg("dummy_action_delay_seconds", DSEL, "type"), "{{type}}")], "s")),
+])
+#  더미를 여러 개 띄워도 instance(컨테이너 ID)별로 한 화면에서 비교한다.
+line([
+    (12, ts("Dummy CPU", [(f'process_cpu_usage_percent{{{DSEL}, mode="total"}}', "{{instance}}")], "percent",
+            "전체 논리 코어 합을 100%로 정규화한 값")),
+    (12, ts("Dummy memory", [(f'process_memory_physical_bytes{{{DSEL}}}', "{{instance}}")], "bytes")),
+])
+#  보낸 요청 수와 응답 대기 수. 대기가 늘면서 보낸 수가 줄면 응답을 기다리느라 요청이 막힌 것이다.
+line([
+    (12, ts("Requests sent /s by type", [(rate("dummy_requests_total", DSEL, "type"), "{{type}}")], "ops")),
+    (12, ts("Requests waiting for response", [(f'sum by (type)(dummy_requests_pending{{{DSEL}}})', "{{type}}")],
+            desc="보냈지만 아직 응답을 받지 못한 요청 수")),
+])
+#  더미가 지금 무엇을 하는지. acting이 아닌 더미가 늘면 멈춘 것이다.
+line([
+    (12, ts("Dummies by state", [(f'sum by (state)(dummy_players{{{DSEL}}})', "{{state}}")], stack=True,
+            desc="접속한 더미를 상태별로 센 수")),
+    (12, ts("Dummies not acting", [(f'sum by (state, reason)(dummy_players{{{DSEL}, reason!="acting"}})',
+                                   "{{state}} / {{reason}}")],
+            desc="행동하지 않는 이유별 수. wait_response는 로그인·레벨 이동 응답을 기다리는 정상 구간이다.")),
+])
+line([
+    (12, ts("Dummies stuck", [(f'sum by (state, reason, over)(dummy_players_sleeping{{{DSEL}}})',
+                              "{{state}} / {{reason}} > {{over}}")],
+            desc="30초·5분 넘게 행동하지 않은 더미. wait_create·dead가 계속 쌓이면 멈춘 것이다. 30초를 넘기면 DummyStuck 로그가 남는다.")),
+    (12, ts("Disconnects /s by reason", [(rate("dummy_disconnects_total", DSEL, "reason"), "{{reason}}")], "ops",
+            "더미가 스스로 끊은 이유. destroy_alive는 서버와 상태가 어긋난 것이다.")),
+])
+line([
+    (12, ts("Session leaves /s by kind", [(rate("dummy_leaves_total", DSEL, "kind"), "{{kind}}")], "ops",
+            "reset·invalid는 예상 밖 종료")),
+    (12, ts("Average session length", [(f'sum(rate(dummy_session_seconds_total{{{DSEL}}}[$__rate_interval])) / '
+                                        f'sum(rate(dummy_leaves_total{{{DSEL}}}[$__rate_interval]))', "avg")], "s",
+            "끝난 세션의 평균 연결 시간. 설정한 세션 길이보다 훨씬 짧으면 사망 등으로 먼저 끊기는 것이다.")),
+])
+line([
+    (12, ts("Level changes /s", [(f'sum by (from, to)(rate(dummy_level_changes_total{{{DSEL}}}[$__rate_interval]))',
+                                 "{{from}} → {{to}}")], "ops")),
+    (12, ts("Packets received /s by type", [(rate("dummy_packets_recv_total", DSEL, "type"), "{{type}}")], "ops",
+            "서버에서 받은 패킷 종류별 수")),
+])
+
+CSEL = 'job="docker", container_name=~"portfolio26-local-.*"'
+row("Containers")
+line([
+    (12, ts("Disk write", [(f'sum by (container_name)(rate(container_blockio_io_service_bytes_recursive_total{{{CSEL}, operation="write"}}[$__rate_interval]))',
+                            "{{container_name}}")], "Bps", "docker_stats. cgroup v2라 횟수(IOPS)는 없고 바이트만 있다.")),
+    (12, ts("Disk read", [(f'sum by (container_name)(rate(container_blockio_io_service_bytes_recursive_total{{{CSEL}, operation="read"}}[$__rate_interval]))',
+                           "{{container_name}}")], "Bps")),
+])
+line([
+    #  container_cpu_utilization_ratio는 Docker Desktop에서 docker stats의 2~6배로 나와 쓰지 않는다.
+    (12, ts("Container CPU (cores)", [(f'sum by (container_name)(rate(container_cpu_usage_nanoseconds_total{{{CSEL}}}[$__rate_interval])) / 1e9',
+                                       "{{container_name}}")],
+            desc="CPU 누적 시간의 증가율. docker stats와 같은 기준으로 1이 코어 하나")),
+    (12, ts("Container memory", [(f'container_memory_usage_total_bytes{{{CSEL}}}', "{{container_name}}")], "bytes")),
+])
+#  컨테이너 네트워크 바이트. TCP/IP 헤더·ACK를 포함한 실제 전송량이다.
+DUMMY_NET = 'container_name=~"portfolio26-local-dummy[0-9]*-1"'
+line([
+    (12, ts("Network send", [(f'sum by (container_name)(rate(container_network_io_usage_tx_bytes_total{{{CSEL}}}[$__rate_interval]))',
+                              "{{container_name}}")], "Bps", "컨테이너가 보낸 바이트. 게임 서버는 클라이언트 하향 + DB 요청")),
+    (12, ts("Network receive", [(f'sum by (container_name)(rate(container_network_io_usage_rx_bytes_total{{{CSEL}}}[$__rate_interval]))',
+                                 "{{container_name}}")], "Bps", "컨테이너가 받은 바이트. 게임 서버는 클라이언트 상향 + DB 응답")),
+])
+line([
+    (24, ts("Bandwidth per dummy session", [
+        (f'sum(rate(container_network_io_usage_tx_bytes_total{{job="docker", {DUMMY_NET}}}[$__rate_interval])) * 8 / sum(net_sessions{{job="dummy"}})', "upstream (client → server)"),
+        (f'sum(rate(container_network_io_usage_rx_bytes_total{{job="docker", {DUMMY_NET}}}[$__rate_interval])) * 8 / sum(net_sessions{{job="dummy"}})', "downstream (server → client)"),
+    ], "bps", "더미 컨테이너 송수신 ÷ 더미 세션 수. 헤더·ACK 포함. OTLP 내보내기도 섞이지만 작다", h=7)),
+])
+
+
 def var(name, query, current):
     return {"name": name, "type": "query", "datasource": DS, "query": {"query": query, "refId": name},
             "definition": query, "refresh": 2, "multi": True, "includeAll": True, "allValue": ".*",

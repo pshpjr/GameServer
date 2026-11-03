@@ -94,6 +94,48 @@ CPU·메모리·송신 버퍼 풀 값은 MonitorThread가 1초마다 `Set`한다
 |---|---|---|
 | `game_packets_total{type="move"\|"attack"\|"chat"}` | 카운터 | 필드가 처리한 요청 패킷 ([Field.cpp](../GameServer/Field.cpp)) |
 
+### 더미 (`job="dummy"`)
+
+요청 종류마다 시리즈가 하나다([Player.cpp](../Dummy/src/Player.cpp)). `type`은 `login`, `register`, `game_login`, `level_enter`, `move`, `attack`. 채팅은 응답이 없어 빠진다.
+
+| Prometheus 이름 | 종류 | 의미 |
+|---|---|---|
+| `dummy_action_delay_seconds{type}` | 히스토그램 | 요청부터 응답까지 |
+| `dummy_requests_total{type}` | 카운터 | 응답을 기다리는 요청을 보낸 수 |
+| `dummy_requests_pending{type}` | 게이지 | 보냈지만 아직 응답이 없는 요청 수 |
+| `dummy_players{state, reason}` | 게이지 | 더미를 상태와 지금 행동하지 않는 이유로 센 수. 1초마다 그룹이 다시 센다 |
+| `dummy_players_sleeping{state, reason, over="30s"\|"5m"}` | 게이지 | `reason`이 `acting`이 아닌 더미 중 그 시간 넘게 행동하지 않은 수. 30초를 넘기면 로그도 남긴다 |
+| `dummy_disconnects_total{reason}` | 카운터 | 더미가 스스로 끊은 이유 |
+| `dummy_leaves_total{kind}` | 카운터 | 세션이 끝난 경위 |
+| `dummy_session_seconds_total` | 카운터 | 끝난 세션이 연결되어 있던 시간의 합 |
+| `dummy_level_changes_total{from, to}` | 카운터 | 레벨 이동 요청. `from`은 처음 입장이면 `none` |
+| `dummy_packets_recv_total{type}` | 카운터 | 서버에서 받은 패킷 수. 목록에 없는 종류는 `other` |
+
+`state`는 `connecting`(접속 직후 로그인 전), `login`, `game_login`, `level_change`, `village`, `pve`, `pvp`, `disconnect_wait`다.
+
+`reason`(행동하지 않는 이유)은 아래와 같다. `village`·`pve`·`pvp`에서만 `acting` 외의 값 `wait_create`, `dead`가 나온다.
+
+| `reason` | 의미 |
+|---|---|
+| `acting` | 틱마다 행동을 고른다 |
+| `wait_create` | 레벨 입장 뒤 내 액터 생성(`ResCreateActor`) 패킷을 기다린다. 오지 않으면 영원히 멈춘다 |
+| `dead` | 서버가 알려 준 HP가 0 이하라 행동하지 않는다. 끊는 것은 Hit·Destroy 패킷이라, 그 패킷 없이 HP만 0 이하가 되면 멈춘다. 둘이 겹치면(HP 0 이하이면서 생성 패킷 대기) `dead`로 센다 |
+| `wait_response` | 로그인·레벨 이동 등 응답을 기다린다 |
+| `disconnecting` | 끊고 재접속을 기다린다 |
+
+`dummy_disconnects_total`의 `reason`: `session_end`(세션 길이 만료), `death`(HP 0 이하 Hit), `destroy_dead`(HP 0 이하일 때 내 액터 삭제), `destroy_alive`(**HP가 남았는데 내 액터가 삭제됨. 서버와 상태가 어긋난 것**), `login_fail`.
+
+`dummy_leaves_total`의 `kind`: `expected`(더미가 끊음), `reset`(예상 밖 리셋. 같은 계정이 다시 접속하면 `invalid`로 확정), `invalid`, `server_stop`. 평균 세션 길이는 `rate(dummy_session_seconds_total[1h]) / sum(rate(dummy_leaves_total[1h]))`다.
+
+#### 더미 로그 파일
+
+콘솔에는 시작하지 못하는 오류만 찍고, 나머지는 실행 폴더 아래 `logs/`의 파일로 남긴다(`연-월-일__종류.txt`, 종류별로 한 파일). 서버 배포는 호스트의 `~/portfolio26/data/dummyN/logs/`에 마운트된다.
+
+| 종류 | 수준 | 내용 |
+|---|---|---|
+| `DummyStuck` | Error | 30초 넘게 행동하지 않은 더미 하나의 상태. 계정, state, reason, HP, `needUpdate`, 마지막으로 받은 패킷과 경과 시간, 응답 대기 중인 요청, 세션 만료 여부 |
+| `DummyDisconnect` | Error·System | 예상 밖 종료(`Invalid Destroy HP > 0` 등)와 서버 중단, 종료 요약 |
+
 ### MySQL (`job="mysql"`)
 
 collector의 mysql receiver가 10초마다 읽는다. 계정은 `monitoring.env`의 읽기 전용 계정이다. 대표 항목:
