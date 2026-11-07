@@ -1,0 +1,23 @@
+# 인프라 서버(192.168.1.1). 서버의 ~/portfolio26/infra에 이 파일과 config/, infra.env가 놓인다.
+name: portfolio26-infra
+services:
+  infra:
+    image: ${INFRA_IMAGE}
+    env_file: [infra.env]
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+      - "4318:4318"
+      - "9090:9090"
+      - "3001:3001"
+    volumes:
+      - ./config:/config:ro
+      - ../data/infra:/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'test "$$(MYSQL_PWD="$${MYSQL_PASSWORD}" mysql -h 127.0.0.1 -u "$${MYSQL_USER}" mydb -Nse "SELECT COUNT(*) FROM player WHERE AccountNo=10000")" = 1'
+      interval: 5s
+      timeout: 5s
+      retries: 120
+    stop_grace_period: 60s

@@ -6,6 +6,7 @@
 #include "CrashDump.h"
 #include "DBConnection.h"
 #include "ExceptionTrace.h"
+#include "Metrics.h"
 #include "Server.h"
 #include "TableData.h"
 
@@ -37,6 +38,11 @@ int main()
         server = std::make_unique<psh::Server>();
         serverpt.store(server.get());
 
+        auto metricsConfig = psh::metrics::ConfigFromEnv("gameserver");
+        metricsConfig.useConsoleMonitor = server->UseConsoleMonitor();
+        if (auto result = psh::metrics::Init(metricsConfig); !result)
+            fmt::println(stderr, "metrics disabled: {}", result.Error());
+
         if (!server->Init())
         {
             std::cerr << "Failed to initialize the game server." << std::endl;
@@ -49,6 +55,7 @@ int main()
         server->Start();
 
         server->Wait();
+        psh::metrics::Shutdown();
     });
     return exitCode;
 }

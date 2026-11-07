@@ -5,6 +5,11 @@ if(NETLIB_ENABLE_TRACY)
     list(APPEND VCPKG_MANIFEST_FEATURES tracy)
 endif()
 
+option(NETLIB_ENABLE_OTEL "Enable the OTLP/HTTP metric exporter" OFF)
+if(NETLIB_ENABLE_OTEL)
+    list(APPEND VCPKG_MANIFEST_FEATURES otel)
+endif()
+
 project(CMakeServer)
 
 

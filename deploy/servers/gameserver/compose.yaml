@@ -1,0 +1,21 @@
+# 게임 서버(192.168.1.5). 서버의 ~/portfolio26/gameserver에 이 파일과 config/가 놓인다.
+# 호스트 네트워크를 쓴다. 포트 공개(docker-proxy·NAT)를 거치지 않아 측정에 섞이는 비용이 없다.
+name: portfolio26-gameserver
+services:
+  gameserver:
+    image: ${GAMESERVER_IMAGE}
+    network_mode: host
+    security_opt:
+      - seccomp=../seccomp-io-uring.json
+    working_dir: /runtime
+    #  세션마다 소켓 하나. 호스트 기본 nofile(1024)로는 2,000명을 받지 못한다.
+    ulimits:
+      nofile: 65536
+    environment:
+      #  메트릭의 instance 라벨. 호스트 네트워크라 hostname 대신 환경 변수로 고정한다.
+      HOSTNAME: gameserver
+      OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: http://${INFRA_HOST}:4318/v1/metrics
+    volumes:
+      - ./config/GameSettings.toml:/runtime/GameSettings.toml:ro
+      - ./config/serverSetting.toml:/runtime/serverSetting.toml:ro
+    stop_grace_period: 60s

@@ -9,3 +9,7 @@
 [submodule "Dummy"]
 	path = Dummy
 	url = https://github.com/pshpjr/Dummy.git
+[submodule "CSharpDummy"]
+	path = CSharpDummy
+	url = https://github.com/pshpjr/CSharpDummy.git
+	branch = master

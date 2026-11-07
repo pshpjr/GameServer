@@ -1,0 +1,10 @@
+[db]
+GameDBIP = "{{INFRA_HOST}}"
+GameDBPort = 3306
+GameDBID = "game"
+GameDBPwd = "{{MYSQL_PASSWORD}}"
+
+
+[game]
+useConsoleMonitor = true
+useMonsterAI = true

@@ -41,3 +41,9 @@ Tasks.md
 dumps
 **/*.pem
 **/*.key
+
+# 배포 설정·문서·개발 도구·C# 더미는 C++ 이미지의 컴파일 입력이 아니다.
+deploy
+docs
+tools
+CSharpDummy

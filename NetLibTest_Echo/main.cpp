@@ -1,3 +1,4 @@
+#include "Metrics.h"
 #include "Server.h"
 
 #include <charconv>
@@ -28,10 +29,17 @@ int main(int argc, char* argv[])
         }
 
         const auto server = std::make_unique<psh::Server>(port, argc == 3);
+
+        auto metricsConfig = psh::metrics::ConfigFromEnv("echo");
+        metricsConfig.useConsoleMonitor = true;
+        if (auto result = psh::metrics::Init(metricsConfig); !result)
+            std::cerr << "metrics disabled: " << result.Error() << std::endl;
+
         server->Start();
 
         std::cout << "Echo server listening on port " << port << ". Press Ctrl+C to exit.\n";
         server->Wait();
+        psh::metrics::Shutdown();
     }
     catch (const std::exception& error)
     {

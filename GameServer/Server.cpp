@@ -1,4 +1,4 @@
-#include "Server.h"
+﻿#include "Server.h"
 #include "Utility.h"
 
 #include <DBException.h>
@@ -117,14 +117,6 @@ namespace psh
 		}
 	}
 
-	void Server::OnMonitorRun()
-	{
-		if (_initData.consoleMonitor)
-		{
-			PrintMonitorString();
-		}
-	}
-
 	std::shared_ptr<DBData> Server::GetDbData(SessionID id)
 	{
 		//없으면 알아서 터짐.
@@ -164,7 +156,7 @@ namespace psh
 
 				auto loginResult = SendBuffer::Alloc();
 
-				/* DB 없는 테스트 동안 기존 인증 처리를 보존한다.
+
 				if (!conn.next())
 				{
 					MakeLogin_ResLogin(loginResult, 0, playerID, eLoginResult::InvalidId, SessionKey());
@@ -190,10 +182,6 @@ namespace psh
 						MakeLogin_ResLogin(loginResult, accountNo, playerID, eLoginResult::LoginSuccess, SessionKey());
 					}
 				}
-				*/
-				static std::atomic<AccountNo> nextAccountNo{1};
-				MakeLogin_ResLogin(loginResult, nextAccountNo.fetch_add(1, std::memory_order_relaxed),
-				                   playerID, eLoginResult::LoginSuccess, SessionKey());
 				SetTimeout(sessionId, 30000);
 				SendPacket(sessionId, loginResult);
 			}
@@ -226,16 +214,15 @@ namespace psh
 
 		_threadPool.enqueue([AccountNo, sessionId, this]
 		{
-			auto& conn = GetGameDbConnection();
-
 			try
 			{
+				auto& conn = GetGameDbConnection();
 				//(PlayerNo, accountNo)가 키라서 인덱스 안 탈줄 알았는데 accountNo가 fk라 인덱스 생겨 있었음.
 				conn.QueryFormat(
-					"select Nick,HP,Coins,CharType,ServerType,LocationX,LocationY from mydb.player where AccountNo = {}"
+					"select Nick,HP,Coins,CharType,ServerType,LocationX,LocationY from mydb.player where AccountNo = {} and PlayerId = 0"
 					, AccountNo);
 
-				/* DB 없는 테스트 동안 기존 조회 처리를 보존한다.
+
 				if (!conn.next())
 				{
 					_dbErrorCount.fetch_add(1, std::memory_order_relaxed);
@@ -250,15 +237,6 @@ namespace psh
 				char charType = conn.getChar(3);
 				char serverType = conn.getChar(4);
 				FVector location = {conn.getFloat(5), conn.getFloat(6)};
-				*/
-				Nickname nick("TestPlayer");
-				int hp = 100;
-				int coins = 0;
-				char charType = static_cast<char>(RandomUtil::Rand(0, 3));
-				char serverType = static_cast<char>(RandomUtil::Rand(
-					static_cast<int>(ServerType::Village), static_cast<int>(ServerType::End) - 1));
-				FVector location = {RandomUtil::Rand(0.0f, 6400.0f), RandomUtil::Rand(0.0f, 6400.0f)};
-
 				conn.reset();
 
 				bool result = false;
@@ -301,7 +279,6 @@ namespace psh
 				std::cout << "DBFail " << AccountNo << std::endl;
 				_connectionLogger.Write(L"DBError", Logger::LogLevel::System, L"DBErr disconnect GameLogin : %s"
 				                        , e.what());
-				conn.reset();
 			}
 		});
 	}

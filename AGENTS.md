@@ -13,6 +13,17 @@
 - 대시보드 JSON은 직접 고치지 않고 `deploy/local/config/grafana/make_dashboard.py`를 고친 뒤 다시 생성한다.
 - 메트릭을 추가·변경하면 docs/metrics.md의 표도 함께 고친다.
 
+## 개발 도구 (tools/dev)
+
+반복되는 셸 호출은 `python -I tools/dev/dev.py <도구> '<JSON 인자>'` 한 번으로 묶는다. 도구 목록과 인자는 `python -I tools/dev/dev.py list`로 확인한다. 자세한 설명은 [tools/dev/README.md](tools/dev/README.md).
+
+- `replace_in_file`: 파일 치환. BOM·CRLF를 보존하고 여러 편집을 원자적으로 적용한다. 치환용 파이썬 스니펫을 새로 쓰지 않는다.
+- `grep_context`: 정규식 여러 개와 줄 범위(`ranges`)를 한 번에 읽는다. 여러 번 `grep`·`sed -n`을 잇지 않는다.
+- `cluster_status`: 원격 서버 세 대의 상태와 비정상 컨테이너를 병렬로 요약한다.
+- `prom_query`: PromQL 여러 개를 한 번에 질의한다. `window_seconds`로 구간 통계를 낸다.
+- `repo_snapshot`: git 브랜치·최근 커밋·변경 파일과 scratch 최근 항목.
+- `build`, `test`: VS 개발자 셸에서 빌드·테스트하고 에러와 실패 케이스만 반환한다. `build`는 Windows OTel 활성화 서버·더미·에코 서버로 검증했다. `test`는 실제 테스트 실행 파일로 검증하지 않았다.
+
 ## 환경 (Windows)
 
 - 빌드: VS 개발자 환경이 필요하다. `cmake`·`ninja`는 PATH에 없으므로 `vcvars64.bat`를 먼저 호출한다. 프리셋의 출력 위치는 저장소 상위의 `out/build/<프리셋>`이다. `VCPKG_ROOT`는 `C:\vcpkg`.

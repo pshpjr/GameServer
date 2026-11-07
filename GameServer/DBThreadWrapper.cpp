@@ -60,11 +60,17 @@ namespace psh
 
     void DBThreadWrapper::Execute(DbTask task)
     {
-        Enqueue([this, task = std::move(task)]()
+        //  큐가 가득 차 Enqueue가 기다리는 시간도 대기 시간에 들어간다.
+        const auto enqueuedAt = metrics::Histogram::TimePoint::Now();
+        Enqueue([this, task = std::move(task), enqueuedAt]()
         {
+            _queueWaitMetric.RecordSince(enqueuedAt);
             try
             {
+                const auto metricStart = metrics::Histogram::TimePoint::Now();
                 auto queryTime = _conn.QueryFormat(task.query);
+                _queryMetric.RecordSince(metricStart);
+                _queryOkMetric.Add();
 
                 if (queryTime.count() > SLOW_QUERY_THRESHOLD_MS)
                 {
@@ -72,7 +78,6 @@ namespace psh
                     _logger->Write(L"Slow", Logger::LogLevel::Debug, L"%S slow %lld ms, Query: %S",
                                    task.description.c_str(), queryTime.count(), task.query.c_str());
                 }
-                _data.delaySum += queryTime;
 
                 if (task.callback)
                 {
@@ -81,6 +86,7 @@ namespace psh
             }
             catch (const std::exception& e)
             {
+                _queryErrorMetric.Add();
                 _logger->Write(L"Error", Logger::LogLevel::Error, L"DB operation failed: %S, Query: %S, Error: %S",
                                task.description.c_str(), task.query.c_str(), e.what());
                 auto exceptionPtr = std::current_exception();
@@ -159,13 +165,7 @@ namespace psh
             _logger->Write(L"DBThread", Logger::LogLevel::System, L"DBThreadWrapper::Enqueue failed");
             std::this_thread::yield();
         }
-
-        _data.enqueue++;
-        if (_data.enqueue >= 10)
-        {
-            _oldData.enqueue += 10;
-            _data.enqueue = 0;
-        }
+        _queueMetric.Add(1);
 
         hasData.store(true, std::memory_order::release);
         hasData.notify_one();
@@ -181,17 +181,8 @@ namespace psh
             std::function<void()> task;
             while (_jobQueue->Dequeue(task))
             {
+                _queueMetric.Add(-1);
                 task();
-
-                _data.dequeue++;
-                if (_data.dequeue >= 10)
-                {
-                    _oldData.dequeue += 10;
-                    _oldData.delaySum += duration_cast<std::chrono::milliseconds>(_data.delaySum).count();
-
-                    _data.dequeue = 0;
-                    _data.delaySum = std::chrono::microseconds::zero();
-                }
             }
 
             hasData.store(false);

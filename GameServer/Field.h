@@ -129,6 +129,9 @@ namespace psh
 		std::unique_ptr<SPSCQueue<std::function<void()>, 1024>> _dbCompAlert;
 		std::unique_ptr<DBThreadWrapper> _dbThread;
 
+		metrics::Counter _movePacketMetric = metrics::Registry::CreateCounter("game.packets", "handled game packets", {{"type", "move"}});
+		metrics::Counter _attackPacketMetric = metrics::Registry::CreateCounter("game.packets", "handled game packets", {{"type", "attack"}});
+		metrics::Counter _chatPacketMetric = metrics::Registry::CreateCounter("game.packets", "handled game packets", {{"type", "chat"}});
 		Server& _server;
 		const ServerInitData& _initData;
 		const ServerType _groupType = ServerType::End;

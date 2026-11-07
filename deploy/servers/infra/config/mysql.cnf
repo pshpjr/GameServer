@@ -1,0 +1,13 @@
+[mysqld]
+datadir=/data/mysql
+character-set-server=utf8mb4
+collation-server=utf8mb4_unicode_ci
+max_connections=200
+
+# 부하 시험용 임시 설정. 서버 구조(DB 큐·스레드)를 바꾸기 전까지만 쓰고, 그 뒤에는 기본 내구성으로 되돌린다.
+# 인프라 호스트 SSD가 70분마다 약 35초 멈춰서, 커밋이 fsync를 기다리면 DB 큐가 같이 멈춘다.
+# 바이너리 로그를 끈다(복제·시점 복구를 쓰지 않는다).
+skip-log-bin
+sync_binlog=0
+# 커밋마다 fsync하지 않고 1초에 한 번 한다. OS나 전원이 죽으면 최근 1초 분량을 잃을 수 있다.
+innodb_flush_log_at_trx_commit=2
